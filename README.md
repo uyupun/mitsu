@@ -7,6 +7,11 @@ Mitsu is [SOCIAL RESISTANCE](https://github.com/uyupun/social-resistance)'s onli
 ```bash
 # セットアップ(初回のみ)
 $ make setup
+```
+
+### 開発環境
+
+```bash
 # 開発用サーバーの起動
 $ yarn dev
 ```
