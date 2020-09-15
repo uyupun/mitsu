@@ -17,7 +17,10 @@
     "http-errors": "~1.6.3",
     "jade": "~1.11.0",
     "morgan": "~1.9.1",
-    "serve-favicon": "^2.5.0"
+    "sequelize": "^6.3.5",
+    "sequelize-cli": "^6.2.0",
+    "serve-favicon": "^2.5.0",
+    "sqlite3": "^5.0.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.4"
