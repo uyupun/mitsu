@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "nodemon ./bin/www",
-    "prod-start": "NODE_ENV=production forever start ./bin/www",
-    "prod-ls": "forever list",
-    "prod-stop": "forever stop ./bin/www"
+    "prod:start": "NODE_ENV=production forever start ./bin/www",
+    "prod:ls": "forever list",
+    "prod:stop": "forever stop ./bin/www",
+    "make:model": "sequelize model:create --underscored"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
