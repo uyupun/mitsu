@@ -22,9 +22,9 @@ $ yarn make:model --name <model_name> --attributes <field1>:<type1>,<field2>:<ty
 
 ```bash
 # 本番用サーバーの起動(バックグラウンド)
-$ yarn prod:start
+$ yarn prod:up
 # 本番用サーバの情報
 $ yarn prod:ls
 # 本番用サーバの停止
-$ yarn prod:stop
+$ yarn prod:down
 ```
