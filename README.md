@@ -14,8 +14,10 @@ $ make setup
 ```bash
 # 開発用サーバーの起動
 $ yarn dev
-# モデルとマイグレーションの作成
+# モデルとマイグレーションファイルの作成
 $ yarn make:model --name <model_name> --attributes <field1>:<type1>,<field2>:<type2>,...
+# マイグレーションの実行
+$ yarn migrate
 ```
 
 ### 本番環境

@@ -7,7 +7,8 @@
     "prod:up": "NODE_ENV=production forever start ./bin/www",
     "prod:ls": "forever list",
     "prod:down": "forever stop ./bin/www",
-    "make:model": "sequelize model:create --underscored"
+    "make:model": "sequelize model:create --underscored",
+    "migrate": "sequelize db:migrate --env development --config ./config/database.json"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
