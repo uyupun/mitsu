@@ -8,7 +8,8 @@
     "prod:ls": "forever list",
     "prod:down": "forever stop ./bin/www",
     "make:model": "sequelize model:create --underscored",
-    "migrate": "sequelize db:migrate --env development --config ./config/database.json"
+    "migrate": "sequelize db:migrate --env development --config ./config/database.json",
+    "migrate:fresh": "echo '' > database.sqlite3 & yarn migrate"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",

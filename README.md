@@ -18,6 +18,8 @@ $ yarn dev
 $ yarn make:model --name <model_name> --attributes <field1>:<type1>,<field2>:<type2>,...
 # マイグレーションの実行
 $ yarn migrate
+# データベースのドロップ + マイグレーションの実行
+$ yarn migrate:fresh
 ```
 
 ### 本番環境
