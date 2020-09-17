@@ -17,6 +17,7 @@ const setCommonConfigs = (req, res, next) => {
 
 /**
  * ルールの取得
+ * TODO: 実装する
  */
 router.get('/rules', setCommonConfigs, (req, res, next) => {
   res.json({})
