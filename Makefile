@@ -1,4 +1,4 @@
-.PHONY setup
+.PHONY: setup
 
 setup:
 	touch database.sqlite3

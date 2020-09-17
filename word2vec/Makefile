@@ -1,3 +1,5 @@
+.PHONY: setup
+
 setup:
 	pipenv install
 	cd word2vec & curl https://s3-ap-northeast-1.amazonaws.com/dev.tech-sketch.jp/chakki/public/ja.text8.zip -o corpus.zip
