@@ -33,10 +33,14 @@ $ make setup
 $ yarn dev
 # モデルとマイグレーションファイルの作成
 $ yarn make:model --name <model_name> --attributes <field1>:<type1>,<field2>:<type2>,...
+# シーダーファイルの作成
+$ yarn make:seeder --name <seeder_name>
 # マイグレーションの実行
 $ yarn migrate
 # データベースのドロップ + マイグレーションの実行
 $ yarn migrate:fresh
+# シーダーの実行
+$ yarn seed
 ```
 
 ### Word2vecのテスト

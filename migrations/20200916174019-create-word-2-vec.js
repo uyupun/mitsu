@@ -19,14 +19,6 @@ module.exports = {
       move_y: {
         allowNull: false,
         type: Sequelize.DOUBLE
-      },
-      created_at: {
-        allowNull: false,
-        type: Sequelize.DATE
-      },
-      updated_at: {
-        allowNull: false,
-        type: Sequelize.DATE
       }
     });
   },

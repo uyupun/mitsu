@@ -4,4 +4,6 @@ setup:
 	touch database.sqlite3
 	cp .env.example .env
 	yarn
+	yarn migrate
+	yarn seed
 

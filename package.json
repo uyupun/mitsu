@@ -9,7 +9,9 @@
     "prod:down": "forever stop ./bin/www",
     "make:model": "sequelize model:create --underscored",
     "migrate": "sequelize db:migrate --env development --config ./config/database.json",
-    "migrate:fresh": "echo '' > database.sqlite3 & yarn migrate"
+    "migrate:fresh": "echo '' > database.sqlite3 & yarn migrate",
+    "make:seeder": "sequelize seed:generate",
+    "seed": "sequelize db:seed:all --config ./config/database.json"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",

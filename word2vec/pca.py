@@ -37,7 +37,7 @@ vectors = pca.transform(vectors)
 i = 0
 json_data = []
 while i < len(vectors):
-    json_data.append({ 'word': names[i], 'move': { 'x': vectors[i][0], 'y': vectors[i][1] }})
+    json_data.append({ 'word': names[i], 'move_x': vectors[i][0], 'move_y': vectors[i][1] })
     i += 1
 
 # JSONファイルに書き込み
