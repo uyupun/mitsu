@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const worldIdController = require('../controllers/worldIdController');
+const rulesController = require('../controllers/rulesController');
 
 /**
  * 共通処理の設定
@@ -17,11 +18,8 @@ const setCommonConfigs = (req, res, next) => {
 
 /**
  * ルールの取得
- * TODO: 実装する
  */
-router.get('/rules', setCommonConfigs, (req, res, next) => {
-  res.json({})
-});
+router.get('/rules', setCommonConfigs, rulesController.getRules);
 
 /**
  * ワールドIDの取得

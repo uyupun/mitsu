@@ -9,7 +9,7 @@
     "prod:down": "forever stop ./bin/www",
     "make:model": "sequelize model:create --underscored",
     "migrate": "sequelize db:migrate --env development --config ./configs/database.json",
-    "migrate:fresh": "echo '' > database.sqlite3 & yarn migrate",
+    "migrate:fresh": "echo '' > databases/word2vec.sqlite3 & yarn migrate",
     "make:seeder": "sequelize seed:generate",
     "seed": "sequelize db:seed:all --config ./configs/database.json"
   },
