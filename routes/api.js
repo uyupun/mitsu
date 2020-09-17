@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
+const worldIdController = require('../controllers/worldIdController');
 
 /**
  * 共通処理の設定
+ * TODO: ここらへんもミドルウェアとして分けたさあるな🤔
  *
  * @param {*} req
  * @param {*} res
@@ -23,8 +25,6 @@ router.get('/rules', setCommonConfigs, (req, res, next) => {
 /**
  * ワールドIDの取得
  */
-router.get('/worldId', (req, res, next) => {
-  res.json({})
-});
+router.get('/worldId', setCommonConfigs, worldIdController.generateWorldId);
 
 module.exports = router;
