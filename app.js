@@ -6,6 +6,7 @@ const logger = require('morgan');
 const favicon = require('serve-favicon');
 
 const indexRouter = require('./routes/index');
+const apiRouter = require('./routes/api')
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(favicon(__dirname + '/public/images/favicon.ico'));
 
 app.use('/', indexRouter);
+app.use('/api/v1', apiRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
