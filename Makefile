@@ -1,4 +1,4 @@
-.PHONY: setup
+.PHONY: setup dev-up dev-down prod-down prod-ls
 
 setup:
 	touch database.sqlite3
