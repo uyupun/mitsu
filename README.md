@@ -8,7 +8,7 @@ Mitsu is [SOCIAL RESISTANCE](https://github.com/uyupun/social-resistance)'s onli
 |:--|:--|
 |text8コーパス(日本語版)|https://github.com/Hironsan/ja.text8|
 
-### 環境構築(フロントエンド)
+### 環境構築(Express)
 
 ```bash
 # セットアップ(初回のみ)
