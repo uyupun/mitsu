@@ -1,4 +1,4 @@
 node_modules
 yarn-error.log
 .env
-databases/word2vec.sqlite3
+stores/word2vec.sqlite3
