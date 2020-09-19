@@ -8,39 +8,48 @@ Mitsu is [SOCIAL RESISTANCE](https://github.com/uyupun/social-resistance)'s onli
 |:--|:--|
 |text8コーパス(日本語版)|https://github.com/Hironsan/ja.text8|
 
-### 環境構築
+### 環境構築(Express)
 
 ```bash
 # セットアップ(初回のみ)
 $ make setup
 ```
 
+### 開発環境のコマンド
+
+```bash
+# 開発環境のサーバとコンテナの起動
+$ make dev-up
+# コンテナの停止
+$ make dev-down
+# モデルとマイグレーションファイルの作成
+$ yarn make:model --name <model_name> --attributes <field1>:<type1>,<field2>:<type2>,...
+# シーダーファイルの作成
+$ yarn make:seeder --name <seeder_name>
+```
+
+### 本番環境のコマンド
+
+```bash
+# 本番環境のサーバ(バックグラウンド)とコンテナの起動
+$ make prod-up
+# 本番環境のサーバの情報
+$ make prod-ls
+# 本番環境のサーバの停止
+$ make prod-down
+```
+
+※ その他のコマンドに関してはnpm-scriptsを参照。
+
 ### 環境構築(Word2vec)
 
 ※ ただし学習・整形済みのWord2Vecのデータは `word2vec/word2vec.json` に既にあるのでこちらの環境構築は飛ばしても構いません。  
-※ このプロセスは `word2vec/word2vec.json` を新規に作成する場合と、下記のテストを行う場合に必要です。
+※ このプロセスは `word2vec/word2vec.json` を作り直す場合と、次節のテストを行う場合に必要です。
 
 ```bash
 # Python3とPipenvがインストールされている前提です
 $ cd word2vec
 $ make setup
-```
-
-### 開発環境
-
-```bash
-# 開発用サーバーの起動
-$ yarn dev
-# モデルとマイグレーションファイルの作成
-$ yarn make:model --name <model_name> --attributes <field1>:<type1>,<field2>:<type2>,...
-# シーダーファイルの作成
-$ yarn make:seeder --name <seeder_name>
-# マイグレーションの実行
-$ yarn migrate
-# データベースのドロップ + マイグレーションの実行
-$ yarn migrate:fresh
-# シーダーの実行
-$ yarn seed
 ```
 
 ### Word2vecのテスト
@@ -52,15 +61,4 @@ $ pipenv run python3 test_word2vec.py <word1> <word2>
 $ pipenv run python3 test_graph.py
 # ベースとなる単語を原点としたときにマイナス方向にある単語をプラス方向に変換するテスト
 $ pipenv run python3 test_play.py
-```
-
-### 本番環境
-
-```bash
-# 本番用サーバーの起動(バックグラウンド)
-$ yarn prod:up
-# 本番用サーバの情報
-$ yarn prod:ls
-# 本番用サーバの停止
-$ yarn prod:down
 ```
