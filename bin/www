@@ -23,6 +23,13 @@ app.set('port', port);
 const server = http.createServer(app);
 
 /**
+ * Create socket.io server.
+ */
+
+const io = require('socket.io')(server);
+io.origins(process.env.SOCIAL_RESISTANCE_ADDRESS);
+
+/**
  * Listen on provided port, on all network interfaces.
  */
 
@@ -89,3 +96,14 @@ function onListening() {
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
 }
+
+/**
+ * Connect socket.io
+ */
+
+io.on('connection', socket => {
+  socket.emit('hoge', {hello: 'world'});
+  socket.on('piyo', payload => {
+    console.log(payload)
+  });
+});
