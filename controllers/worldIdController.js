@@ -24,8 +24,9 @@ module.exports = {
       return res.status(400).json({msg: 'さんかにしっぱいしました'});
     }
 
-    const worldId = con.get(req.query.worldId)
-    if (worldId) return res.status(200).json({validity: true});
-    return res.status(200).json({validity: false});
+    con.get(req.query.worldId).then((worldId) => {
+      if (worldId) return res.status(200).json({validity: true});
+      return res.status(200).json({validity: false});
+    })
   }
 };
