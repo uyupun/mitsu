@@ -16,5 +16,16 @@ module.exports = {
     con.set(worldId, req.query.recruit);
 
     return res.status(200).json({worldId: worldId});
+  },
+
+  checkWorldId: (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({msg: 'さんかにしっぱいしました'});
+    }
+
+    const worldId = con.get(req.query.worldId)
+    if (worldId) return res.status(200).json({validity: true});
+    return res.status(200).json({validity: false});
   }
 };
