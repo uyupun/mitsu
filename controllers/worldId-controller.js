@@ -1,6 +1,6 @@
 const { validationResult } = require('express-validator');
 const { customAlphabet } = require('nanoid');
-const con = require('../libs/world-ids.js');
+const worldStates = require('../libs/world-states.js');
 
 class WorldIdController {
   generateWorldId(req, res, next) {
@@ -12,7 +12,7 @@ class WorldIdController {
     const worldId = this._generateNanoid(6);
     const token = this._generateNanoid(12);
 
-    con.set(worldId, JSON.stringify({
+    worldStates.set(worldId, JSON.stringify({
       worldId: worldId,
       tokens: {
         '1': req.query.recruit == 2 ? token : null,
@@ -32,13 +32,13 @@ class WorldIdController {
       return res.status(400).json({msg: 'さんかにしっぱいしました'});
     }
 
-    con.get(req.query.worldId)
+    worldStates.get(req.query.worldId)
       .then((obj) => {
         obj = JSON.parse(obj)
         const token = this._generateNanoid(12);
 
         if (obj.worldId) {
-          con.set(obj.worldId, JSON.stringify({
+          worldStates.set(obj.worldId, JSON.stringify({
             worldId: obj.worldId,
             tokens: {
               '1': obj.tokens['1'] == null ? token : obj.tokens['1'],
