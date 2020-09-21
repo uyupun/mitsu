@@ -1,6 +1,6 @@
 const { validationResult } = require('express-validator');
 const { customAlphabet } = require('nanoid');
-const worldStates = require('../libs/world-states.js');
+const worldStates = require('../libs/world-states');
 
 class WorldIdController {
   generateWorldId(req, res, next) {
