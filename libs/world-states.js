@@ -1,5 +1,20 @@
 const Redis = require('ioredis');
 
-const WorldStates = new Redis(process.env.REDIS_PORT, process.env.REDIS_HOST);
+class WorldStates {
+  constructor() {
+    this.redis = new Redis(process.env.REDIS_PORT, process.env.REDIS_HOST);
+  }
 
-module.exports = WorldStates
+  set(worldId, tokens) {
+    this.redis.set(worldId, JSON.stringify({
+      worldId: worldId,
+      tokens: tokens,
+    }), 'EX', process.env.WORLD_ID_TTL)
+  }
+
+  get(worldId) {
+    return this.redis.get(worldId)
+  }
+}
+
+module.exports = new WorldStates();

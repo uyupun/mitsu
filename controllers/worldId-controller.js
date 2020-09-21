@@ -12,13 +12,10 @@ class WorldIdController {
     const worldId = this._generateNanoid(6);
     const token = this._generateNanoid(12);
 
-    worldStates.set(worldId, JSON.stringify({
-      worldId: worldId,
-      tokens: {
-        '1': req.query.recruit == 2 ? token : null,
-        '2': req.query.recruit == 1 ? token : null,
-      }
-    }), 'EX', process.env.WORLD_ID_TTL)
+    worldStates.set(worldId, {
+      '1': req.query.recruit == 2 ? token : null,
+      '2': req.query.recruit == 1 ? token : null,
+    })
 
     return res.status(200).json({
       worldId: worldId,
@@ -34,17 +31,14 @@ class WorldIdController {
 
     worldStates.get(req.query.worldId)
       .then((obj) => {
-        obj = JSON.parse(obj)
         const token = this._generateNanoid(12);
 
+        obj = JSON.parse(obj)
         if (obj.worldId) {
-          worldStates.set(obj.worldId, JSON.stringify({
-            worldId: obj.worldId,
-            tokens: {
-              '1': obj.tokens['1'] == null ? token : obj.tokens['1'],
-              '2': obj.tokens['2'] == null ? token : obj.tokens['2'],
-            }
-          }))
+          worldStates.set(obj.worldId, {
+            '1': obj.tokens['1'] == null ? token : obj.tokens['1'],
+            '2': obj.tokens['2'] == null ? token : obj.tokens['2'],
+          });
 
           return res.status(200).json({
             validity: true,
