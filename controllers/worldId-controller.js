@@ -32,10 +32,36 @@ class WorldIdController {
       return res.status(400).json({msg: 'さんかにしっぱいしました'});
     }
 
-    con.get(req.query.worldId).then((worldId) => {
-      if (worldId) return res.status(200).json({validity: true});
-      return res.status(200).json({validity: false});
-    })
+    con.get(req.query.worldId)
+      .then((obj) => {
+        obj = JSON.parse(obj)
+        const token = this._generateNanoid(12);
+
+        if (obj.worldId) {
+          con.set(obj.worldId, JSON.stringify({
+            worldId: obj.worldId,
+            tokens: {
+              '1': obj.tokens['1'] == null ? token : obj.tokens['1'],
+              '2': obj.tokens['2'] == null ? token : obj.tokens['2'],
+            }
+          }))
+
+          return res.status(200).json({
+            validity: true,
+            token: token,
+          });
+        }
+        return res.status(200).json({
+          validity: false,
+          token: null,
+        });
+      })
+      .catch((err) => {
+        return res.status(200).json({
+          validity: false,
+          token: null,
+        })
+      });
   }
 
   _generateNanoid(len) {

@@ -21,6 +21,6 @@ router.get('/worldId', [
  */
 router.get('/worldId/check', [
   check('worldId').not().isEmpty().isLength({min: 6, max: 6})
-], worldIdController.checkWorldId);
+], worldIdController.checkWorldId.bind(worldIdController));
 
 module.exports = router;
