@@ -13,9 +13,21 @@ module.exports = {
     const nanoid = customAlphabet(alphabet, 6);
     const worldId = nanoid();
 
-    con.set(worldId, req.query.recruit, 'EX', process.env.WORLD_ID_TTL)
+    const nanoid2 = customAlphabet(alphabet, 12);
+    const token = nanoid2();
 
-    return res.status(200).json({worldId: worldId});
+    con.set(worldId, JSON.stringify({
+      worldId: worldId,
+      tokens: {
+        '1': req.query.recruit == 2 ? token : null,
+        '2': req.query.recruit == 1 ? token : null,
+      }
+    }), 'EX', process.env.WORLD_ID_TTL)
+
+    return res.status(200).json({
+      worldId: worldId,
+      token: token,
+    });
   },
 
   checkWorldId: (req, res, next) => {
