@@ -1,6 +1,6 @@
 const { customAlphabet } = require('nanoid');
 const { validationResult } = require('express-validator');
-const con = require('../stores/player-connections.js');
+const con = require('../stores/world-ids.js');
 
 module.exports = {
   generateWorldId: (req, res, next) => {
