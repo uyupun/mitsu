@@ -14,7 +14,7 @@ router.get('/rules', rulesController.getRules);
  */
 router.get('/worldId', [
   check('recruit').not().isEmpty().isIn(['1', '2'])
-], worldIdController.generateWorldId);
+], worldIdController.generateWorldId.bind(worldIdController));
 
 /**
  * ワールドIDの正当性を確認

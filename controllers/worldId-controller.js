@@ -2,19 +2,15 @@ const { validationResult } = require('express-validator');
 const { customAlphabet } = require('nanoid');
 const con = require('../libs/world-ids.js');
 
-module.exports = {
-  generateWorldId: (req, res, next) => {
+class WorldIdController {
+  generateWorldId(req, res, next) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({msg: 'ぼしゅうにしっぱいしました'});
     }
 
-    const alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
-    const nanoid = customAlphabet(alphabet, 6);
-    const worldId = nanoid();
-
-    const nanoid2 = customAlphabet(alphabet, 12);
-    const token = nanoid2();
+    const worldId = this._generateNanoid(6);
+    const token = this._generateNanoid(12);
 
     con.set(worldId, JSON.stringify({
       worldId: worldId,
@@ -28,9 +24,9 @@ module.exports = {
       worldId: worldId,
       token: token,
     });
-  },
+  }
 
-  checkWorldId: (req, res, next) => {
+  checkWorldId(req, res, next) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({msg: 'さんかにしっぱいしました'});
@@ -41,4 +37,12 @@ module.exports = {
       return res.status(200).json({validity: false});
     })
   }
+
+  _generateNanoid(len) {
+    const alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+    const nanoid = customAlphabet(alphabet, len);
+    return nanoid();
+  }
 };
+
+module.exports = new WorldIdController();
