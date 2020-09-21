@@ -15,7 +15,7 @@ class WorldIdController {
     worldStates.set(worldId, {
       '1': req.query.recruit == 2 ? token : null,
       '2': req.query.recruit == 1 ? token : null,
-    })
+    });
 
     return res.status(200).json({
       worldId: worldId,
@@ -33,7 +33,7 @@ class WorldIdController {
       .then((obj) => {
         const token = this._generateNanoid(12);
 
-        obj = JSON.parse(obj)
+        obj = JSON.parse(obj);
         if (obj.worldId) {
           worldStates.set(obj.worldId, {
             '1': obj.tokens['1'] == null ? token : obj.tokens['1'],
@@ -54,7 +54,7 @@ class WorldIdController {
         return res.status(200).json({
           validity: false,
           token: null,
-        })
+        });
       });
   }
 
