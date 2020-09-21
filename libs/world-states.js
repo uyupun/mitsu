@@ -9,7 +9,7 @@ class WorldStates {
     this.redis.set(worldId, JSON.stringify({
       worldId: worldId,
       tokens: tokens,
-    }), 'EX', process.env.WORLD_ID_TTL)
+    }), 'EX', process.env.WORLD_TTL)
   }
 
   get(worldId) {
