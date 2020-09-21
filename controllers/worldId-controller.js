@@ -13,9 +13,7 @@ module.exports = {
     const nanoid = customAlphabet(alphabet, 6);
     const worldId = nanoid();
 
-    // EX(expire)を指定
-    // ワールドIDの有効期限を1800秒 ≒ 30分に設定してある
-    con.set(worldId, req.query.recruit, 'EX', 1800)
+    con.set(worldId, req.query.recruit, 'EX', process.env.WORLD_ID_TTL)
 
     return res.status(200).json({worldId: worldId});
   },
