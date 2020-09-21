@@ -2,47 +2,81 @@ class Dealer {
   constructor(io) {
     this.io = io;
     this.io.origins(process.env.SOCIAL_RESISTANCE_ADDRESS);
+
+    this.worldId = '';
+    this.words = [];
+    this.baseWord = '';
   }
 
-  start() {
+  proceed() {
     this.io.on('connection', socket => {
-      let worldId = '';
-      let words = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
-      let baseWord = 'A';
-
-      // トークンを受け取ってroomにjoinする
-      socket.on('join_world', payload => {
-        console.log(`join world: ${payload.worldId}`);
-        worldId = payload.worldId
-        socket.join(payload.worldId);
-
-        this.io.of('/').in(worldId).clients((err, clients) => {
-          if (clients.length === 2) {
-            // TODO: トークンによってどちらをemitするか判断する
-            this.io.to(worldId).emit('declare_attack', {words, baseWord, character: 1});
-            this.io.to(worldId).emit('declare_wait', {words, baseWord, character: 2});
-          }
-        });
-      });
-
-      // 単語を受け取って描画
-      socket.on('attack', payload => {
-        console.log(`attack: ${payload.word}`);
-
-        // TODO: キャラクターの位置の計算処理
-        const position = {x: 1, y: 1}
-        this.io.to(worldId).emit('draw', {position, character: 1});
-
-        // TODO: ゲームが終了したかどうかの処理
-        const judge = false;
-        if (judge) {
-          this.io.to(worldId).emit('judge', {winner: 1});
-        } else {
-          socket.broadcast.to(worldId).emit('declare_attack', {words, baseWord, character: 1});
-          socket.emit('declare_wait', {words, baseWord, character: 1});
-        }
-      });
+      this.joinWorldListener(socket);
+      this.attackListener(socket);
     });
+  }
+
+  joinWorldListener(socket) {
+    socket.on('join_world', payload => {
+      console.log(`join world: ${payload.worldId}`);
+      this.worldId = payload.worldId
+      // TODO: トークンの正当性を確認する
+      socket.join(this.worldId);
+      this.startGame();
+    });
+  }
+
+  startGame() {
+    // 確認: ここのofっているんやろか
+    this.io.of('/').in(this.worldId).clients((err, clients) => {
+      if (clients.length === 2) {
+        // TODO: SQLiteから取得する
+        this.words = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+        this.baseWord = 'A';
+        // TODO: トークンによってどちらをemitするか判断する
+        this.declareAttackEmitter(1);
+        this.declareWaitEmitter(2);
+      }
+    });
+  }
+
+  declareAttackEmitter(player) {
+    // あとはこの時にターン数とか渡すことになるんかな？
+    this.io.to(this.worldId).emit('declare_attack', {words: this.words, baseWord: this.baseWord, player});
+  }
+
+  declareWaitEmitter(player) {
+    this.io.to(this.worldId).emit('declare_wait', {words: this.words, baseWord: this.baseWord, player});
+  }
+
+  attackListener(socket) {
+    socket.on('attack', payload => {
+      console.log(`attack: ${payload.word}`);
+
+      this.feedBackEmitter();
+
+      // TODO: 勝利判定
+      // ポジションの情報とか使いそう
+      const judge = false;
+      if (judge) {
+        this.judgeEmitter(this.worldId);
+      } else {
+        // words/basewordの更新
+        this.words = ['H', 'G', 'F', 'E', 'D', 'C', 'B', 'A'];
+        this.baseWord = 'B';
+        this.declareAttackEmitter(2);
+        this.declareWaitEmitter(1);
+      }
+    });
+  }
+
+  feedBackEmitter() {
+    // TODO: キャラクターの位置の計算処理
+    const position = {x: 1, y: 1}
+    this.io.to(this.worldId).emit('feedback', {position, player: 1});
+  }
+
+  judgeEmitter(worldId) {
+    this.io.to(worldId).emit('judge', {winner: 1});
   }
 }
 
