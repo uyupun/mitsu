@@ -1,6 +1,6 @@
-const { customAlphabet } = require('nanoid');
 const { validationResult } = require('express-validator');
-const con = require('../stores/player-connections.js');
+const { customAlphabet } = require('nanoid');
+const con = require('../stores/world-ids.js');
 
 module.exports = {
   generateWorldId: (req, res, next) => {
@@ -13,7 +13,9 @@ module.exports = {
     const nanoid = customAlphabet(alphabet, 6);
     const worldId = nanoid();
 
-    con.set(worldId, req.query.recruit);
+    // EX(expire)を指定
+    // ワールドIDの有効期限を1800秒 ≒ 30分に設定してある
+    con.set(worldId, req.query.recruit, 'EX', 1800)
 
     return res.status(200).json({worldId: worldId});
   },

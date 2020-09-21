@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { check } = require('express-validator');
-const worldIdController = require('../controllers/worldIdController');
-const rulesController = require('../controllers/rulesController');
+const worldIdController = require('../controllers/worldId-controller');
+const rulesController = require('../controllers/rules-controller');
 
 /**
  * ルールの取得
