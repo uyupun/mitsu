@@ -1,7 +1,7 @@
 .PHONY: setup dev-up dev-down prod-down prod-ls
 
 setup:
-	touch stores/database.sqlite3
+	touch stores/word2vec.sqlite3
 	cp .env.example .env
 	yarn
 	yarn migrate
