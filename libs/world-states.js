@@ -22,11 +22,13 @@ class WorldStates {
       });
   }
 
-  isValidPlayer(worldId, token) {
+  isValidPlayer(worldId, token, role) {
     return this.redis.get(worldId)
       .then((obj) => {
         obj = JSON.parse(obj);
-        if (obj.tokens['1'] === token || obj.tokens['2'] === token) return true;
+        console.log(role)
+        if ((role === '1' && obj.tokens['1'] === token) ||
+             role === '2' && obj.tokens['2'] === token) return true;
         return false;
       })
       .catch((err) => {

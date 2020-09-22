@@ -20,6 +20,7 @@ class WorldIdController {
     return res.status(200).json({
       worldId: worldId,
       token: token,
+      role: req.query.recruit == 2 ? 1 : 2,
     });
   }
 
@@ -32,6 +33,7 @@ class WorldIdController {
     let payload = {
       validity: false,
       token: null,
+      role: null,
     };
     worldStates.get(req.query.worldId)
       .then((obj) => {
@@ -43,6 +45,7 @@ class WorldIdController {
           });
           payload.validity = true;
           payload.token = token;
+          payload.role = obl.tokens['1'] == null ? 1 : 2;
         }
         return res.status(200).json(payload);
       })
