@@ -21,7 +21,7 @@ class Dealer {
     socket.on('join_world', payload => {
       console.log(`join world: ${payload.worldId}`);
       // 正しいプレイヤーかどうかの確認
-      worldStates.isValidPlayer(payload.worldId, payload.token)
+      worldStates.isValidPlayer(payload.worldId, payload.token, payload.role)
         .then((isValid) => {
           if (isValid) {
             this._worldId = payload.worldId;
@@ -38,7 +38,6 @@ class Dealer {
   }
 
   _startGame() {
-    // 確認: ここのofっているんやろか
     this._io.of('/').in(this._worldId).clients((err, clients) => {
       if (clients.length === 2) {
         // TODO: SQLiteから取得する
