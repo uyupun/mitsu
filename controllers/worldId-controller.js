@@ -29,31 +29,25 @@ class WorldIdController {
       return res.status(400).json({msg: 'さんかにしっぱいしました'});
     }
 
+    let payload = {
+      validity: false,
+      token: null,
+    };
     worldStates.get(req.query.worldId)
       .then((obj) => {
         const token = this._generateNanoid(12);
-
         if (obj.worldId) {
           worldStates.set(obj.worldId, {
             '1': obj.tokens['1'] == null ? token : obj.tokens['1'],
             '2': obj.tokens['2'] == null ? token : obj.tokens['2'],
           });
-
-          return res.status(200).json({
-            validity: true,
-            token: token,
-          });
+          payload.validity = true;
+          payload.token = token;
         }
-        return res.status(200).json({
-          validity: false,
-          token: null,
-        });
+        return res.status(200).json(payload);
       })
       .catch((err) => {
-        return res.status(200).json({
-          validity: false,
-          token: null,
-        });
+        return res.status(200).json(payload);
       });
   }
 
