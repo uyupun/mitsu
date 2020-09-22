@@ -7,7 +7,7 @@ const rulesController = require('../controllers/rules-controller');
 /**
  * ルールの取得
  */
-router.get('/rules', rulesController.getRules);
+router.get('/rules', rulesController.getRules.bind(rulesController));
 
 /**
  * ワールドIDの取得
