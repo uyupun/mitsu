@@ -28,13 +28,11 @@ class Dealer {
             socket.join(this._worldId);
             this._startGame();
           } else {
-            socket.emit('invalid_player', {});
-            socket.disconnect();
+            this._invalidPlayerEmitter(socket);
           }
         })
         .catch((err) => {
-          socket.emit('invalid_player', {});
-          socket.disconnect();
+          this._invalidPlayerEmitter(socket);
         });
     });
   }
@@ -51,6 +49,11 @@ class Dealer {
         this._declareWaitEmitter(2);
       }
     });
+  }
+
+  _invalidPlayerEmitter(socket) {
+    socket.emit('invalid_player', {});
+    socket.disconnect();
   }
 
   _declareAttackEmitter(player) {
