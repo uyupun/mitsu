@@ -1,3 +1,5 @@
+const worldStates = require('../libs/world-states');
+
 class Dealer {
   constructor(io) {
     this._io = io;
@@ -18,11 +20,20 @@ class Dealer {
   _joinWorldListener(socket) {
     socket.on('join_world', payload => {
       console.log(`join world: ${payload.worldId}`);
-      // TODO: ここでworldIdの正当性をもう１度検証してもいいかも(フロントから存在しないワールドIDを渡そうと思えば渡せるので)
-      this._worldId = payload.worldId
-      // TODO: トークンの正当性を確認する
-      socket.join(this._worldId);
-      this._startGame();
+      // 正しいプレイヤーかどうかの確認
+      worldStates.isValidPlayer(payload.worldId, payload.token)
+        .then((isValid) => {
+          if (isValid) {
+            this._worldId = payload.worldId;
+            socket.join(this._worldId);
+            this._startGame();
+          } else {
+            this._invalidPlayerEmitter(socket);
+          }
+        })
+        .catch((err) => {
+          this._invalidPlayerEmitter(socket);
+        });
     });
   }
 
@@ -38,6 +49,11 @@ class Dealer {
         this._declareWaitEmitter(2);
       }
     });
+  }
+
+  _invalidPlayerEmitter(socket) {
+    socket.emit('invalid_player', {});
+    socket.disconnect();
   }
 
   _declareAttackEmitter(player) {
