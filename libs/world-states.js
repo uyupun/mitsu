@@ -21,6 +21,18 @@ class WorldStates {
         return err;
       });
   }
+
+  isValidPlayer(worldId, token) {
+    return this.redis.get(worldId)
+      .then((obj) => {
+        obj = JSON.parse(obj);
+        if (obj.tokens['1'] === token || obj.tokens['2'] === token) return true;
+        return false;
+      })
+      .catch((err) => {
+        return false;
+      });
+  }
 }
 
 module.exports = new WorldStates();

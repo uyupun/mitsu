@@ -36,7 +36,7 @@ class WorldIdController {
     worldStates.get(req.query.worldId)
       .then((obj) => {
         const token = this._generateNanoid(12);
-        if (obj.worldId) {
+        if (obj) {
           worldStates.set(obj.worldId, {
             '1': obj.tokens['1'] == null ? token : obj.tokens['1'],
             '2': obj.tokens['2'] == null ? token : obj.tokens['2'],
