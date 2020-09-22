@@ -13,7 +13,13 @@ class WorldStates {
   }
 
   get(worldId) {
-    return this.redis.get(worldId);
+    return this.redis.get(worldId)
+      .then((obj) => {
+        return JSON.parse(obj);
+      })
+      .catch((err) => {
+        return err;
+      });
   }
 }
 

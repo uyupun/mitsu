@@ -33,7 +33,6 @@ class WorldIdController {
       .then((obj) => {
         const token = this._generateNanoid(12);
 
-        obj = JSON.parse(obj);
         if (obj.worldId) {
           worldStates.set(obj.worldId, {
             '1': obj.tokens['1'] == null ? token : obj.tokens['1'],
