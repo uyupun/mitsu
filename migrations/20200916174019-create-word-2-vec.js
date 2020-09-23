@@ -19,7 +19,7 @@ module.exports = {
       move_y: {
         allowNull: false,
         type: Sequelize.DOUBLE
-      }
+      },
     });
   },
   down: async (queryInterface, Sequelize) => {

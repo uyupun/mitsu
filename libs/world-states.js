@@ -26,7 +26,6 @@ class WorldStates {
     return this.redis.get(worldId)
       .then((obj) => {
         obj = JSON.parse(obj);
-        console.log(role)
         if ((role === '1' && obj.tokens['1'] === token) ||
              role === '2' && obj.tokens['2'] === token) return true;
         return false;

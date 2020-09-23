@@ -1,4 +1,5 @@
 const worldStates = require('../libs/world-states');
+const word2vec = require('../libs/word2vec');
 
 class Dealer {
   constructor(io) {
