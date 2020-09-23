@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
     move_y: DataTypes.DOUBLE,
   }, {
     sequelize,
-    modelName: 'word2vec',
+    modelName: 'Word2vec',
     underscored: true,
     timestamps: false,
   });
