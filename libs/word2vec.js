@@ -2,23 +2,25 @@ const models = require('../models');
 const { Op } = require('sequelize');
 
 class Word2vec {
+  constructor() {
+    this._getRecordCnt().then((cnt) => {
+      this._recordCnt = cnt;
+    })
+  }
+
   fetchWords() {
-    return this._getRecordCnt()
-      .then((ids) => {
-        return models.Word2vec.findAll({
-          where: {
-            id: {
-              [Op.in]: ids,
-            }
-          }
-        })
-      })
+    return models.Word2vec.findAll({
+      where: {
+        id: {
+          [Op.in]: this._generateRandomIds(this._recordCnt),
+        }
+      }
+    })
   }
 
   _getRecordCnt() {
     return models.Word2vec.count().then((cnt) => {
-      const ids = this._generateRandomIds(cnt)
-      return ids;
+      return cnt;
     });
   }
 
