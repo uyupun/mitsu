@@ -45,7 +45,7 @@ class WorldIdController {
           });
           payload.validity = true;
           payload.token = token;
-          payload.role = obl.tokens['1'] == null ? 1 : 2;
+          payload.role = obj.tokens['1'] == null ? 1 : 2;
         }
         return res.status(200).json(payload);
       })
