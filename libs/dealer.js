@@ -41,12 +41,13 @@ class Dealer {
   _startGame() {
     this._io.of('/').in(this._worldId).clients((err, clients) => {
       if (clients.length === 2) {
-        // TODO: SQLiteから取得する
-        this._words = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
-        this._baseWord = 'A';
-        // TODO: トークンによってどちらをemitするか判断する
-        this._declareAttackEmitter(1);
-        this._declareWaitEmitter(2);
+        word2vec.fetchWords().then((words) => {
+          this._words = words;
+          this._baseWord = 'A';
+          // TODO: トークンによってどちらをemitするか判断する
+          this._declareAttackEmitter(1);
+          this._declareWaitEmitter(2);
+        })
       }
     });
   }
