@@ -25,7 +25,6 @@ class WorldStates {
 
   getTurn(worldId) {
     return this.get(worldId).then((obj) => {
-      console.log(obj);
       return obj.turn;
     })
   }
