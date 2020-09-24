@@ -9,6 +9,7 @@ class WorldStates {
     this.redis.set(worldId, JSON.stringify({
       worldId: worldId,
       tokens: tokens,
+      turn: 1,
     }), 'EX', process.env.WORLD_TTL);
   }
 
@@ -20,6 +21,13 @@ class WorldStates {
       .catch((err) => {
         return err;
       });
+  }
+
+  getTurn(worldId) {
+    return this.get(worldId).then((obj) => {
+      console.log(obj);
+      return obj.turn;
+    })
   }
 
   isValidPlayer(worldId, token, role) {
