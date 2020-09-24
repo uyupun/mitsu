@@ -50,12 +50,15 @@ class Dealer {
               }),
               word2vec.fetchWord().then((word) => {
                 this._baseWord = word;
-              })
+              }),
+              worldStates.getTurn(this._worldId).then((turn) => {
+                return turn;
+              }),
             ])
           })
-          .then(() => {
-            this._declareAttackEmitter(1);
-            this._declareWaitEmitter(2);
+          .then((res) => {
+            this._declareAttackEmitter(res[2]);
+            this._declareWaitEmitter(res[2]);
           })
       }
     });
@@ -66,13 +69,13 @@ class Dealer {
     socket.disconnect();
   }
 
-  _declareAttackEmitter(player) {
+  _declareAttackEmitter(turn) {
     // あとはこの時にターン数とか渡すことになるんかな？
-    this._io.to(this._worldId).emit('declare_attack', {words: this._words, baseWord: this._baseWord, player});
+    this._io.to(this._worldId).emit('declare_attack', {words: this._words, baseWord: this._baseWord, turn});
   }
 
-  _declareWaitEmitter(player) {
-    this._io.to(this._worldId).emit('declare_wait', {words: this._words, baseWord: this._baseWord, player});
+  _declareWaitEmitter(turn) {
+    this._io.to(this._worldId).emit('declare_wait', {words: this._words, baseWord: this._baseWord, turn});
   }
 
   _attackListener(socket) {
