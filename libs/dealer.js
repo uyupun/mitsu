@@ -1,10 +1,10 @@
 const worldStates = require('../libs/world-states');
 const word2vec = require('../libs/word2vec');
 const {
-  PLAYER_PEKORA_START_POINT_X,
-  PLAYER_PEKORA_START_POINT_Y,
-  PLAYER_BAIKINKUN_START_POINT_X,
-  PLAYER_BAIKINKUN_START_POINT_Y,
+  PLAYER_PEKORA_START_POSITION_X,
+  PLAYER_PEKORA_START_POSITION_Y,
+  PLAYER_BAIKINKUN_START_POSITION_X,
+  PLAYER_BAIKINKUN_START_POSITION_Y,
 } = require('../libs/constants');
 
 class Dealer {
@@ -64,9 +64,10 @@ class Dealer {
             ]);
           })
           .then((res) => {
+            this._feedbackEmitter(PLAYER_PEKORA_START_POSITION_X, PLAYER_PEKORA_START_POSITION_Y, 1);
+            this._feedbackEmitter(PLAYER_BAIKINKUN_START_POSITION_X, PLAYER_BAIKINKUN_START_POSITION_Y, 2);
             this._declareAttackEmitter(socket, res[1], role);
             this._declareWaitEmitter(socket, res[1], role);
-            this._feedbackEmitter(PLAYER_PEKORA_START_POINT_X, PLAYER_PEKORA_START_POINT_Y, res[1]);
           })
       }
     });
@@ -91,8 +92,8 @@ class Dealer {
       socket.emit('declare_wait', {words: this._words, baseWord: this._baseWord, turn});
   }
 
-  _feedbackEmitter(x, y, turn) {
-    this._io.to(this._worldId).emit('feedback', {x, y, player: turn % 2 === 1 ? 1 : 2, baseWord: this._baseWord});
+  _feedbackEmitter(x, y, player) {
+    this._io.to(this._worldId).emit('feedback', {x, y, player, baseWord: this._baseWord});
   }
 
   _attackListener(socket) {
