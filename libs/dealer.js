@@ -1,5 +1,11 @@
 const worldStates = require('../libs/world-states');
 const word2vec = require('../libs/word2vec');
+const {
+  PLAYER_PEKORA_START_POINT_X,
+  PLAYER_PEKORA_START_POINT_Y,
+  PLAYER_BAIKINKUN_START_POINT_X,
+  PLAYER_BAIKINKUN_START_POINT_Y,
+} = require('../libs/constants');
 
 class Dealer {
   constructor(io) {
@@ -21,7 +27,6 @@ class Dealer {
   _joinWorldListener(socket) {
     socket.on('join_world', payload => {
       console.log(`join world: ${payload.worldId}`);
-      // 正しいプレイヤーかどうかの確認
       worldStates.isValidPlayer(payload.worldId, payload.token, payload.role)
         .then((isValid) => {
           if (isValid) {
@@ -46,12 +51,11 @@ class Dealer {
           .then(() => {
             return word2vec.fetchFirstWord().then((firstWord) => {
               this._baseWord = firstWord;
-              return firstWord;
             })
           })
-          .then((baseWord) => {
+          .then(() => {
             return Promise.all([
-              word2vec.fetchWords(baseWord).then((words) => {
+              word2vec.fetchWords(this._baseWord).then((words) => {
                 this._words = words;
               }),
               worldStates.getTurn(this._worldId).then((turn) => {
@@ -62,6 +66,7 @@ class Dealer {
           .then((res) => {
             this._declareAttackEmitter(socket, res[1], role);
             this._declareWaitEmitter(socket, res[1], role);
+            this._feedbackEmitter(PLAYER_PEKORA_START_POINT_X, PLAYER_PEKORA_START_POINT_Y, res[1]);
           })
       }
     });
@@ -86,11 +91,15 @@ class Dealer {
       socket.emit('declare_wait', {words: this._words, baseWord: this._baseWord, turn});
   }
 
+  _feedbackEmitter(x, y, turn) {
+    this._io.to(this._worldId).emit('feedback', {x, y, player: turn % 2 === 1 ? 1 : 2, baseWord: this._baseWord});
+  }
+
   _attackListener(socket) {
     socket.on('attack', payload => {
       console.log(`attack: ${payload.word}`);
 
-      this._feedBackEmitter();
+      this._feedbackEmitter();
 
       // TODO: 勝利判定
       // ポジションの情報とか使いそう
@@ -106,12 +115,6 @@ class Dealer {
         this._declareWaitEmitter(socket, 2, 1);
       }
     });
-  }
-
-  _feedBackEmitter() {
-    // TODO: キャラクターの位置の計算処理
-    const position = {x: 1, y: 1}
-    this._io.to(this._worldId).emit('feedback', {position, player: 1});
   }
 
   _judgeEmitter() {
