@@ -8,18 +8,21 @@ class Word2vec {
     })
   }
 
-  fetchWord() {
+  fetchFirstWord() {
     const id = this._generateRandomId(this._recordCnt);
-    return models.Word2vec.findByPk(id);
+    return models.Word2vec.findByPk(id, {raw: true});
   }
 
-  fetchWords() {
+  fetchWords(baseWord) {
     return models.Word2vec.findAll({
+      raw: true,
       where: {
         id: {
           [Op.in]: this._generateRandomIds(this._recordCnt),
         }
       }
+    }).then((words) => {
+      return this._calcDirections(baseWord, words)
     })
   }
 
@@ -40,6 +43,24 @@ class Word2vec {
   _generateRandomId(limit) {
     const id = Math.ceil(Math.random() * limit);
     return id;
+  }
+
+  _calcDirections(baseWord, words) {
+    for (let i = 0; i < words.length; i++) {
+      const direction = {
+        top_right: false,
+        top_left: false,
+        bottom_left: false,
+        bottom_right: false,
+      };
+      if (words[i].move_x > baseWord.move_x) {
+        if (words[i].move_y > baseWord.move_y) direction.bottom_right = true;
+        else direction.top_right = true;
+      } else if (words[i].move_y > baseWord.move_y) direction.bottom_left = true;
+      else direction.top_left = true;
+      words[i].direction = direction;
+    }
+    return words;
   }
 }
 

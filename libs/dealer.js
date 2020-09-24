@@ -44,21 +44,24 @@ class Dealer {
         Promise
           .resolve()
           .then(() => {
+            return word2vec.fetchFirstWord().then((firstWord) => {
+              this._baseWord = firstWord;
+              return firstWord;
+            })
+          })
+          .then((baseWord) => {
             return Promise.all([
-              word2vec.fetchWords().then((words) => {
+              word2vec.fetchWords(baseWord).then((words) => {
                 this._words = words;
-              }),
-              word2vec.fetchWord().then((word) => {
-                this._baseWord = word;
               }),
               worldStates.getTurn(this._worldId).then((turn) => {
                 return turn;
               }),
-            ])
+            ]);
           })
           .then((res) => {
-            this._declareAttackEmitter(socket, res[2], role);
-            this._declareWaitEmitter(socket, res[2], role);
+            this._declareAttackEmitter(socket, res[1], role);
+            this._declareWaitEmitter(socket, res[1], role);
           })
       }
     });
