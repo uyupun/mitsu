@@ -27,7 +27,7 @@ class Dealer {
           if (isValid) {
             this._worldId = payload.worldId;
             socket.join(this._worldId);
-            this._startGame();
+            this._startGame(socket, payload.role);
           } else {
             this._invalidPlayerEmitter(socket);
           }
@@ -38,7 +38,7 @@ class Dealer {
     });
   }
 
-  _startGame() {
+  _startGame(socket, role) {
     this._io.of('/').in(this._worldId).clients((err, clients) => {
       if (clients.length === 2) {
         Promise
@@ -57,8 +57,8 @@ class Dealer {
             ])
           })
           .then((res) => {
-            this._declareAttackEmitter(res[2]);
-            this._declareWaitEmitter(res[2]);
+            this._declareAttackEmitter(socket, res[2], role);
+            this._declareWaitEmitter(socket, res[2], role);
           })
       }
     });
@@ -69,13 +69,18 @@ class Dealer {
     socket.disconnect();
   }
 
-  _declareAttackEmitter(turn) {
-    // あとはこの時にターン数とか渡すことになるんかな？
-    this._io.to(this._worldId).emit('declare_attack', {words: this._words, baseWord: this._baseWord, turn});
+  _declareAttackEmitter(socket, turn, role) {
+    if (turn % 2 === 1 && role === '1')
+      socket.emit('declare_attack', {words: this._words, baseWord: this._baseWord, turn});
+    else
+      socket.broadcast.to(this._worldId).emit('declare_attack', {words: this._words, baseWord: this._baseWord, turn});
   }
 
-  _declareWaitEmitter(turn) {
-    this._io.to(this._worldId).emit('declare_wait', {words: this._words, baseWord: this._baseWord, turn});
+  _declareWaitEmitter(socket, turn, role) {
+    if (turn % 2 === 1 && role === '1')
+      socket.broadcast.to(this._worldId).emit('declare_wait', {words: this._words, baseWord: this._baseWord, turn});
+    else
+      socket.emit('declare_wait', {words: this._words, baseWord: this._baseWord, turn});
   }
 
   _attackListener(socket) {
@@ -93,8 +98,9 @@ class Dealer {
         // words/basewordの更新
         this._words = ['H', 'G', 'F', 'E', 'D', 'C', 'B', 'A'];
         this._baseWord = 'B';
-        this._declareAttackEmitter(2);
-        this._declareWaitEmitter(1);
+        // TODO: turnとrole渡す
+        this._declareAttackEmitter(socket, 2, 2);
+        this._declareWaitEmitter(socket, 2, 1);
       }
     });
   }
