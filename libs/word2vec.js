@@ -8,6 +8,11 @@ class Word2vec {
     })
   }
 
+  fetchWord() {
+    const id = this._generateRandomId(this._recordCnt);
+    return models.Word2vec.findByPk(id);
+  }
+
   fetchWords() {
     return models.Word2vec.findAll({
       where: {
