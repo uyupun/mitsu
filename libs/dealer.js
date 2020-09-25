@@ -46,7 +46,7 @@ class Dealer {
     });
   }
 
-  _startGame(socket, role) {
+  _startGame(socket, requestPlayer) {
     this._io.of('/').in(this._worldId).clients((err, clients) => {
       if (clients.length === 2) {
         Promise
@@ -70,8 +70,8 @@ class Dealer {
             this._feedbackPositionsEmitter(PLAYER_PEKORA_START_POSITION_X, PLAYER_PEKORA_START_POSITION_Y, PLAYER_PEKORA);
             this._feedbackPositionsEmitter(PLAYER_BAIKINKUN_START_POSITION_X, PLAYER_BAIKINKUN_START_POSITION_Y, PLAYER_BAIKINKUN);
             this._gameResourcesEmitter(PLAYER_PEKORA);
-            this._declareAttackEmitter(socket, role);
-            this._declareWaitEmitter(socket, role);
+            this._declareAttackEmitter(socket, requestPlayer);
+            this._declareWaitEmitter(socket, requestPlayer);
           })
       }
     });
@@ -82,16 +82,16 @@ class Dealer {
     socket.disconnect();
   }
 
-  _declareAttackEmitter(socket, role) {
-    worldStates.getCurrentPlayer(this._worldId).then((player) => {
-      if (player === PLAYER_PEKORA && role === '1') socket.emit('declare_attack', {});
+  _declareAttackEmitter(socket, requestPlayer) {
+    worldStates.getCurrentPlayer(this._worldId).then((currentPlayer) => {
+      if (currentPlayer === PLAYER_PEKORA && requestPlayer === PLAYER_PEKORA) socket.emit('declare_attack', {});
       else socket.broadcast.to(this._worldId).emit('declare_attack', {});
     });
   }
 
-  _declareWaitEmitter(socket, role) {
-    worldStates.getCurrentPlayer(this._worldId).then((player) => {
-      if (player === PLAYER_PEKORA && role === '1') socket.broadcast.to(this._worldId).emit('declare_wait', {});
+  _declareWaitEmitter(socket, requestPlayer) {
+    worldStates.getCurrentPlayer(this._worldId).then((currentPlayer) => {
+      if (currentPlayer === PLAYER_PEKORA && requestPlayer === PLAYER_PEKORA) socket.broadcast.to(this._worldId).emit('declare_wait', {});
       else socket.emit('declare_wait', {});
     });
   }

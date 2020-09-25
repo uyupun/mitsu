@@ -44,8 +44,8 @@ class WorldStates {
     return this.redis.get(worldId)
       .then((obj) => {
         obj = JSON.parse(obj);
-        if ((role === '1' && obj.tokens['1'] === token) ||
-             role === '2' && obj.tokens['2'] === token) return true;
+        if ((role === PLAYER_PEKORA && obj.tokens['1'] === token) ||
+             role === PLAYER_BAIKINKUN && obj.tokens['2'] === token) return true;
         return false;
       })
       .catch((err) => {
