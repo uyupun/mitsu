@@ -51,14 +51,24 @@ class Dealer {
   _startGame(socket, requestPlayer) {
     this._io.of('/').in(this._worldId).clients((err, clients) => {
       if (clients.length === 2) {
-        word2vec.fetchFirstWord().then((firstWord) => {
-          this._baseWord = firstWord;
-          this._feedbackPositionsEmitter(PLAYER_PEKORA_START_POSITION_X, PLAYER_PEKORA_START_POSITION_Y, PLAYER_PEKORA);
-          this._feedbackPositionsEmitter(PLAYER_BAIKINKUN_START_POSITION_X, PLAYER_BAIKINKUN_START_POSITION_Y, PLAYER_BAIKINKUN);
-          this._gameResourcesEmitter(PLAYER_PEKORA);
-          this._declareAttackEmitter(socket, requestPlayer);
-          this._declareWaitEmitter(socket, requestPlayer);
-        });
+        Promise
+          .resolve()
+          .then(() => {
+            word2vec.fetchFirstWord().then((firstWord) => {
+              this._baseWord = firstWord;
+            })
+          })
+          .then(() => {
+            this._feedbackPositionsEmitter(PLAYER_PEKORA_START_POSITION_X, PLAYER_PEKORA_START_POSITION_Y, PLAYER_PEKORA);
+            this._feedbackPositionsEmitter(PLAYER_BAIKINKUN_START_POSITION_X, PLAYER_BAIKINKUN_START_POSITION_Y, PLAYER_BAIKINKUN);
+          })
+          .then(() => {
+            this._gameResourcesEmitter(PLAYER_PEKORA);
+          })
+          .then(() => {
+            this._declareAttackEmitter(socket, requestPlayer);
+            this._declareWaitEmitter(socket, requestPlayer);
+          })
       }
     });
   }
