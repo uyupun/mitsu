@@ -29,30 +29,20 @@ class Dealer {
     this._turn = 0;
   }
 
-  proceed() {
-    this._io.on('connection', socket => {
-      this._joinWorldListener(socket);
-      this._attackListener(socket);
-      this._disconnectWorldListener(socket);
-    });
-  }
-
-  _joinWorldListener(socket) {
-    socket.on('join_world', payload => {
-      worldStates.isValidPlayer(payload.worldId, payload.token, payload.role)
-        .then((isValid) => {
-          if (isValid) {
-            this._worldId = payload.worldId;
-            socket.join(this._worldId);
-            this._startGame(socket, payload.role);
-          } else {
-            this._invalidPlayerEmitter(socket);
-          }
-        })
-        .catch((err) => {
+  joinWorld(socket, payload) {
+    worldStates.isValidPlayer(payload.worldId, payload.token, payload.role)
+      .then((isValid) => {
+        if (isValid) {
+          this._worldId = payload.worldId;
+          socket.join(this._worldId);
+          this._startGame(socket, payload.role);
+        } else {
           this._invalidPlayerEmitter(socket);
-        });
-    });
+        }
+      })
+      .catch((err) => {
+        this._invalidPlayerEmitter(socket);
+      });
   }
 
   _startGame(socket, requestPlayer) {
@@ -137,7 +127,7 @@ class Dealer {
     });
   }
 
-  _attackListener(socket) {
+  attackListener(socket) {
     socket.on('attack', payload => {
       worldStates.isValidPlayer(payload.worldId, payload.token, payload.role)
         .then((isValid) => {
@@ -195,7 +185,7 @@ class Dealer {
     this._io.to(this._worldId).emit('judge', {winner: player});
   }
 
-  _disconnectWorldListener(socket) {
+  disconnectWorldListener(socket) {
     socket.on('disconnect_world', payload => {
       worldStates.deleteWorld(payload.worldId, payload.token, payload.role)
         .then((isDeleted) => {
