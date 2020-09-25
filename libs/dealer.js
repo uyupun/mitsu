@@ -185,7 +185,7 @@ class Dealer {
 
   disconnectWorldListener(socket) {
     socket.on('disconnect_world', payload => {
-      worldStates.deleteWorld(payload.worldId, payload.token, payload.role)
+      worldStates.delete(payload.worldId, payload.token, payload.role)
         .then((isDeleted) => {
           if (isDeleted) {
             socket.leave(payload.worldId)

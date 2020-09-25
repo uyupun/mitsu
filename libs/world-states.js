@@ -30,8 +30,8 @@ class WorldStates {
     return this._redis.get(worldId)
       .then((obj) => {
         obj = JSON.parse(obj);
-        if ((role === PLAYER_PEKORA && obj.tokens['1'] === token) ||
-             role === PLAYER_BAIKINKUN && obj.tokens['2'] === token) return true;
+        if ((role === PLAYER_PEKORA && obj.tokens[PLAYER_PEKORA] === token) ||
+             role === PLAYER_BAIKINKUN && obj.tokens[PLAYER_BAIKINKUN] === token) return true;
         return false;
       })
       .catch((err) => {
@@ -39,7 +39,7 @@ class WorldStates {
       });
   }
 
-  deleteWorld(worldId, token, role) {
+  delete(worldId, token, role) {
     return this.isValidPlayer(worldId, token, role)
       .then((isValid) => {
         if (isValid) {
