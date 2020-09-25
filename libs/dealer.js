@@ -1,11 +1,11 @@
-const worldStates = require('../libs/world-states');
-const word2vec = require('../libs/word2vec');
+const worldStates = require('./world-states');
+const word2vec = require('./word2vec');
 const {
   PLAYER_PEKORA_START_POSITION_X,
   PLAYER_PEKORA_START_POSITION_Y,
   PLAYER_BAIKINKUN_START_POSITION_X,
   PLAYER_BAIKINKUN_START_POSITION_Y,
-} = require('../libs/constants');
+} = require('./constants');
 
 class Dealer {
   constructor(io) {
