@@ -57,16 +57,6 @@ class Dealer {
             })
           })
           .then(() => {
-            return Promise.all([
-              word2vec.fetchWords(this._baseWord).then((words) => {
-                this._words = words;
-              }),
-              worldStates.getTurn(this._worldId).then((turn) => {
-                this._turn = turn;
-              }),
-            ]);
-          })
-          .then(() => {
             this._feedbackPositionsEmitter(PLAYER_PEKORA_START_POSITION_X, PLAYER_PEKORA_START_POSITION_Y, PLAYER_PEKORA);
             this._feedbackPositionsEmitter(PLAYER_BAIKINKUN_START_POSITION_X, PLAYER_BAIKINKUN_START_POSITION_Y, PLAYER_BAIKINKUN);
             this._gameResourcesEmitter(PLAYER_PEKORA);
@@ -101,7 +91,21 @@ class Dealer {
   }
 
   _gameResourcesEmitter(player) {
-    this._io.to(this._worldId).emit('game_resources', {words: this._words, baseWord: this._baseWord, player, turn: this._turn});
+    Promise
+      .resolve()
+      .then(() => {
+        return Promise.all([
+          word2vec.fetchWords(this._baseWord).then((words) => {
+            this._words = words;
+          }),
+          worldStates.getTurn(this._worldId).then((turn) => {
+            this._turn = turn;
+          }),
+        ]);
+      })
+      .then(() => {
+        this._io.to(this._worldId).emit('game_resources', {words: this._words, baseWord: this._baseWord, player, turn: this._turn});
+      });
   }
 
   _attackListener(socket) {
@@ -118,12 +122,10 @@ class Dealer {
             if (judge) {
               this._judgeEmitter();
             } else {
-              // words/basewordの更新
-              this._words = ['H', 'G', 'F', 'E', 'D', 'C', 'B', 'A'];
-              this._baseWord = 'B';
+              this._baseWord = payload.baseWord;
               this._gameResourcesEmitter(PLAYER_BAIKINKUN);
-              this._declareAttackEmitter(socket, 2);
-              this._declareWaitEmitter(socket, 2);
+              this._declareAttackEmitter(socket, payload.role);
+              this._declareWaitEmitter(socket, payload.role);
             }
           } else {
             this._invalidPlayerEmitter(socket);
