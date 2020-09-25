@@ -1,5 +1,6 @@
 const models = require('../models');
 const { Op } = require('sequelize');
+const { WORD_COUNT } = require('./constants');
 
 class Word2vec {
   constructor() {
@@ -34,7 +35,7 @@ class Word2vec {
 
   _generateRandomIds(limit) {
     const ids = [];
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < WORD_COUNT; i++) {
       ids.push(this._generateRandomId(limit));
     }
     return ids;
@@ -46,7 +47,7 @@ class Word2vec {
   }
 
   _calcDirections(baseWord, words) {
-    for (let i = 0; i < words.length; i++) {
+    for (let i = 0; i < WORD_COUNT; i++) {
       const direction = {
         top_right: false,
         top_left: false,

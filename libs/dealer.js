@@ -1,11 +1,11 @@
-const worldStates = require('../libs/world-states');
-const word2vec = require('../libs/word2vec');
+const worldStates = require('./world-states');
+const word2vec = require('./word2vec');
 const {
   PLAYER_PEKORA_START_POSITION_X,
   PLAYER_PEKORA_START_POSITION_Y,
   PLAYER_BAIKINKUN_START_POSITION_X,
   PLAYER_BAIKINKUN_START_POSITION_Y,
-} = require('../libs/constants');
+} = require('./constants');
 
 class Dealer {
   constructor(io) {
@@ -15,6 +15,7 @@ class Dealer {
     this._worldId = '';
     this._words = [];
     this._baseWord = '';
+    this._turn = 0;
   }
 
   proceed() {
@@ -59,15 +60,16 @@ class Dealer {
                 this._words = words;
               }),
               worldStates.getTurn(this._worldId).then((turn) => {
-                return turn;
+                this._turn = turn;
               }),
             ]);
           })
-          .then((res) => {
-            this._feedbackEmitter(PLAYER_PEKORA_START_POSITION_X, PLAYER_PEKORA_START_POSITION_Y, 1);
-            this._feedbackEmitter(PLAYER_BAIKINKUN_START_POSITION_X, PLAYER_BAIKINKUN_START_POSITION_Y, 2);
-            this._declareAttackEmitter(socket, res[1], role);
-            this._declareWaitEmitter(socket, res[1], role);
+          .then(() => {
+            this._feedbackPositionsEmitter(PLAYER_PEKORA_START_POSITION_X, PLAYER_PEKORA_START_POSITION_Y, 1);
+            this._feedbackPositionsEmitter(PLAYER_BAIKINKUN_START_POSITION_X, PLAYER_BAIKINKUN_START_POSITION_Y, 2);
+            this._gameResourcesEmitter(1);
+            this._declareAttackEmitter(socket, role);
+            this._declareWaitEmitter(socket, role);
           })
       }
     });
@@ -78,29 +80,29 @@ class Dealer {
     socket.disconnect();
   }
 
-  _declareAttackEmitter(socket, turn, role) {
-    if (turn % 2 === 1 && role === '1')
-      socket.emit('declare_attack', {words: this._words, baseWord: this._baseWord, turn});
-    else
-      socket.broadcast.to(this._worldId).emit('declare_attack', {words: this._words, baseWord: this._baseWord, turn});
+  _declareAttackEmitter(socket, role) {
+    if (this._turn % 2 === 1 && role === '1') socket.emit('declare_attack', {});
+    else socket.broadcast.to(this._worldId).emit('declare_attack', {});
   }
 
-  _declareWaitEmitter(socket, turn, role) {
-    if (turn % 2 === 1 && role === '1')
-      socket.broadcast.to(this._worldId).emit('declare_wait', {words: this._words, baseWord: this._baseWord, turn});
-    else
-      socket.emit('declare_wait', {words: this._words, baseWord: this._baseWord, turn});
+  _declareWaitEmitter(socket, role) {
+    if (this._turn % 2 === 1 && role === '1') socket.broadcast.to(this._worldId).emit('declare_wait', {});
+    else socket.emit('declare_wait', {});
   }
 
-  _feedbackEmitter(x, y, player) {
-    this._io.to(this._worldId).emit('feedback', {x, y, player, baseWord: this._baseWord});
+  _feedbackPositionsEmitter(x, y, player) {
+    this._io.to(this._worldId).emit('feedback_positions', {x, y, player});
+  }
+
+  _gameResourcesEmitter(player) {
+    this._io.to(this._worldId).emit('game_resources', {words: this._words, baseWord: this._baseWord, player});
   }
 
   _attackListener(socket) {
     socket.on('attack', payload => {
       console.log(`attack: ${payload.word}`);
 
-      this._feedbackEmitter();
+      this._feedbackPositionsEmitter();
 
       // TODO: 勝利判定
       // ポジションの情報とか使いそう
