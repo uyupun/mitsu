@@ -70,14 +70,16 @@ class Dealer {
             ]);
           })
           .then(() => {
-            // ここはget_words_and_basewordを呼ぶようにする
-            return this._gameResourcesEmitter(PLAYER_PEKORA);
+            return Promise.all([
+              this._getTurnEmitter(),
+              this._getWordsAndBasewordEmitter(PLAYER_PEKORA),
+            ]);
           })
           .then(() => {
             return Promise.all([
               this._declareAttackEmitter(socket, requestPlayer),
               this._declareWaitEmitter(socket, requestPlayer),
-            ])
+            ]);
           })
       }
     });
@@ -89,29 +91,37 @@ class Dealer {
   }
 
   _feedbackPositionsEmitter(x, y, player) {
-    console.log(x, y, player)
     this._positions[player].x = x;
     this._positions[player].y = y;
     return this._io.to(this._worldId).emit('feedback_positions', {x, y, player});
   }
 
-  // TODO:
-  // - get_words_and_baseword
-  // - update_baseword
-  // - get_words
-  // の３種類に分ける
-  _gameResourcesEmitter(player) {
-    return Promise
-      .resolve()
-      .then(() => {
-        return Promise.all([
-          word2vec.fetchWords(this._baseWords[PLAYER_PEKORA]).then((words) => this._words = words),
-          worldStates.getTurn(this._worldId).then((turn) => this._turn = turn),
-        ]);
+  _getWordsAndBasewordEmitter(player) {
+    return word2vec.fetchWords(this._baseWords[player])
+      .then((words) => {
+        this._words = words;
+        this._io.to(this._worldId).emit('get_words_and_baseword', { words, baseWord: this._baseWords[player], player });
       })
-      .then(() => {
-        this._io.to(this._worldId).emit('game_resources', {words: this._words, baseWord: this._baseWord, player, turn: this._turn});
-      });
+  }
+
+  _updateBasewordEmitter(player) {
+    this._io.to(this._worldId).emit('update_baseword', { baseWord: this._baseWords[player], player });
+  }
+
+  _getWordsEmitter(player) {
+    return word2vec.fetchWords(this._baseWords[player])
+      .then((words) => {
+        this._words = words;
+        this._io.to(this._worldId).emit('get_words', { words });
+      })
+  }
+
+  _getTurnEmitter() {
+    return worldStates.getTurn(this._worldId)
+      .then((turn) => {
+        this._turn = turn;
+        this._io.to(this._worldId).emit('get_turn', { turn });
+      })
   }
 
   _declareAttackEmitter(socket, requestPlayer) {
@@ -152,9 +162,16 @@ class Dealer {
                       return worldStates.incrementTurn(this._worldId);
                     })
                     .then(() => {
-                      this._baseWord = payload.baseWord;
-                      // TODO: get_wordsにする
-                      return this._gameResourcesEmitter(payload.role === PLAYER_PEKORA ? PLAYER_BAIKINKUN : PLAYER_PEKORA);
+                      return this._getTurnEmitter();
+                    })
+                    .then(() => {
+                      this._baseWords[payload.role] = payload.baseWord;
+                      return Promise.all([
+                        this._updateBasewordEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN),
+                        this._turn <= 2
+                          ? this._getWordsAndBasewordEmitter(PLAYER_BAIKINKUN)
+                          : this._getWordsEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN),
+                      ]);
                     })
                     .then(() => {
                       Promise.all([
