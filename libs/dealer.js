@@ -108,21 +108,30 @@ class Dealer {
     socket.on('attack', payload => {
       console.log(`attack: ${payload.word}`);
 
-      // ポジションの計算 + プレイヤーの算出
-      this._feedbackPositionsEmitter();
-
-      // TODO: 勝利判定
-      const judge = false;
-      if (judge) {
-        this._judgeEmitter();
-      } else {
-        // words/basewordの更新
-        this._words = ['H', 'G', 'F', 'E', 'D', 'C', 'B', 'A'];
-        this._baseWord = 'B';
-        // TODO: turnとrole渡す
-        this._declareAttackEmitter(socket, 2, 2);
-        this._declareWaitEmitter(socket, 2, 1);
-      }
+      worldStates.isValidPlayer(payload.worldId, payload.token, payload.role)
+        .then((isValid) => {
+          if (isValid) {
+            // TODO: ポジションの計算
+            this._feedbackPositionsEmitter(payload.x, payload.y, payload.role);
+            // TODO: 勝利判定
+            const judge = false;
+            if (judge) {
+              this._judgeEmitter();
+            } else {
+              // words/basewordの更新
+              this._words = ['H', 'G', 'F', 'E', 'D', 'C', 'B', 'A'];
+              this._baseWord = 'B';
+              this._gameResourcesEmitter(PLAYER_BAIKINKUN);
+              this._declareAttackEmitter(socket, 2);
+              this._declareWaitEmitter(socket, 2);
+            }
+          } else {
+            this._invalidPlayerEmitter(socket);
+          }
+        })
+        .catch((err) => {
+          this._invalidPlayerEmitter(socket);
+        });
     });
   }
 
