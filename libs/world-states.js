@@ -52,6 +52,16 @@ class WorldStates {
         return false;
       });
   }
+
+  deleteWorldId(worldId) {
+    return this.redis.del(worldId)
+      .then(() => {
+        return true;
+      })
+      .catch((err) => {
+        return false;
+      })
+  }
 }
 
 module.exports = new WorldStates();
