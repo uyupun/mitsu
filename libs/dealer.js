@@ -1,6 +1,8 @@
 const worldStates = require('./world-states');
 const word2vec = require('./word2vec');
 const {
+  PLAYER_PEKORA,
+  PLAYER_BAIKINKUN,
   PLAYER_PEKORA_START_POSITION_X,
   PLAYER_PEKORA_START_POSITION_Y,
   PLAYER_BAIKINKUN_START_POSITION_X,
@@ -65,9 +67,9 @@ class Dealer {
             ]);
           })
           .then(() => {
-            this._feedbackPositionsEmitter(PLAYER_PEKORA_START_POSITION_X, PLAYER_PEKORA_START_POSITION_Y, 1);
-            this._feedbackPositionsEmitter(PLAYER_BAIKINKUN_START_POSITION_X, PLAYER_BAIKINKUN_START_POSITION_Y, 2);
-            this._gameResourcesEmitter(1);
+            this._feedbackPositionsEmitter(PLAYER_PEKORA_START_POSITION_X, PLAYER_PEKORA_START_POSITION_Y, PLAYER_PEKORA);
+            this._feedbackPositionsEmitter(PLAYER_BAIKINKUN_START_POSITION_X, PLAYER_BAIKINKUN_START_POSITION_Y, PLAYER_BAIKINKUN);
+            this._gameResourcesEmitter(PLAYER_PEKORA);
             this._declareAttackEmitter(socket, role);
             this._declareWaitEmitter(socket, role);
           })
@@ -81,13 +83,17 @@ class Dealer {
   }
 
   _declareAttackEmitter(socket, role) {
-    if (this._turn % 2 === 1 && role === '1') socket.emit('declare_attack', {});
-    else socket.broadcast.to(this._worldId).emit('declare_attack', {});
+    worldStates.getCurrentPlayer(this._worldId).then((player) => {
+      if (player === PLAYER_PEKORA && role === '1') socket.emit('declare_attack', {});
+      else socket.broadcast.to(this._worldId).emit('declare_attack', {});
+    });
   }
 
   _declareWaitEmitter(socket, role) {
-    if (this._turn % 2 === 1 && role === '1') socket.broadcast.to(this._worldId).emit('declare_wait', {});
-    else socket.emit('declare_wait', {});
+    worldStates.getCurrentPlayer(this._worldId).then((player) => {
+      if (player === PLAYER_PEKORA && role === '1') socket.broadcast.to(this._worldId).emit('declare_wait', {});
+      else socket.emit('declare_wait', {});
+    });
   }
 
   _feedbackPositionsEmitter(x, y, player) {
@@ -102,10 +108,10 @@ class Dealer {
     socket.on('attack', payload => {
       console.log(`attack: ${payload.word}`);
 
+      // ポジションの計算 + プレイヤーの算出
       this._feedbackPositionsEmitter();
 
       // TODO: 勝利判定
-      // ポジションの情報とか使いそう
       const judge = false;
       if (judge) {
         this._judgeEmitter();

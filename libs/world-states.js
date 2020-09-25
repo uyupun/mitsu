@@ -1,4 +1,8 @@
 const Redis = require('ioredis');
+const {
+  PLAYER_PEKORA,
+  PLAYER_BAIKINKUN,
+} = require('./constants');
 
 class WorldStates {
   constructor() {
@@ -26,6 +30,13 @@ class WorldStates {
   getTurn(worldId) {
     return this.get(worldId).then((obj) => {
       return obj.turn;
+    })
+  }
+
+  getCurrentPlayer(worldId) {
+    return this.getTurn(worldId).then((turn) => {
+      if (turn % 2 === 1) return PLAYER_PEKORA;
+      else return PLAYER_BAIKINKUN;
     })
   }
 
