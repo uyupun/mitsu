@@ -50,20 +50,14 @@ class Dealer {
   _startGame(socket, requestPlayer) {
     this._io.of('/').in(this._worldId).clients((err, clients) => {
       if (clients.length === 2) {
-        Promise
-          .resolve()
-          .then(() => {
-            return word2vec.fetchFirstWord().then((firstWord) => {
-              this._baseWord = firstWord;
-            })
-          })
-          .then(() => {
-            this._feedbackPositionsEmitter(PLAYER_PEKORA_START_POSITION_X, PLAYER_PEKORA_START_POSITION_Y, PLAYER_PEKORA);
-            this._feedbackPositionsEmitter(PLAYER_BAIKINKUN_START_POSITION_X, PLAYER_BAIKINKUN_START_POSITION_Y, PLAYER_BAIKINKUN);
-            this._gameResourcesEmitter(PLAYER_PEKORA);
-            this._declareAttackEmitter(socket, requestPlayer);
-            this._declareWaitEmitter(socket, requestPlayer);
-          })
+        word2vec.fetchFirstWord().then((firstWord) => {
+          this._baseWord = firstWord;
+          this._feedbackPositionsEmitter(PLAYER_PEKORA_START_POSITION_X, PLAYER_PEKORA_START_POSITION_Y, PLAYER_PEKORA);
+          this._feedbackPositionsEmitter(PLAYER_BAIKINKUN_START_POSITION_X, PLAYER_BAIKINKUN_START_POSITION_Y, PLAYER_BAIKINKUN);
+          this._gameResourcesEmitter(PLAYER_PEKORA);
+          this._declareAttackEmitter(socket, requestPlayer);
+          this._declareWaitEmitter(socket, requestPlayer);
+        });
       }
     });
   }
@@ -96,12 +90,8 @@ class Dealer {
       .resolve()
       .then(() => {
         return Promise.all([
-          word2vec.fetchWords(this._baseWord).then((words) => {
-            this._words = words;
-          }),
-          worldStates.getTurn(this._worldId).then((turn) => {
-            this._turn = turn;
-          }),
+          word2vec.fetchWords(this._baseWord).then((words) => this._words = words),
+          worldStates.getTurn(this._worldId).then((turn) => this._turn = turn),
         ]);
       })
       .then(() => {
@@ -112,7 +102,6 @@ class Dealer {
   _attackListener(socket) {
     socket.on('attack', payload => {
       console.log(`attack: ${payload.word}`);
-
       worldStates.isValidPlayer(payload.worldId, payload.token, payload.role)
         .then((isValid) => {
           if (isValid) {
