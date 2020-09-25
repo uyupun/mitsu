@@ -117,24 +117,39 @@ class Dealer {
   _attackListener(socket) {
     socket.on('attack', payload => {
       console.log(`attack: ${payload.baseWord}`);
-
       worldStates.isValidPlayer(payload.worldId, payload.token, payload.role)
         .then((isValid) => {
           if (isValid) {
-            // TODO: ポジションの計算
-            this._feedbackPositionsEmitter(payload.baseWord.move_x, payload.baseWord.move_y, payload.role);
-            // TODO: 勝利判定に使用するポジションの値
-            if (judge.isHit({x: 1, y: 1}, {x: 1, y: 1})) {
-              this._judgeEmitter(PLAYER_BAIKINKUN);
-            } else if (judge.isGoal(1)) {
-              this._judgeEmitter(PLAYER_PEKORA);
-            } else {
-              worldStates.incrementTurn(this._worldId);
-              this._baseWord = payload.baseWord;
-              this._gameResourcesEmitter(payload.role === PLAYER_PEKORA ? PLAYER_BAIKINKUN : PLAYER_PEKORA);
-              this._declareAttackEmitter(socket, payload.role);
-              this._declareWaitEmitter(socket, payload.role);
-            }
+            Promise
+              .resolve()
+              .then(() => {
+                // TODO: ポジションの計算
+                return this._feedbackPositionsEmitter(payload.baseWord.move_x, payload.baseWord.move_y, payload.role);
+              })
+              .then(() => {
+                // TODO: 勝利判定に使用するポジションの値
+                if (judge.isHit({x: 1, y: 1}, {x: 1, y: 1})) {
+                  this._judgeEmitter(PLAYER_BAIKINKUN);
+                } else if (judge.isGoal(1)) {
+                  this._judgeEmitter(PLAYER_PEKORA);
+                } else {
+                  Promise
+                    .resolve()
+                    .then(() => {
+                      return worldStates.incrementTurn(this._worldId);
+                    })
+                    .then(() => {
+                      this._baseWord = payload.baseWord;
+                      return this._gameResourcesEmitter(payload.role === PLAYER_PEKORA ? PLAYER_BAIKINKUN : PLAYER_PEKORA);
+                    })
+                    .then(() => {
+                      Promise.all([
+                        this._declareAttackEmitter(socket, payload.role),
+                        this._declareWaitEmitter(socket, payload.role),
+                      ]);
+                    })
+                }
+              })
           } else {
             this._invalidPlayerEmitter(socket);
           }

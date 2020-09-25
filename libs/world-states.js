@@ -34,8 +34,8 @@ class WorldStates {
   }
 
   incrementTurn(worldId) {
-    this.get(worldId).then((obj) => {
-      this.redis.set(worldId, JSON.stringify({
+    return this.get(worldId).then((obj) => {
+      return this.redis.set(worldId, JSON.stringify({
         worldId: obj.worldId,
         tokens: obj.tokens,
         turn: obj.turn++,
