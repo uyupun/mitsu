@@ -54,20 +54,24 @@ class Dealer {
         Promise
           .resolve()
           .then(() => {
-            word2vec.fetchFirstWord().then((firstWord) => {
+            return word2vec.fetchFirstWord().then((firstWord) => {
               this._baseWord = firstWord;
             })
           })
           .then(() => {
-            this._feedbackPositionsEmitter(PLAYER_PEKORA_START_POSITION_X, PLAYER_PEKORA_START_POSITION_Y, PLAYER_PEKORA);
-            this._feedbackPositionsEmitter(PLAYER_BAIKINKUN_START_POSITION_X, PLAYER_BAIKINKUN_START_POSITION_Y, PLAYER_BAIKINKUN);
+            return Promise.all([
+              this._feedbackPositionsEmitter(PLAYER_PEKORA_START_POSITION_X, PLAYER_PEKORA_START_POSITION_Y, PLAYER_PEKORA),
+              this._feedbackPositionsEmitter(PLAYER_BAIKINKUN_START_POSITION_X, PLAYER_BAIKINKUN_START_POSITION_Y, PLAYER_BAIKINKUN),
+            ])
           })
           .then(() => {
-            this._gameResourcesEmitter(PLAYER_PEKORA);
+            return this._gameResourcesEmitter(PLAYER_PEKORA);
           })
           .then(() => {
-            this._declareAttackEmitter(socket, requestPlayer);
-            this._declareWaitEmitter(socket, requestPlayer);
+            return Promise.all([
+              this._declareAttackEmitter(socket, requestPlayer),
+              this._declareWaitEmitter(socket, requestPlayer),
+            ])
           })
       }
     });
@@ -79,25 +83,25 @@ class Dealer {
   }
 
   _declareAttackEmitter(socket, requestPlayer) {
-    worldStates.getCurrentPlayer(this._worldId).then((currentPlayer) => {
+    return worldStates.getCurrentPlayer(this._worldId).then((currentPlayer) => {
       if (currentPlayer === PLAYER_PEKORA && requestPlayer === PLAYER_PEKORA) socket.emit('declare_attack', {});
       else socket.broadcast.to(this._worldId).emit('declare_attack', {});
     });
   }
 
   _declareWaitEmitter(socket, requestPlayer) {
-    worldStates.getCurrentPlayer(this._worldId).then((currentPlayer) => {
+    return worldStates.getCurrentPlayer(this._worldId).then((currentPlayer) => {
       if (currentPlayer === PLAYER_PEKORA && requestPlayer === PLAYER_PEKORA) socket.broadcast.to(this._worldId).emit('declare_wait', {});
       else socket.emit('declare_wait', {});
     });
   }
 
   _feedbackPositionsEmitter(x, y, player) {
-    this._io.to(this._worldId).emit('feedback_positions', {x, y, player});
+    return this._io.to(this._worldId).emit('feedback_positions', {x, y, player});
   }
 
   _gameResourcesEmitter(player) {
-    Promise
+    return Promise
       .resolve()
       .then(() => {
         return Promise.all([
