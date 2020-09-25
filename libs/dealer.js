@@ -24,7 +24,7 @@ class Dealer {
     this._io.on('connection', socket => {
       this._joinWorldListener(socket);
       this._attackListener(socket);
-      this._disconnectListener(socket);
+      this._disconnectWorldListener(socket);
     });
   }
 
@@ -131,7 +131,7 @@ class Dealer {
     this._io.to(this._worldId).emit('judge', {winner: 1});
   }
 
-  _disconnectListener(socket) {
+  _disconnectWorldListener(socket) {
     socket.on('disconnect_world', payload => {
       if (worldStates.deleteWorldId(payload.worldId)) {
         socket.leave(payload.worldId)
