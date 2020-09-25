@@ -38,7 +38,7 @@ class WorldStates {
       return this.redis.set(worldId, JSON.stringify({
         worldId: obj.worldId,
         tokens: obj.tokens,
-        turn: obj.turn++,
+        turn: obj.turn + 1,
       }));
     })
   }
