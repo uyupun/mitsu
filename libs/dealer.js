@@ -144,12 +144,18 @@ class Dealer {
 
   _disconnectWorldListener(socket) {
     socket.on('disconnect_world', payload => {
-      if (worldStates.deleteWorldId(payload.worldId)) {
-        socket.leave(payload.worldId)
-        socket.disconnect();
-      } else {
-        this._invalidPlayerEmitter(socket)
-      }
+      worldStates.deleteWorld(payload.worldId, payload.token, payload.role)
+        .then((isDeleted) => {
+          if (isDeleted) {
+            socket.leave(payload.worldId)
+            socket.disconnect();
+          } else {
+            this._invalidPlayerEmitter(socket)
+          }
+        })
+        .catch((err) => {
+          this._invalidPlayerEmitter(socket)
+        });
     });
   }
 }

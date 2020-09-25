@@ -53,10 +53,19 @@ class WorldStates {
       });
   }
 
-  deleteWorldId(worldId) {
-    return this.redis.del(worldId)
-      .then(() => {
-        return true;
+  deleteWorld(worldId, token, role) {
+    return this.isValidPlayer(worldId, token, role)
+      .then((isValid) => {
+        if (isValid) {
+          return this.redis.del(worldId)
+            .then(() => {
+              return true;
+            })
+            .catch((err) => {
+              return false;
+            })
+        }
+        return false;
       })
       .catch((err) => {
         return false;
