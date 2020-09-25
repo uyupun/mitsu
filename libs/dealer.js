@@ -14,7 +14,6 @@ const {
 class Dealer {
   constructor(io) {
     this._io = io;
-    this._io.origins(process.env.SOCIAL_RESISTANCE_ADDRESS);
 
     this._worldId = '';
     this._words = [];
@@ -26,7 +25,7 @@ class Dealer {
       [PLAYER_PEKORA]: {x: 0, y: 0},
       [PLAYER_BAIKINKUN]: {x: 0, y: 0}
     };
-    this._turn = 0;
+    this._turn = 1;
   }
 
   joinWorld(socket, payload) {
@@ -106,25 +105,24 @@ class Dealer {
   }
 
   _getTurnEmitter() {
-    return worldStates.getTurn(this._worldId)
-      .then((turn) => {
-        this._turn = turn;
-        this._io.to(this._worldId).emit('get_turn', { turn });
-      })
+    return this._io.to(this._worldId).emit('get_turn', { turn: this._turn });
   }
 
   _declareAttackEmitter(socket, requestPlayer) {
-    return worldStates.getCurrentPlayer(this._worldId).then((currentPlayer) => {
-      if (currentPlayer === PLAYER_PEKORA && requestPlayer === PLAYER_PEKORA) socket.emit('declare_attack', {});
-      else socket.broadcast.to(this._worldId).emit('declare_attack', {});
-    });
+    const currentPlayer = this._getCurrentPlayer();
+    if (currentPlayer === PLAYER_PEKORA && requestPlayer === PLAYER_PEKORA) return socket.emit('declare_attack', {});
+    else return socket.broadcast.to(this._worldId).emit('declare_attack', {});
   }
 
   _declareWaitEmitter(socket, requestPlayer) {
-    return worldStates.getCurrentPlayer(this._worldId).then((currentPlayer) => {
-      if (currentPlayer === PLAYER_PEKORA && requestPlayer === PLAYER_PEKORA) socket.broadcast.to(this._worldId).emit('declare_wait', {});
-      else socket.emit('declare_wait', {});
-    });
+    const currentPlayer = this._getCurrentPlayer();
+    if (currentPlayer === PLAYER_PEKORA && requestPlayer === PLAYER_PEKORA) return socket.broadcast.to(this._worldId).emit('declare_wait', {});
+    else return socket.emit('declare_wait', {});
+  }
+
+  _getCurrentPlayer() {
+    if (this._turn % 2 === 1) return PLAYER_PEKORA;
+    else PLAYER_BAIKINKUN;
   }
 
   attackListener(socket) {
@@ -149,7 +147,7 @@ class Dealer {
                   Promise
                     .resolve()
                     .then(() => {
-                      return worldStates.incrementTurn(this._worldId);
+                      return ++this._turn;
                     })
                     .then(() => {
                       return this._getTurnEmitter();

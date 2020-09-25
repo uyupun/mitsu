@@ -13,7 +13,6 @@ class WorldStates {
     this._redis.set(worldId, JSON.stringify({
       worldId,
       tokens,
-      turn: 1,
     }), 'EX', process.env.WORLD_TTL);
   }
 
@@ -25,29 +24,6 @@ class WorldStates {
       .catch((err) => {
         return err;
       });
-  }
-
-  getTurn(worldId) {
-    return this.get(worldId).then((obj) => {
-      return obj.turn;
-    })
-  }
-
-  incrementTurn(worldId) {
-    return this.get(worldId).then((obj) => {
-      return this._redis.set(worldId, JSON.stringify({
-        worldId: obj.worldId,
-        tokens: obj.tokens,
-        turn: obj.turn + 1,
-      }));
-    })
-  }
-
-  getCurrentPlayer(worldId) {
-    return this.getTurn(worldId).then((turn) => {
-      if (turn % 2 === 1) return PLAYER_PEKORA;
-      else return PLAYER_BAIKINKUN;
-    })
   }
 
   isValidPlayer(worldId, token, role) {
