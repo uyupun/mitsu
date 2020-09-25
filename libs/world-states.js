@@ -6,11 +6,11 @@ const {
 
 class WorldStates {
   constructor() {
-    this.redis = new Redis(process.env.REDIS_PORT, process.env.REDIS_HOST);
+    this._redis = new Redis(process.env.REDIS_PORT, process.env.REDIS_HOST);
   }
 
   create(worldId, tokens) {
-    this.redis.set(worldId, JSON.stringify({
+    this._redis.set(worldId, JSON.stringify({
       worldId,
       tokens,
       turn: 1,
@@ -18,7 +18,7 @@ class WorldStates {
   }
 
   get(worldId) {
-    return this.redis.get(worldId)
+    return this._redis.get(worldId)
       .then((obj) => {
         return JSON.parse(obj);
       })
@@ -35,7 +35,7 @@ class WorldStates {
 
   incrementTurn(worldId) {
     return this.get(worldId).then((obj) => {
-      return this.redis.set(worldId, JSON.stringify({
+      return this._redis.set(worldId, JSON.stringify({
         worldId: obj.worldId,
         tokens: obj.tokens,
         turn: obj.turn + 1,
@@ -51,7 +51,7 @@ class WorldStates {
   }
 
   isValidPlayer(worldId, token, role) {
-    return this.redis.get(worldId)
+    return this._redis.get(worldId)
       .then((obj) => {
         obj = JSON.parse(obj);
         if ((role === PLAYER_PEKORA && obj.tokens['1'] === token) ||
@@ -67,7 +67,7 @@ class WorldStates {
     return this.isValidPlayer(worldId, token, role)
       .then((isValid) => {
         if (isValid) {
-          return this.redis.del(worldId)
+          return this._redis.del(worldId)
             .then(() => {
               return true;
             })
