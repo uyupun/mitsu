@@ -95,7 +95,7 @@ class Dealer {
   }
 
   _gameResourcesEmitter(player) {
-    this._io.to(this._worldId).emit('game_resources', {words: this._words, baseWord: this._baseWord, player});
+    this._io.to(this._worldId).emit('game_resources', {words: this._words, baseWord: this._baseWord, player, turn: this._turn});
   }
 
   _attackListener(socket) {
