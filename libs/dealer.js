@@ -101,19 +101,20 @@ class Dealer {
 
   _attackListener(socket) {
     socket.on('attack', payload => {
-      console.log(`attack: ${payload.word}`);
+      console.log(`attack: ${payload.baseWord}`);
+
       worldStates.isValidPlayer(payload.worldId, payload.token, payload.role)
         .then((isValid) => {
           if (isValid) {
             // TODO: ポジションの計算
-            this._feedbackPositionsEmitter(payload.x, payload.y, payload.role);
+            this._feedbackPositionsEmitter(payload.baseWord.move_x, payload.baseWord.move_y, payload.role);
             // TODO: 勝利判定
             const judge = false;
             if (judge) {
               this._judgeEmitter();
             } else {
               this._baseWord = payload.baseWord;
-              this._gameResourcesEmitter(PLAYER_BAIKINKUN);
+              this._gameResourcesEmitter(payload.role === PLAYER_PEKORA ? PLAYER_BAIKINKUN : PLAYER_PEKORA);
               this._declareAttackEmitter(socket, payload.role);
               this._declareWaitEmitter(socket, payload.role);
             }
