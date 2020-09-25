@@ -1,5 +1,6 @@
 const worldStates = require('./world-states');
 const word2vec = require('./word2vec');
+const judge = require('./judge');
 const {
   PLAYER_PEKORA,
   PLAYER_BAIKINKUN,
@@ -108,10 +109,11 @@ class Dealer {
           if (isValid) {
             // TODO: ポジションの計算
             this._feedbackPositionsEmitter(payload.baseWord.move_x, payload.baseWord.move_y, payload.role);
-            // TODO: 勝利判定
-            const judge = false;
-            if (judge) {
-              this._judgeEmitter();
+            // TODO: 勝利判定に使用するポジションの値
+            if (judge.isHit({x: 1, y: 1}, {x: 1, y: 1})) {
+              this._judgeEmitter(PLAYER_BAIKINKUN);
+            } else if (judge.isGoal(1)) {
+              this._judgeEmitter(PLAYER_PEKORA);
             } else {
               worldStates.incrementTurn(this._worldId);
               this._baseWord = payload.baseWord;
@@ -129,8 +131,8 @@ class Dealer {
     });
   }
 
-  _judgeEmitter() {
-    this._io.to(this._worldId).emit('judge', {winner: 1});
+  _judgeEmitter(player) {
+    this._io.to(this._worldId).emit('judge', {winner: player});
   }
 
   _disconnectWorldListener(socket) {
