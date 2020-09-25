@@ -6,19 +6,19 @@ const {
 
 class WorldStates {
   constructor() {
-    this.redis = new Redis(process.env.REDIS_PORT, process.env.REDIS_HOST);
+    this._redis = new Redis(process.env.REDIS_PORT, process.env.REDIS_HOST);
   }
 
-  set(worldId, tokens) {
-    this.redis.set(worldId, JSON.stringify({
-      worldId: worldId,
-      tokens: tokens,
+  create(worldId, tokens) {
+    this._redis.set(worldId, JSON.stringify({
+      worldId,
+      tokens,
       turn: 1,
     }), 'EX', process.env.WORLD_TTL);
   }
 
   get(worldId) {
-    return this.redis.get(worldId)
+    return this._redis.get(worldId)
       .then((obj) => {
         return JSON.parse(obj);
       })
@@ -33,6 +33,16 @@ class WorldStates {
     })
   }
 
+  incrementTurn(worldId) {
+    return this.get(worldId).then((obj) => {
+      return this._redis.set(worldId, JSON.stringify({
+        worldId: obj.worldId,
+        tokens: obj.tokens,
+        turn: obj.turn + 1,
+      }));
+    })
+  }
+
   getCurrentPlayer(worldId) {
     return this.getTurn(worldId).then((turn) => {
       if (turn % 2 === 1) return PLAYER_PEKORA;
@@ -41,7 +51,7 @@ class WorldStates {
   }
 
   isValidPlayer(worldId, token, role) {
-    return this.redis.get(worldId)
+    return this._redis.get(worldId)
       .then((obj) => {
         obj = JSON.parse(obj);
         if ((role === PLAYER_PEKORA && obj.tokens['1'] === token) ||
@@ -51,6 +61,25 @@ class WorldStates {
       .catch((err) => {
         return false;
       });
+  }
+
+  deleteWorld(worldId, token, role) {
+    return this.isValidPlayer(worldId, token, role)
+      .then((isValid) => {
+        if (isValid) {
+          return this._redis.del(worldId)
+            .then(() => {
+              return true;
+            })
+            .catch((err) => {
+              return false;
+            })
+        }
+        return false;
+      })
+      .catch((err) => {
+        return false;
+      })
   }
 }
 

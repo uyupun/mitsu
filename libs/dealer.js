@@ -1,5 +1,7 @@
 const worldStates = require('./world-states');
 const word2vec = require('./word2vec');
+const judge = require('./judge');
+const position = require('./position');
 const {
   PLAYER_PEKORA,
   PLAYER_BAIKINKUN,
@@ -16,7 +18,14 @@ class Dealer {
 
     this._worldId = '';
     this._words = [];
-    this._baseWord = '';
+    this._baseWords = {
+      [PLAYER_PEKORA]: null,
+      [PLAYER_BAIKINKUN]: null,
+    }
+    this._positions = {
+      [PLAYER_PEKORA]: {x: 0, y: 0},
+      [PLAYER_BAIKINKUN]: {x: 0, y: 0}
+    };
     this._turn = 0;
   }
 
@@ -24,12 +33,12 @@ class Dealer {
     this._io.on('connection', socket => {
       this._joinWorldListener(socket);
       this._attackListener(socket);
+      this._disconnectWorldListener(socket);
     });
   }
 
   _joinWorldListener(socket) {
     socket.on('join_world', payload => {
-      console.log(`join world: ${payload.worldId}`);
       worldStates.isValidPlayer(payload.worldId, payload.token, payload.role)
         .then((isValid) => {
           if (isValid) {
@@ -52,26 +61,24 @@ class Dealer {
         Promise
           .resolve()
           .then(() => {
-            return word2vec.fetchFirstWord().then((firstWord) => {
-              this._baseWord = firstWord;
-            })
-          })
-          .then(() => {
             return Promise.all([
-              word2vec.fetchWords(this._baseWord).then((words) => {
-                this._words = words;
-              }),
-              worldStates.getTurn(this._worldId).then((turn) => {
-                this._turn = turn;
-              }),
+              word2vec.fetchFirstWord().then((firstWord) => this._baseWords[PLAYER_PEKORA] = firstWord),
+              word2vec.fetchFirstWord().then((firstWord) => this._baseWords[PLAYER_BAIKINKUN] = firstWord),
+              this._feedbackPositionsEmitter(PLAYER_PEKORA_START_POSITION_X, PLAYER_PEKORA_START_POSITION_Y, PLAYER_PEKORA),
+              this._feedbackPositionsEmitter(PLAYER_BAIKINKUN_START_POSITION_X, PLAYER_BAIKINKUN_START_POSITION_Y, PLAYER_BAIKINKUN),
             ]);
           })
           .then(() => {
-            this._feedbackPositionsEmitter(PLAYER_PEKORA_START_POSITION_X, PLAYER_PEKORA_START_POSITION_Y, PLAYER_PEKORA);
-            this._feedbackPositionsEmitter(PLAYER_BAIKINKUN_START_POSITION_X, PLAYER_BAIKINKUN_START_POSITION_Y, PLAYER_BAIKINKUN);
-            this._gameResourcesEmitter(PLAYER_PEKORA);
-            this._declareAttackEmitter(socket, requestPlayer);
-            this._declareWaitEmitter(socket, requestPlayer);
+            return Promise.all([
+              this._getTurnEmitter(),
+              this._getWordsAndBasewordEmitter(PLAYER_PEKORA),
+            ]);
+          })
+          .then(() => {
+            return Promise.all([
+              this._declareAttackEmitter(socket, requestPlayer),
+              this._declareWaitEmitter(socket, requestPlayer),
+            ]);
           })
       }
     });
@@ -82,52 +89,127 @@ class Dealer {
     socket.disconnect();
   }
 
+  _feedbackPositionsEmitter(x, y, player) {
+    this._positions[player].x = x;
+    this._positions[player].y = y;
+    return this._io.to(this._worldId).emit('feedback_positions', {x, y, player});
+  }
+
+  _getWordsAndBasewordEmitter(player) {
+    return word2vec.fetchWords(this._baseWords[player])
+      .then((words) => {
+        this._words = words;
+        this._io.to(this._worldId).emit('get_words_and_baseword', { words, baseWord: this._baseWords[player], player });
+      })
+  }
+
+  _updateBasewordEmitter(player) {
+    this._io.to(this._worldId).emit('update_baseword', { baseWord: this._baseWords[player], player });
+  }
+
+  _getWordsEmitter(player) {
+    return word2vec.fetchWords(this._baseWords[player])
+      .then((words) => {
+        this._words = words;
+        this._io.to(this._worldId).emit('get_words', { words });
+      })
+  }
+
+  _getTurnEmitter() {
+    return worldStates.getTurn(this._worldId)
+      .then((turn) => {
+        this._turn = turn;
+        this._io.to(this._worldId).emit('get_turn', { turn });
+      })
+  }
+
   _declareAttackEmitter(socket, requestPlayer) {
-    worldStates.getCurrentPlayer(this._worldId).then((currentPlayer) => {
+    return worldStates.getCurrentPlayer(this._worldId).then((currentPlayer) => {
       if (currentPlayer === PLAYER_PEKORA && requestPlayer === PLAYER_PEKORA) socket.emit('declare_attack', {});
       else socket.broadcast.to(this._worldId).emit('declare_attack', {});
     });
   }
 
   _declareWaitEmitter(socket, requestPlayer) {
-    worldStates.getCurrentPlayer(this._worldId).then((currentPlayer) => {
+    return worldStates.getCurrentPlayer(this._worldId).then((currentPlayer) => {
       if (currentPlayer === PLAYER_PEKORA && requestPlayer === PLAYER_PEKORA) socket.broadcast.to(this._worldId).emit('declare_wait', {});
       else socket.emit('declare_wait', {});
     });
   }
 
-  _feedbackPositionsEmitter(x, y, player) {
-    this._io.to(this._worldId).emit('feedback_positions', {x, y, player});
-  }
-
-  _gameResourcesEmitter(player) {
-    this._io.to(this._worldId).emit('game_resources', {words: this._words, baseWord: this._baseWord, player, turn: this._turn});
-  }
-
   _attackListener(socket) {
     socket.on('attack', payload => {
-      console.log(`attack: ${payload.word}`);
-
-      // ポジションの計算 + プレイヤーの算出
-      this._feedbackPositionsEmitter();
-
-      // TODO: 勝利判定
-      const judge = false;
-      if (judge) {
-        this._judgeEmitter();
-      } else {
-        // words/basewordの更新
-        this._words = ['H', 'G', 'F', 'E', 'D', 'C', 'B', 'A'];
-        this._baseWord = 'B';
-        // TODO: turnとrole渡す
-        this._declareAttackEmitter(socket, 2, 2);
-        this._declareWaitEmitter(socket, 2, 1);
-      }
+      worldStates.isValidPlayer(payload.worldId, payload.token, payload.role)
+        .then((isValid) => {
+          if (isValid) {
+            Promise
+              .resolve()
+              .then(() => {
+                const {x, y} = position.depart(this._positions[payload.role].x, this._positions[payload.role].y, payload.baseWord)
+                return this._feedbackPositionsEmitter(x, y, payload.role);
+              })
+              .then(() => {
+                if (judge.isHit(this._positions[PLAYER_PEKORA], this._positions[PLAYER_BAIKINKUN])) {
+                  this._updateBasewordEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN)
+                  this._judgeEmitter(PLAYER_BAIKINKUN);
+                } else if (judge.isGoal(this._positions[PLAYER_PEKORA].x)) {
+                  this._updateBasewordEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN)
+                  this._judgeEmitter(PLAYER_PEKORA);
+                } else {
+                  Promise
+                    .resolve()
+                    .then(() => {
+                      return worldStates.incrementTurn(this._worldId);
+                    })
+                    .then(() => {
+                      return this._getTurnEmitter();
+                    })
+                    .then(() => {
+                      this._baseWords[payload.role] = payload.baseWord;
+                      return Promise.all([
+                        this._updateBasewordEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN),
+                        this._turn <= 2
+                          ? this._getWordsAndBasewordEmitter(PLAYER_BAIKINKUN)
+                          : this._getWordsEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN),
+                      ]);
+                    })
+                    .then(() => {
+                      Promise.all([
+                        this._declareAttackEmitter(socket, payload.role),
+                        this._declareWaitEmitter(socket, payload.role),
+                      ]);
+                    })
+                }
+              })
+          } else {
+            this._invalidPlayerEmitter(socket);
+          }
+        })
+        .catch((err) => {
+          this._invalidPlayerEmitter(socket);
+        });
     });
   }
 
-  _judgeEmitter() {
-    this._io.to(this._worldId).emit('judge', {winner: 1});
+  _judgeEmitter(player) {
+    this._io.to(this._worldId).emit('judge', {winner: player});
+  }
+
+  _disconnectWorldListener(socket) {
+    socket.on('disconnect_world', payload => {
+      worldStates.deleteWorld(payload.worldId, payload.token, payload.role)
+        .then((isDeleted) => {
+          if (isDeleted) {
+            socket.leave(payload.worldId)
+            socket.disconnect();
+          } else {
+            this._invalidPlayerEmitter(socket)
+          }
+        })
+        .catch((err) => {
+          this._invalidPlayerEmitter(socket)
+        });
+    });
   }
 }
 

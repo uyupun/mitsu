@@ -12,7 +12,7 @@ class WorldIdController {
     const worldId = this._generateNanoid(6);
     const token = this._generateNanoid(12);
 
-    worldStates.set(worldId, {
+    worldStates.create(worldId, {
       '1': req.query.recruit == 2 ? token : null,
       '2': req.query.recruit == 1 ? token : null,
     });
@@ -39,7 +39,7 @@ class WorldIdController {
       .then((obj) => {
         const token = this._generateNanoid(12);
         if (obj) {
-          worldStates.set(obj.worldId, {
+          worldStates.create(obj.worldId, {
             '1': obj.tokens['1'] == null ? token : obj.tokens['1'],
             '2': obj.tokens['2'] == null ? token : obj.tokens['2'],
           });
