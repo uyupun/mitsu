@@ -1,4 +1,8 @@
 const Redis = require('ioredis');
+const {
+  PLAYER_PEKORA,
+  PLAYER_BAIKINKUN,
+} = require('./constants');
 
 class WorldStates {
   constructor() {
@@ -29,12 +33,19 @@ class WorldStates {
     })
   }
 
+  getCurrentPlayer(worldId) {
+    return this.getTurn(worldId).then((turn) => {
+      if (turn % 2 === 1) return PLAYER_PEKORA;
+      else return PLAYER_BAIKINKUN;
+    })
+  }
+
   isValidPlayer(worldId, token, role) {
     return this.redis.get(worldId)
       .then((obj) => {
         obj = JSON.parse(obj);
-        if ((role === '1' && obj.tokens['1'] === token) ||
-             role === '2' && obj.tokens['2'] === token) return true;
+        if ((role === PLAYER_PEKORA && obj.tokens['1'] === token) ||
+             role === PLAYER_BAIKINKUN && obj.tokens['2'] === token) return true;
         return false;
       })
       .catch((err) => {
