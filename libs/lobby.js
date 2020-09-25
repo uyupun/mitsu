@@ -14,18 +14,14 @@ class Lobby {
   }
 
   _joinWorldListener(socket) {
-    Promise
-      .resolve()
-      .then(() => {
-        return socket.on('join_world', (payload) => {
-          if (!this._dealers[payload.worldId]) {
-            this._dealers[payload.worldId] = new Dealer(this._io)
-          }
-          this._dealers[payload.worldId].joinWorld(socket, payload);
-          this._dealers[payload.worldId].attackListener(socket);
-          this._dealers[payload.worldId].disconnectWorldListener(socket);
-        });
-      })
+    socket.on('join_world', (payload) => {
+      if (!this._dealers[payload.worldId]) {
+        this._dealers[payload.worldId] = new Dealer(this._io)
+      }
+      this._dealers[payload.worldId].joinWorld(socket, payload);
+      this._dealers[payload.worldId].attackListener(socket);
+      this._dealers[payload.worldId].disconnectWorldListener(socket);
+    });
   }
 }
 
