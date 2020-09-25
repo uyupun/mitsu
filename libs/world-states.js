@@ -9,10 +9,10 @@ class WorldStates {
     this.redis = new Redis(process.env.REDIS_PORT, process.env.REDIS_HOST);
   }
 
-  set(worldId, tokens) {
+  create(worldId, tokens) {
     this.redis.set(worldId, JSON.stringify({
-      worldId: worldId,
-      tokens: tokens,
+      worldId,
+      tokens,
       turn: 1,
     }), 'EX', process.env.WORLD_TTL);
   }
@@ -30,6 +30,16 @@ class WorldStates {
   getTurn(worldId) {
     return this.get(worldId).then((obj) => {
       return obj.turn;
+    })
+  }
+
+  incrementTurn(worldId) {
+    this.get(worldId).then((obj) => {
+      return this.redis.set(worldId, JSON.stringify({
+        worldId: obj.worldId,
+        tokens: obj.tokens,
+        turn: obj.turn++,
+      }));
     })
   }
 

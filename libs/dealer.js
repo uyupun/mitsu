@@ -113,6 +113,7 @@ class Dealer {
             if (judge) {
               this._judgeEmitter();
             } else {
+              worldStates.incrementTurn(this._worldId);
               this._baseWord = payload.baseWord;
               this._gameResourcesEmitter(payload.role === PLAYER_PEKORA ? PLAYER_BAIKINKUN : PLAYER_PEKORA);
               this._declareAttackEmitter(socket, payload.role);
