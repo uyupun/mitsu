@@ -1,6 +1,7 @@
 const worldStates = require('./world-states');
 const word2vec = require('./word2vec');
 const judge = require('./judge');
+const position = require('./position');
 const {
   PLAYER_PEKORA,
   PLAYER_BAIKINKUN,
@@ -20,6 +21,10 @@ class Dealer {
     this._baseWords = {
       [PLAYER_PEKORA]: null,
       [PLAYER_BAIKINKUN]: null,
+    }
+    this._positions = {
+      [PLAYER_PEKORA]: {x: 0, y: 0},
+      [PLAYER_BAIKINKUN]: {x: 0, y: 0}
     };
     this._turn = 0;
   }
@@ -84,6 +89,9 @@ class Dealer {
   }
 
   _feedbackPositionsEmitter(x, y, player) {
+    console.log(x, y, player)
+    this._positions[player].x = x;
+    this._positions[player].y = y;
     return this._io.to(this._worldId).emit('feedback_positions', {x, y, player});
   }
 
@@ -129,15 +137,13 @@ class Dealer {
             Promise
               .resolve()
               .then(() => {
-                // TODO: ポジションの計算
-                return this._feedbackPositionsEmitter(payload.baseWord.move_x, payload.baseWord.move_y, payload.role);
-                // TODO: update_baseword
+                const {x, y} = position.depart(this._positions[payload.role].x, this._positions[payload.role].y, payload.baseWord)
+                return this._feedbackPositionsEmitter(x, y, payload.role);
               })
               .then(() => {
-                // TODO: 勝利判定に使用するポジションの値
-                if (judge.isHit({x: 1, y: 1}, {x: 1, y: 1})) {
+                if (judge.isHit(this._positions[PLAYER_PEKORA], this._positions[PLAYER_BAIKINKUN])) {
                   this._judgeEmitter(PLAYER_BAIKINKUN);
-                } else if (judge.isGoal(1)) {
+                } else if (judge.isGoal(this._positions[PLAYER_PEKORA].x)) {
                   this._judgeEmitter(PLAYER_PEKORA);
                 } else {
                   Promise
