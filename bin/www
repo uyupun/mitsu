@@ -27,9 +27,9 @@ const server = http.createServer(app);
  */
 
 const io = require('socket.io')(server);
-const Dealer = require('../libs/dealer');
-const dealer = new Dealer(io);
-dealer.proceed();
+const Lobby = require('../libs/lobby');
+const lobby = new Lobby(io);
+lobby.enter();
 
 /**
  * Listen on provided port, on all network interfaces.
