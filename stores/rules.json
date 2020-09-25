@@ -1,19 +1,19 @@
 [
   {
     "text": "まず『ぼしゅう』『さんか』のどちらでゲームを始めるか選びましょう。",
-    "image": "/images/rules/1.png"
+    "image": "/images/rules/rule_1.png"
   },
   {
     "text": "募集者は『うさぎさん』『バイキンくん』のどちらかを選び『ぼしゅう』ボタンを押してください。",
-    "image": "/images/rules/2.png"
+    "image": "/images/rules/rule_2.png"
   },
   {
     "text": "表示されたワールドIDを参加者に共有したら、『はじめる』ボタンを押して待機しましょう。",
-    "image": "/images/rules/3.png"
+    "image": "/images/rules/rule_3.png"
   },
   {
-    "text": "参加者は共有されたワールドIDを入力して『はじめる』を押してください。",
-    "image": "/images/rules/4.png"
+    "text": "参加者は共有されたワールドIDを入力したら『はじめる』を押してください。ゲームの始まりをを待ちましょう。",
+    "image": "/images/rules/rule_4.png"
   },
   {
     "text": "『うさぎさん』はおうちを目指して進みます。",
