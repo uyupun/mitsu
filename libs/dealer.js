@@ -39,7 +39,6 @@ class Dealer {
 
   _joinWorldListener(socket) {
     socket.on('join_world', payload => {
-      console.log(`join world: ${payload.worldId}`);
       worldStates.isValidPlayer(payload.worldId, payload.token, payload.role)
         .then((isValid) => {
           if (isValid) {
@@ -140,7 +139,6 @@ class Dealer {
 
   _attackListener(socket) {
     socket.on('attack', payload => {
-      console.log(`attack: ${payload}`);
       worldStates.isValidPlayer(payload.worldId, payload.token, payload.role)
         .then((isValid) => {
           if (isValid) {
@@ -152,8 +150,10 @@ class Dealer {
               })
               .then(() => {
                 if (judge.isHit(this._positions[PLAYER_PEKORA], this._positions[PLAYER_BAIKINKUN])) {
+                  this._updateBasewordEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN)
                   this._judgeEmitter(PLAYER_BAIKINKUN);
                 } else if (judge.isGoal(this._positions[PLAYER_PEKORA].x)) {
+                  this._updateBasewordEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN)
                   this._judgeEmitter(PLAYER_PEKORA);
                 } else {
                   Promise
