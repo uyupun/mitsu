@@ -4,19 +4,32 @@ const {
   PLAYER_BAIKINKUN,
 } = require('./constants');
 
+/**
+ * ワールドに必要な情報の保持
+ */
 class WorldStates {
   constructor() {
     this._redis = new Redis(process.env.REDIS_PORT, process.env.REDIS_HOST);
   }
 
+  /**
+   * ワールドIDとトークンの保存
+   *
+   * @param {*} worldId
+   * @param {*} tokens
+   */
   create(worldId, tokens) {
     this._redis.set(worldId, JSON.stringify({
       worldId,
       tokens,
-      turn: 1,
     }), 'EX', process.env.WORLD_TTL);
   }
 
+  /**
+   * ワールドIDとトークンの取得
+   *
+   * @param {*} worldId
+   */
   get(worldId) {
     return this._redis.get(worldId)
       .then((obj) => {
@@ -27,35 +40,19 @@ class WorldStates {
       });
   }
 
-  getTurn(worldId) {
-    return this.get(worldId).then((obj) => {
-      return obj.turn;
-    })
-  }
-
-  incrementTurn(worldId) {
-    return this.get(worldId).then((obj) => {
-      return this._redis.set(worldId, JSON.stringify({
-        worldId: obj.worldId,
-        tokens: obj.tokens,
-        turn: obj.turn + 1,
-      }));
-    })
-  }
-
-  getCurrentPlayer(worldId) {
-    return this.getTurn(worldId).then((turn) => {
-      if (turn % 2 === 1) return PLAYER_PEKORA;
-      else return PLAYER_BAIKINKUN;
-    })
-  }
-
+  /**
+   * 正当なプレイヤーかどうかの検証
+   *
+   * @param {*} worldId
+   * @param {*} token
+   * @param {*} role
+   */
   isValidPlayer(worldId, token, role) {
     return this._redis.get(worldId)
       .then((obj) => {
         obj = JSON.parse(obj);
-        if ((role === PLAYER_PEKORA && obj.tokens['1'] === token) ||
-             role === PLAYER_BAIKINKUN && obj.tokens['2'] === token) return true;
+        if ((role === PLAYER_PEKORA && obj.tokens[PLAYER_PEKORA] === token) ||
+             role === PLAYER_BAIKINKUN && obj.tokens[PLAYER_BAIKINKUN] === token) return true;
         return false;
       })
       .catch((err) => {
@@ -63,7 +60,14 @@ class WorldStates {
       });
   }
 
-  deleteWorld(worldId, token, role) {
+  /**
+   * ワールドの情報の削除
+   *
+   * @param {*} worldId
+   * @param {*} token
+   * @param {*} role
+   */
+  delete(worldId, token, role) {
     return this.isValidPlayer(worldId, token, role)
       .then((isValid) => {
         if (isValid) {
