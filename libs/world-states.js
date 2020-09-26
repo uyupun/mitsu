@@ -4,11 +4,20 @@ const {
   PLAYER_BAIKINKUN,
 } = require('./constants');
 
+/**
+ * ワールドに必要な情報の保持
+ */
 class WorldStates {
   constructor() {
     this._redis = new Redis(process.env.REDIS_PORT, process.env.REDIS_HOST);
   }
 
+  /**
+   * ワールドIDとトークンの保存
+   *
+   * @param {*} worldId
+   * @param {*} tokens
+   */
   create(worldId, tokens) {
     this._redis.set(worldId, JSON.stringify({
       worldId,
@@ -16,6 +25,11 @@ class WorldStates {
     }), 'EX', process.env.WORLD_TTL);
   }
 
+  /**
+   * ワールドIDとトークンの取得
+   *
+   * @param {*} worldId
+   */
   get(worldId) {
     return this._redis.get(worldId)
       .then((obj) => {
@@ -26,6 +40,13 @@ class WorldStates {
       });
   }
 
+  /**
+   * 正当なプレイヤーかどうかの検証
+   *
+   * @param {*} worldId
+   * @param {*} token
+   * @param {*} role
+   */
   isValidPlayer(worldId, token, role) {
     return this._redis.get(worldId)
       .then((obj) => {
@@ -39,6 +60,13 @@ class WorldStates {
       });
   }
 
+  /**
+   * ワールドの情報の削除
+   *
+   * @param {*} worldId
+   * @param {*} token
+   * @param {*} role
+   */
   delete(worldId, token, role) {
     return this.isValidPlayer(worldId, token, role)
       .then((isValid) => {

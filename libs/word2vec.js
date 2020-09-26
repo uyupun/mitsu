@@ -9,11 +9,19 @@ class Word2vec {
     })
   }
 
+  /**
+   * 最初の一単語目の取得
+   */
   fetchFirstWord() {
     const id = this._generateRandomId(this._recordCnt);
     return models.Word2vec.findByPk(id, {raw: true});
   }
 
+  /**
+   * 単語の選択肢の取得
+   *
+   * @param {*} baseWord
+   */
   fetchWords(baseWord) {
     return models.Word2vec.findAll({
       raw: true,
@@ -27,12 +35,21 @@ class Word2vec {
     })
   }
 
+  /**
+   * レコード数の計算
+   */
   _getRecordCnt() {
     return models.Word2vec.count().then((cnt) => {
       return cnt;
     });
   }
 
+  /**
+   * 単語の選択肢の数だけレコード数の範囲内でランダムな数を生成する
+   * ランダムに単語を取得する際に使用する
+   *
+   * @param {*} limit
+   */
   _generateRandomIds(limit) {
     const ids = [];
     for (let i = 0; i < WORD_COUNT; i++) {
@@ -41,11 +58,22 @@ class Word2vec {
     return ids;
   }
 
+  /**
+   * レコード数の範囲内でランダムな数を生成する
+   *
+   * @param {*} limit
+   */
   _generateRandomId(limit) {
     const id = Math.ceil(Math.random() * limit);
     return id;
   }
 
+  /**
+   * 現在選択中の単語と比較して大まかにどの方向へ移動するかの計算
+   *
+   * @param {*} baseWord
+   * @param {*} words
+   */
   _calcDirections(baseWord, words) {
     for (let i = 0; i < WORD_COUNT; i++) {
       const direction = {
