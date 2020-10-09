@@ -65,8 +65,8 @@ class Dealer {
             return Promise.all([
               word2vec.fetchFirstWord().then((firstWord) => this._baseWords[PLAYER_PEKORA] = firstWord),
               word2vec.fetchFirstWord().then((firstWord) => this._baseWords[PLAYER_BAIKINKUN] = firstWord),
-              this._feedbackPositionsEmitter(PLAYER_PEKORA_START_POSITION_X, PLAYER_PEKORA_START_POSITION_Y, PLAYER_PEKORA),
-              this._feedbackPositionsEmitter(PLAYER_BAIKINKUN_START_POSITION_X, PLAYER_BAIKINKUN_START_POSITION_Y, PLAYER_BAIKINKUN),
+              this._feedbackPositionEmitter(PLAYER_PEKORA_START_POSITION_X, PLAYER_PEKORA_START_POSITION_Y, PLAYER_PEKORA),
+              this._feedbackPositionEmitter(PLAYER_BAIKINKUN_START_POSITION_X, PLAYER_BAIKINKUN_START_POSITION_Y, PLAYER_BAIKINKUN),
             ]);
           })
           .then(() => {
@@ -102,10 +102,10 @@ class Dealer {
    * @param {*} y
    * @param {*} player
    */
-  _feedbackPositionsEmitter(x, y, player) {
+  _feedbackPositionEmitter(x, y, player) {
     this._positions[player].x = x;
     this._positions[player].y = y;
-    return this._io.to(this._worldId).emit('feedback_positions', {x, y, player});
+    return this._io.to(this._worldId).emit('feedback_position', {x, y, player});
   }
 
   /**
@@ -196,7 +196,7 @@ class Dealer {
               .resolve()
               .then(() => {
                 const {x, y} = position.depart(this._positions[payload.role].x, this._positions[payload.role].y, payload.baseWord)
-                return this._feedbackPositionsEmitter(x, y, payload.role);
+                return this._feedbackPositionEmitter(x, y, payload.role);
               })
               .then(() => {
                 if (judge.isHit(this._positions[PLAYER_PEKORA], this._positions[PLAYER_BAIKINKUN])) {
