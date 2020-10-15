@@ -1,7 +1,8 @@
 const Dealer = require('./dealer');
 
 /**
- * WebSocket通信の窓口となるクラス
+ * ゲームの開始・終了処理、
+ * Dealerインスタンス(WebSocketコネクション)の管理
  */
 class Lobby {
   constructor(io) {
@@ -27,12 +28,9 @@ class Lobby {
    */
   _joinWorldListener(socket) {
     socket.on('join_world', (payload) => {
-      if (!this._dealers[payload.worldId]) {
+      if (!this._dealers[payload.worldId])
         this._dealers[payload.worldId] = new Dealer(this._io)
-      }
-      this._dealers[payload.worldId].joinWorld(socket, payload);
-      this._dealers[payload.worldId].attackListener(socket);
-      this._dealers[payload.worldId].disconnectWorldListener(socket);
+      this._dealers[payload.worldId].start(socket, payload);
     });
   }
 }
