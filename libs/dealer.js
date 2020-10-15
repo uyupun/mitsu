@@ -19,6 +19,7 @@ class Dealer {
     this._io = io;
 
     this._worldId = '';
+    this._turn = 1;
     this._words = [];
     this._baseWords = {
       [PLAYER_PEKORA]: null,
@@ -26,9 +27,20 @@ class Dealer {
     }
     this._positions = {
       [PLAYER_PEKORA]: {x: 0, y: 0},
-      [PLAYER_BAIKINKUN]: {x: 0, y: 0}
+      [PLAYER_BAIKINKUN]: {x: 0, y: 0},
     };
-    this._turn = 1;
+  }
+
+  /**
+   * 起点となるイベントの起動
+   *
+   * @param {*} socket
+   * @param {*} payload
+   */
+  start(socket, payload) {
+    this._joinWorld(socket, payload);
+    this._attackListener(socket);
+    this._leaveWorldListener(socket);
   }
 
   /**
@@ -37,16 +49,14 @@ class Dealer {
    * @param {*} socket
    * @param {*} payload
    */
-  joinWorld(socket, payload) {
+  _joinWorld(socket, payload) {
     worldStates.isValidPlayer(payload.worldId, payload.token, payload.role)
       .then((isValid) => {
         if (isValid) {
           this._worldId = payload.worldId;
           socket.join(this._worldId);
-          this._startGame(socket, payload.role);
-        } else {
-          this._invalidPlayerEmitter(socket);
-        }
+          this._initGame(socket, payload.role);
+        } else this._invalidPlayerEmitter(socket);
       })
       .catch((err) => {
         this._invalidPlayerEmitter(socket);
@@ -54,45 +64,34 @@ class Dealer {
   }
 
   /**
-   * ゲームの開始処理
+   * ゲームの初期化処理
    */
-  _startGame(socket, requestPlayer) {
+  _initGame(socket, requestPlayer) {
     this._io.of('/').in(this._worldId).clients((err, clients) => {
-      if (clients.length === 2) {
-        Promise
-          .resolve()
-          .then(() => {
-            return Promise.all([
-              word2vec.fetchFirstWord().then((firstWord) => this._baseWords[PLAYER_PEKORA] = firstWord),
-              word2vec.fetchFirstWord().then((firstWord) => this._baseWords[PLAYER_BAIKINKUN] = firstWord),
-              this._feedbackPositionEmitter(PLAYER_PEKORA_START_POSITION_X, PLAYER_PEKORA_START_POSITION_Y, PLAYER_PEKORA),
-              this._feedbackPositionEmitter(PLAYER_BAIKINKUN_START_POSITION_X, PLAYER_BAIKINKUN_START_POSITION_Y, PLAYER_BAIKINKUN),
-            ]);
-          })
-          .then(() => {
-            return Promise.all([
-              this._getTurnEmitter(),
-              this._getWordsAndBasewordEmitter(PLAYER_PEKORA),
-            ]);
-          })
-          .then(() => {
-            return Promise.all([
-              this._declareAttackEmitter(socket, requestPlayer),
-              this._declareWaitEmitter(socket, requestPlayer),
-            ]);
-          })
-      }
+      if (clients.length !== 2) return;
+      Promise
+        .resolve()
+        .then(() => {
+          return Promise.all([
+            word2vec.fetchFirstWord().then((firstWord) => this._baseWords[PLAYER_PEKORA] = firstWord),
+            word2vec.fetchFirstWord().then((firstWord) => this._baseWords[PLAYER_BAIKINKUN] = firstWord),
+            this._feedbackPositionEmitter(PLAYER_PEKORA_START_POSITION_X, PLAYER_PEKORA_START_POSITION_Y, PLAYER_PEKORA),
+            this._feedbackPositionEmitter(PLAYER_BAIKINKUN_START_POSITION_X, PLAYER_BAIKINKUN_START_POSITION_Y, PLAYER_BAIKINKUN),
+          ]);
+        })
+        .then(() => {
+          return Promise.all([
+            this._getWordsAndBaseWordEmitter(PLAYER_PEKORA),
+            this._getTurnEmitter(),
+          ]);
+        })
+        .then(() => {
+          return Promise.all([
+            this._declareAttackEmitter(socket, requestPlayer),
+            this._declareWaitEmitter(socket, requestPlayer),
+          ]);
+        })
     });
-  }
-
-  /**
-   * 正当なプレイヤーでない場合
-   *
-   * @param {*} socket
-   */
-  _invalidPlayerEmitter(socket) {
-    socket.emit('invalid_player', {});
-    socket.disconnect();
   }
 
   /**
@@ -109,25 +108,23 @@ class Dealer {
   }
 
   /**
+   * ターン数を返す
+   */
+  _getTurnEmitter() {
+    return this._io.to(this._worldId).emit('get_turn', { turn: this._turn });
+  }
+
+  /**
    * 単語の選択肢とベースとなる単語を返す
    *
    * @param {*} player
    */
-  _getWordsAndBasewordEmitter(player) {
+  _getWordsAndBaseWordEmitter(player) {
     return word2vec.fetchWords(this._baseWords[player])
       .then((words) => {
         this._words = words;
         this._io.to(this._worldId).emit('get_words_and_baseword', { words, baseWord: this._baseWords[player], player });
       })
-  }
-
-  /**
-   * ベースとなる単語の更新
-   *
-   * @param {*} player
-   */
-  _updateBasewordEmitter(player) {
-    this._io.to(this._worldId).emit('update_baseword', { baseWord: this._baseWords[player], player });
   }
 
   /**
@@ -144,10 +141,12 @@ class Dealer {
   }
 
   /**
-   * ターン数を返す
+   * ベースとなる単語の更新
+   *
+   * @param {*} player
    */
-  _getTurnEmitter() {
-    return this._io.to(this._worldId).emit('get_turn', { turn: this._turn });
+  _updateBaseWordEmitter(player) {
+    return this._io.to(this._worldId).emit('update_baseword', { baseWord: this._baseWords[player], player });
   }
 
   /**
@@ -175,11 +174,22 @@ class Dealer {
   }
 
   /**
-   * 現在の攻撃側がどちらのプレイヤーなのか
+   * 勝利判定
+   *
+   * @param {*} player
    */
-  _getCurrentPlayer() {
-    if (this._turn % 2 === 1) return PLAYER_PEKORA;
-    else PLAYER_BAIKINKUN;
+  _judgeEmitter(player) {
+    return this._io.to(this._worldId).emit('judge', { winner: player });
+  }
+
+  /**
+   * 正当なプレイヤーでない場合
+   *
+   * @param {*} socket
+   */
+  _invalidPlayerEmitter(socket) {
+    socket.emit('invalid_player', {});
+    socket.disconnect();
   }
 
   /**
@@ -187,7 +197,7 @@ class Dealer {
    *
    * @param {*} socket
    */
-  attackListener(socket) {
+  _attackListener(socket) {
     socket.on('attack', payload => {
       worldStates.isValidPlayer(payload.worldId, payload.token, payload.role)
         .then((isValid) => {
@@ -200,36 +210,35 @@ class Dealer {
               })
               .then(() => {
                 if (judge.isHit(this._positions[PLAYER_PEKORA], this._positions[PLAYER_BAIKINKUN])) {
-                  this._updateBasewordEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN)
+                  this._updateBaseWordEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN)
                   this._judgeEmitter(PLAYER_BAIKINKUN);
+                  return;
                 } else if (judge.isGoal(this._positions[PLAYER_PEKORA].x)) {
-                  this._updateBasewordEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN)
+                  this._updateBaseWordEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN)
                   this._judgeEmitter(PLAYER_PEKORA);
-                } else {
-                  Promise
-                    .resolve()
-                    .then(() => {
-                      return ++this._turn;
-                    })
-                    .then(() => {
-                      return this._getTurnEmitter();
-                    })
-                    .then(() => {
-                      this._baseWords[payload.role] = payload.baseWord;
-                      return Promise.all([
-                        this._updateBasewordEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN),
-                        this._turn <= 2
-                          ? this._getWordsAndBasewordEmitter(PLAYER_BAIKINKUN)
-                          : this._getWordsEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN),
-                      ]);
-                    })
-                    .then(() => {
-                      Promise.all([
-                        this._declareAttackEmitter(socket, payload.role),
-                        this._declareWaitEmitter(socket, payload.role),
-                      ]);
-                    })
+                  return;
                 }
+                Promise
+                  .resolve()
+                  .then(() => {
+                    ++this._turn;
+                    return this._getTurnEmitter();
+                  })
+                  .then(() => {
+                    this._baseWords[payload.role] = payload.baseWord;
+                    return Promise.all([
+                      this._updateBaseWordEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN),
+                      this._turn <= 2
+                        ? this._getWordsAndBaseWordEmitter(PLAYER_BAIKINKUN)
+                        : this._getWordsEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN),
+                    ]);
+                  })
+                  .then(() => {
+                    return Promise.all([
+                      this._declareAttackEmitter(socket, payload.role),
+                      this._declareWaitEmitter(socket, payload.role),
+                    ]);
+                  })
               })
           } else {
             this._invalidPlayerEmitter(socket);
@@ -242,21 +251,12 @@ class Dealer {
   }
 
   /**
-   * 勝利判定
-   *
-   * @param {*} player
-   */
-  _judgeEmitter(player) {
-    this._io.to(this._worldId).emit('judge', {winner: player});
-  }
-
-  /**
    * 切断
    *
    * @param {*} socket
    */
-  disconnectWorldListener(socket) {
-    socket.on('disconnect_world', payload => {
+  _leaveWorldListener(socket) {
+    socket.on('leave_world', payload => {
       worldStates.delete(payload.worldId, payload.token, payload.role)
         .then((isDeleted) => {
           if (isDeleted) {
@@ -270,6 +270,14 @@ class Dealer {
           this._invalidPlayerEmitter(socket)
         });
     });
+  }
+
+  /**
+   * 現在の攻撃側がどちらのプレイヤーなのか
+   */
+  _getCurrentPlayer() {
+    if (this._turn % 2 === 1) return PLAYER_PEKORA;
+    else PLAYER_BAIKINKUN;
   }
 }
 
