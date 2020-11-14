@@ -1,4 +1,5 @@
 const Dealer = require('./dealer');
+const { WORLD_TIME_OUT } = require('./constants');
 
 /**
  * ゲームの開始・終了処理、
@@ -28,10 +29,22 @@ class Lobby {
    */
   _joinWorldListener(socket) {
     socket.on('join_world', (payload) => {
-      if (!this._dealers[payload.worldId])
-        this._dealers[payload.worldId] = new Dealer(this._io)
+      if (!this._dealers[payload.worldId]) {
+        this._dealers[payload.worldId] = new Dealer(this._io);
+        setTimeout(this._deleteDealer.bind(this), WORLD_TIME_OUT, payload.worldId);
+      }
       this._dealers[payload.worldId].start(socket, payload);
     });
+  }
+
+  /**
+   * ワールドの削除
+   * ワールド作成後30分後にこのメソッドが呼ばれ、ワールドを削除する
+   * 
+   * @param {String} worldId
+   */
+  _deleteDealer(worldId) {
+    delete this._dealers[worldId];
   }
 }
 
