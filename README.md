@@ -2,12 +2,6 @@
 
 Mitsu is [SOCIAL RESISTANCE](https://github.com/uyupun/social-resistance)'s online game server.
 
-### リンク
-
-|||
-|:--|:--|
-|text8コーパス(日本語版)|https://github.com/Hironsan/ja.text8|
-
 ### コマンド
 
 ```bash
@@ -48,3 +42,9 @@ $ pipenv run python3 test_graph.py
 # ベースとなる単語を原点としたときにマイナス方向にある単語をプラス方向に変換するテスト
 $ pipenv run python3 test_play.py
 ```
+
+### リンク
+
+|||
+|:--|:--|
+|text8コーパス(日本語版)|https://github.com/Hironsan/ja.text8|
