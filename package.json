@@ -1,5 +1,6 @@
 {
   "name": "mitsu",
+  "description": "Mitsu is SOCIAL RESISTANCE's online game server.",
   "version": "1.0.0",
   "private": true,
   "scripts": {
