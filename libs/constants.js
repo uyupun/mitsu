@@ -23,7 +23,7 @@ const PLAYER_BAIKINKUN_START_POSITION_Y = FIELD_HEIGHT / 2;
 // 選択肢の単語数
 const WORD_COUNT = 8;
 // プレイヤーの移動量の倍率
-const PLAYER_MOVE_SCALE = 100
+const PLAYER_MOVE_SCALE = 100;
 // ワールドのタイムアウトミリ秒(=30分)
 const WORLD_TIME_OUT = 1800000;
 
