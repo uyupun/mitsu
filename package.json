@@ -8,10 +8,10 @@
     "prod:ls": "forever list",
     "prod:down": "forever stop ./bin/www",
     "make:model": "sequelize model:create --underscored",
-    "migrate": "sequelize db:migrate --env development --config ./configs/database.json",
-    "migrate:fresh": "echo '' > stores/word2vec.sqlite3 & yarn migrate",
     "make:seeder": "sequelize seed:generate",
-    "seed": "sequelize db:seed:all --config ./configs/database.json"
+    "migrate": "sequelize db:migrate --env development --config ./configs/database.js",
+    "migrate:fresh": "sequelize db:migrate:undo:all --config ./configs/database.js && yarn migrate",
+    "seed": "sequelize db:seed:all --config ./configs/database.js"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
@@ -25,12 +25,12 @@
     "ioredis": "^4.17.3",
     "jade": "~1.11.0",
     "morgan": "~1.9.1",
+    "mysql2": "^2.2.5",
     "nanoid": "^3.1.12",
     "sequelize": "^6.3.5",
     "sequelize-cli": "^6.2.0",
     "serve-favicon": "^2.5.0",
-    "socket.io": "^2.3.0",
-    "sqlite3": "^5.0.0"
+    "socket.io": "^2.3.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.4"
