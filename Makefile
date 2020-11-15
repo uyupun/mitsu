@@ -17,6 +17,9 @@ down:
 ps:
 	docker-compose ps
 
+sh:
+	docker-compose exec express sh
+
 db:
 	yarn migrate:fresh
 	yarn seed
