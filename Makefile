@@ -1,26 +1,22 @@
-.PHONY: setup dev-up dev-down prod-down prod-ls
+.PHONY: setup up down ps db
 
 setup:
-	touch stores/word2vec.sqlite3
 	cp .env.example .env
+	docker network create social_resistance
+	docker-compose build --no-cache
+	docker-compose up -d
+	make db
 	yarn
-	yarn migrate
+
+up:
+	docker-compose up -d
+
+down:
+	-docker-compose down
+
+ps:
+	docker-compose ps
+
+db:
+	yarn migrate:fresh
 	yarn seed
-
-dev-up:
-	docker-compose up -d
-	yarn dev
-
-dev-down:
-	docker compose down
-
-prod-up:
-	docker-compose up -d
-	yarn prod:up
-
-prod-down:
-	docker-compose down
-	yarn prod:down
-
-prod-ls:
-	yarn prod:ls
