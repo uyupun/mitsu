@@ -2,9 +2,8 @@ const Redis = require('ioredis');
 const {
   PLAYER_PEKORA,
   PLAYER_BAIKINKUN,
+  WORLD_TTL,
 } = require('./constants');
-
-require('dotenv').config();
 
 /**
  * ワールドに必要な情報の保持
@@ -24,7 +23,7 @@ class WorldStates {
     this._redis.set(worldId, JSON.stringify({
       worldId,
       tokens,
-    }), 'EX', process.env.WORLD_TTL);
+    }), 'EX', WORLD_TTL);
   }
 
   /**

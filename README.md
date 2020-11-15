@@ -17,6 +17,8 @@ $ yarn make:model --name <model_name> --attributes <field1>:<type1>,<field2>:<ty
 $ yarn make:seeder --name <seeder_name>
 # Dockerのプロセス確認
 $ make ps
+# Expressのコンテナのシェルに入る
+$ make sh
 # DBにテーブル作成 + シーダーの実行
 $ make db
 ```
