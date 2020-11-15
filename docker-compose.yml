@@ -1,6 +1,38 @@
 version: '3'
 
 services:
+  # Web API
+  express:
+    container_name: mitsu_express
+    hostname: mitsu_express
+    image: node:15.2.0-alpine3.10
+    ports:
+      - ${APP_PORT}:${APP_PORT}
+    working_dir: /var/www
+    command: yarn start
+    volumes:
+      - ./:/var/www
+    environment:
+      HOST: ${APP_HOST}
+    depends_on:
+      - redis
+    networks:
+      - social_resistance
+    restart: always
+
+  # ワールド情報
+  redis:
+    container_name: mitsu_redis
+    hostname: mitsu_redis
+    image: redis:latest
+    ports:
+      - 6379:6379
+    depends_on:
+      - mysql
+    networks:
+      - social_resistance
+    restart: always
+
   # Word2vecの単語情報
   mysql:
     container_name: mitsu_mysql
@@ -17,17 +49,6 @@ services:
       MYSQL_PASSWORD: ${DB_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       TZ: 'Asia/Tokyo'
-    networks:
-      - social_resistance
-    restart: always
-
-  # ワールド情報
-  redis:
-    container_name: mitsu_redis
-    hostname: mitsu_redis
-    image: redis:latest
-    ports:
-      - 6379:6379
     networks:
       - social_resistance
     restart: always

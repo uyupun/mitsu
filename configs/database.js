@@ -4,7 +4,7 @@ module.exports = {
   "development": {
     "dialect": process.env.DB_CONNECTION,
     "host": process.env.DB_HOST,
-    "port": process.env.DB_EXPOSE_PORT,
+    "port": process.env.DB_PORT,
     "database": process.env.DB_DATABASE,
     "username": process.env.DB_USERNAME,
     "password": process.env.DB_PASSWORD,
@@ -12,7 +12,7 @@ module.exports = {
   "test": {
     "dialect": process.env.DB_CONNECTION,
     "host": process.env.DB_HOST,
-    "port": process.env.DB_EXPOSE_PORT,
+    "port": process.env.DB_PORT,
     "database": process.env.DB_DATABASE,
     "username": process.env.DB_USERNAME,
     "password": process.env.DB_PASSWORD,
@@ -20,7 +20,7 @@ module.exports = {
   "production": {
     "dialect": process.env.DB_CONNECTION,
     "host": process.env.DB_HOST,
-    "port": process.env.DB_EXPOSE_PORT,
+    "port": process.env.DB_PORT,
     "database": process.env.DB_DATABASE,
     "username": process.env.DB_USERNAME,
     "password": process.env.DB_PASSWORD,
