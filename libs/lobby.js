@@ -1,5 +1,5 @@
 const Dealer = require('./dealer');
-const { WORLD_TIME_OUT } = require('./constants');
+const { WORLD_TIMEOUT } = require('./constants');
 
 /**
  * ゲームの開始・終了処理、
@@ -31,7 +31,7 @@ class Lobby {
     socket.on('join_world', (payload) => {
       if (!this._dealers[payload.worldId]) {
         this._dealers[payload.worldId] = new Dealer(this._io);
-        setTimeout(this._deleteDealer.bind(this), WORLD_TIME_OUT, payload.worldId);
+        setTimeout(this._deleteDealer.bind(this), WORLD_TIMEOUT, payload.worldId);
       }
       this._dealers[payload.worldId].start(socket, payload);
     });
