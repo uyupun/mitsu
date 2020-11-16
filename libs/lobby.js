@@ -8,7 +8,7 @@ const { WORLD_TTL } = require('./constants');
 class Lobby {
   constructor(io) {
     this._io = io;
-    this._io.origins(process.env.SOCIAL_RESISTANCE_ADDRESS);
+    this._io.origins(process.env.FRONTEND_URL);
     this._dealers = {};
   }
 
