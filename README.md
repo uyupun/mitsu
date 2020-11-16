@@ -8,19 +8,20 @@ Mitsu is [SOCIAL RESISTANCE](https://github.com/uyupun/social-resistance)'s onli
 # 環境構築
 $ make setup
 # 開発環境のサーバとコンテナの起動
+# localhost:8000
 $ make up
 # コンテナの停止
 $ make down
-# モデルとマイグレーションファイルの作成
-$ yarn make:model --name <model_name> --attributes <field1>:<type1>,<field2>:<type2>,...
-# シーダーファイルの作成
-$ yarn make:seeder --name <seeder_name>
 # Dockerのプロセス確認
 $ make ps
 # Expressのコンテナのシェルに入る
 $ make sh
 # DBにテーブル作成 + シーダーの実行
 $ make db
+# モデルとマイグレーションの作成
+$ yarn make:model --name <model_name> --attributes <field1>:<type1>,<field2>:<type2>,...
+# シーダーの作成
+$ yarn make:seeder --name <seeder_name>
 ```
 
 ### 環境構築（Word2vec）

@@ -1,4 +1,4 @@
-.PHONY: setup up down ps db
+.PHONY: up down ps sh db
 
 setup:
 	cp .env.example .env
