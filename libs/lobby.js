@@ -1,5 +1,6 @@
 const Dealer = require('./dealer');
 const { WORLD_TTL } = require('./constants');
+require('dotenv').config();
 
 /**
  * ゲームの開始・終了処理、

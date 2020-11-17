@@ -4,6 +4,7 @@ const {
   PLAYER_BAIKINKUN,
   WORLD_TTL,
 } = require('./constants');
+require('dotenv').config();
 
 /**
  * ワールドに必要な情報の保持
