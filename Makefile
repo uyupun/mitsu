@@ -21,5 +21,5 @@ sh:
 	docker-compose exec express sh
 
 db:
-	yarn migrate:fresh
-	yarn seed
+	docker-compose exec express yarn migrate:fresh
+	docker-compose exec express yarn seed
