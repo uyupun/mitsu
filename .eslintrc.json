@@ -7,11 +7,6 @@
     "extends": [
         "standard"
     ],
-    "plugins": [
-        "import",
-        "node",
-        "promise"
-    ],
     "parserOptions": {
         "ecmaVersion": 12
     },
