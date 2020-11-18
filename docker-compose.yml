@@ -9,7 +9,7 @@ services:
     ports:
       - ${APP_PORT}:${APP_PORT}
     working_dir: /var/www
-    command: yarn start
+    command: yarn dev
     volumes:
       - ./:/var/www
     environment:
