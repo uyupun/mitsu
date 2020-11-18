@@ -48,6 +48,6 @@
     }
   },
   "lint-staged": {
-    "*.js": "eslint"
+    "*.js": "eslint --cache"
   }
 }
