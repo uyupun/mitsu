@@ -1,4 +1,4 @@
-.PHONY: up down ps sh db
+.PHONY: up down ps sh db fix
 
 setup:
 	cp .env.example .env
@@ -26,3 +26,6 @@ sh:
 db:
 	docker-compose exec express yarn migrate:fresh
 	docker-compose exec express yarn seed
+
+fix:
+	yarn lint:fix

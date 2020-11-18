@@ -18,6 +18,8 @@ $ make ps
 $ make sh
 # DBにテーブル作成 + シーダーの実行
 $ make db
+# ESLintに怒られたとき
+$ make fix
 # モデルとマイグレーションの作成
 $ yarn make:model --name <model_name> --attributes <field1>:<type1>,<field2>:<type2>,...
 # シーダーの作成
