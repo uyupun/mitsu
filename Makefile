@@ -9,7 +9,10 @@ setup:
 	yarn
 
 up:
-	docker-compose up -d
+	docker-compose up
+
+prod-up:
+	docker-compose -f docker-compose.yml -f docker-compose-prod.yml up -d
 
 down:
 	-docker-compose down
