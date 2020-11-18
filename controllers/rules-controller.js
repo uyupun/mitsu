@@ -1,10 +1,10 @@
-const fs = require('fs');
-const rules = JSON.parse(fs.readFileSync('./stores/rules.json', 'utf-8'));
+const fs = require('fs')
+const rules = JSON.parse(fs.readFileSync('./stores/rules.json', 'utf-8'))
 
 class RulesController {
-  getRules(req, res, next) {
-    res.json(rules);
+  getRules (req, res, next) {
+    res.json(rules)
   }
 }
 
-module.exports = new RulesController();
+module.exports = new RulesController()
