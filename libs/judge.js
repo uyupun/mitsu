@@ -1,15 +1,14 @@
 const {
   PLAYER_MOVABLE_FIELD_WIDTH,
-  SOCIAL_DISTANCE_ZONE_RADIUS,
-} = require('./constants');
+  SOCIAL_DISTANCE_ZONE_RADIUS
+} = require('./constants')
 
 class Judge {
   /**
    * うさぎさんの勝利判定
    */
-  isGoal(x) {
-    if (x + SOCIAL_DISTANCE_ZONE_RADIUS >= PLAYER_MOVABLE_FIELD_WIDTH)
-      return true
+  isGoal (x) {
+    if (x + SOCIAL_DISTANCE_ZONE_RADIUS >= PLAYER_MOVABLE_FIELD_WIDTH) { return true }
     return false
   }
 
@@ -19,7 +18,7 @@ class Judge {
    * @param {*} positionA
    * @param {*} positionB
    */
-  isHit(positionA, positionB) {
+  isHit (positionA, positionB) {
     // 二点間の距離
     const distance = Math.sqrt(
       (positionB.x - positionA.x) ** 2 + (positionB.y - positionA.y) ** 2
@@ -30,4 +29,4 @@ class Judge {
   }
 }
 
-module.exports = new Judge();
+module.exports = new Judge()
