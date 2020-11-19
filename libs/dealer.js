@@ -54,9 +54,7 @@ class Dealer {
   _joinWorld (socket, payload) {
     worldStates.isValidPlayer(payload.worldId, payload.token, payload.role)
       .then((isValid) => {
-        console.log('通過1')
         if (isValid) {
-          console.log('通過2')
           this._worldId = payload.worldId
           socket.join(this._worldId)
           this._initGame(socket, payload.role)
