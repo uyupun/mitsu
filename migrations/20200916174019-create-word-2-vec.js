@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable('word2vecs', {
@@ -19,10 +19,10 @@ module.exports = {
       move_y: {
         allowNull: false,
         type: Sequelize.DOUBLE
-      },
-    });
+      }
+    })
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('word2vecs');
+    await queryInterface.dropTable('word2vecs')
   }
-};
+}

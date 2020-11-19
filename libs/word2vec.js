@@ -1,20 +1,20 @@
-const models = require('../models');
-const { Op } = require('sequelize');
-const { WORD_COUNT } = require('./constants');
+const models = require('../models')
+const { Op } = require('sequelize')
+const { WORD_COUNT } = require('./constants')
 
 class Word2vec {
-  constructor() {
+  constructor () {
     this._getRecordCnt().then((cnt) => {
-      this._recordCnt = cnt;
+      this._recordCnt = cnt
     })
   }
 
   /**
    * 最初の一単語目の取得
    */
-  fetchFirstWord() {
-    const id = this._generateRandomId(this._recordCnt);
-    return models.Word2vec.findByPk(id, {raw: true});
+  fetchFirstWord () {
+    const id = this._generateRandomId(this._recordCnt)
+    return models.Word2vec.findByPk(id, { raw: true })
   }
 
   /**
@@ -22,12 +22,12 @@ class Word2vec {
    *
    * @param {*} baseWord
    */
-  fetchWords(baseWord) {
+  fetchWords (baseWord) {
     return models.Word2vec.findAll({
       raw: true,
       where: {
         id: {
-          [Op.in]: this._generateRandomIds(this._recordCnt),
+          [Op.in]: this._generateRandomIds(this._recordCnt)
         }
       }
     }).then((words) => {
@@ -38,10 +38,10 @@ class Word2vec {
   /**
    * レコード数の計算
    */
-  _getRecordCnt() {
+  _getRecordCnt () {
     return models.Word2vec.count().then((cnt) => {
-      return cnt;
-    });
+      return cnt
+    })
   }
 
   /**
@@ -50,12 +50,12 @@ class Word2vec {
    *
    * @param {*} limit
    */
-  _generateRandomIds(limit) {
-    const ids = [];
+  _generateRandomIds (limit) {
+    const ids = []
     for (let i = 0; i < WORD_COUNT; i++) {
-      ids.push(this._generateRandomId(limit));
+      ids.push(this._generateRandomId(limit))
     }
-    return ids;
+    return ids
   }
 
   /**
@@ -63,9 +63,9 @@ class Word2vec {
    *
    * @param {*} limit
    */
-  _generateRandomId(limit) {
-    const id = Math.ceil(Math.random() * limit);
-    return id;
+  _generateRandomId (limit) {
+    const id = Math.ceil(Math.random() * limit)
+    return id
   }
 
   /**
@@ -74,23 +74,23 @@ class Word2vec {
    * @param {*} baseWord
    * @param {*} words
    */
-  _calcDirections(baseWord, words) {
+  _calcDirections (baseWord, words) {
     for (let i = 0; i < WORD_COUNT; i++) {
       const direction = {
         top_right: false,
         top_left: false,
         bottom_left: false,
-        bottom_right: false,
-      };
+        bottom_right: false
+      }
       if (words[i].move_x > baseWord.move_x) {
-        if (words[i].move_y > baseWord.move_y) direction.bottom_right = true;
-        else direction.top_right = true;
-      } else if (words[i].move_y > baseWord.move_y) direction.bottom_left = true;
-      else direction.top_left = true;
-      words[i].direction = direction;
+        if (words[i].move_y > baseWord.move_y) direction.bottom_right = true
+        else direction.top_right = true
+      } else if (words[i].move_y > baseWord.move_y) direction.bottom_left = true
+      else direction.top_left = true
+      words[i].direction = direction
     }
-    return words;
+    return words
   }
 }
 
-module.exports = new Word2vec();
+module.exports = new Word2vec()

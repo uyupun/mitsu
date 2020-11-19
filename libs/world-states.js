@@ -1,17 +1,17 @@
-const Redis = require('ioredis');
+const Redis = require('ioredis')
 const {
   PLAYER_PEKORA,
   PLAYER_BAIKINKUN,
-  WORLD_TTL,
-} = require('./constants');
-require('dotenv').config();
+  WORLD_TTL
+} = require('./constants')
+require('dotenv').config()
 
 /**
  * ワールドに必要な情報の保持
  */
 class WorldStates {
-  constructor() {
-    this._redis = new Redis(process.env.REDIS_PORT, process.env.REDIS_HOST);
+  constructor () {
+    this._redis = new Redis(process.env.REDIS_PORT, process.env.REDIS_HOST)
   }
 
   /**
@@ -20,11 +20,11 @@ class WorldStates {
    * @param {*} worldId
    * @param {*} tokens
    */
-  create(worldId, tokens) {
+  create (worldId, tokens) {
     this._redis.set(worldId, JSON.stringify({
       worldId,
-      tokens,
-    }), 'EX', WORLD_TTL);
+      tokens
+    }), 'EX', WORLD_TTL)
   }
 
   /**
@@ -32,14 +32,14 @@ class WorldStates {
    *
    * @param {*} worldId
    */
-  get(worldId) {
+  get (worldId) {
     return this._redis.get(worldId)
       .then((obj) => {
-        return JSON.parse(obj);
+        return JSON.parse(obj)
       })
       .catch((err) => {
-        return err;
-      });
+        return err
+      })
   }
 
   /**
@@ -49,17 +49,17 @@ class WorldStates {
    * @param {*} token
    * @param {*} role
    */
-  isValidPlayer(worldId, token, role) {
+  isValidPlayer (worldId, token, role) {
     return this._redis.get(worldId)
       .then((obj) => {
-        obj = JSON.parse(obj);
+        obj = JSON.parse(obj)
         if ((role === PLAYER_PEKORA && obj.tokens[PLAYER_PEKORA] === token) ||
-             role === PLAYER_BAIKINKUN && obj.tokens[PLAYER_BAIKINKUN] === token) return true;
-        return false;
+            (role === PLAYER_BAIKINKUN && obj.tokens[PLAYER_BAIKINKUN] === token)) return true
+        return false
       })
-      .catch((err) => {
-        return false;
-      });
+      .catch(() => {
+        return false
+      })
   }
 
   /**
@@ -69,24 +69,24 @@ class WorldStates {
    * @param {*} token
    * @param {*} role
    */
-  delete(worldId, token, role) {
+  delete (worldId, token, role) {
     return this.isValidPlayer(worldId, token, role)
       .then((isValid) => {
         if (isValid) {
           return this._redis.del(worldId)
             .then(() => {
-              return true;
+              return true
             })
-            .catch((err) => {
-              return false;
+            .catch(() => {
+              return false
             })
         }
-        return false;
+        return false
       })
-      .catch((err) => {
-        return false;
+      .catch(() => {
+        return false
       })
   }
 }
 
-module.exports = new WorldStates();
+module.exports = new WorldStates()
