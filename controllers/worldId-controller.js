@@ -12,9 +12,10 @@ class WorldIdController {
     const worldId = this._generateNanoid(6)
     const token = this._generateNanoid(12)
 
+    const recruit = Number(req.query.recruit)
     worldStates.create(worldId, {
-      1: req.query.recruit === 2 ? token : null,
-      2: req.query.recruit === 1 ? token : null
+      1: recruit === 2 ? token : null,
+      2: recruit === 1 ? token : null
     })
 
     return res.status(200).json({
