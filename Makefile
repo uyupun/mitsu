@@ -12,6 +12,7 @@ up:
 	docker-compose up
 
 prod-up:
+	yarn
 	docker-compose -f docker-compose.yml -f docker-compose-prod.yml up -d
 
 down:
