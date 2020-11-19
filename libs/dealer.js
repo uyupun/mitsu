@@ -305,7 +305,7 @@ class Dealer {
       if (this._second < 0) return
       this._io.to(this._worldId).emit('get_countdown', { second: this._second })
       if (this._second === 0) this._declareTimeoutEmitter(socket, requestPlayer)
-      this._second -= 1
+      this._second--
     }, 1000))
   }
 
