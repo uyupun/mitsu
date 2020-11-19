@@ -29,8 +29,8 @@ class Dealer {
       [PLAYER_PEKORA]: { x: 0, y: 0 },
       [PLAYER_BAIKINKUN]: { x: 0, y: 0 }
     }
-    this._timer = '';
-    this._second = 30;
+    this._timer = ''
+    this._second = 30
   }
 
   /**
@@ -54,7 +54,9 @@ class Dealer {
   _joinWorld (socket, payload) {
     worldStates.isValidPlayer(payload.worldId, payload.token, payload.role)
       .then((isValid) => {
+        console.log('通過1')
         if (isValid) {
+          console.log('通過2')
           this._worldId = payload.worldId
           socket.join(this._worldId)
           this._initGame(socket, payload.role)
@@ -98,9 +100,9 @@ class Dealer {
           ])
         })
         .then(() => {
-          return this._getCountdownEmitter(socket, requestPlayer);
+          return this._getCountdownEmitter(socket, requestPlayer)
         })
-    });
+    })
   }
 
   /**
@@ -211,7 +213,7 @@ class Dealer {
       worldStates.isValidPlayer(payload.worldId, payload.token, payload.role)
         .then((isValid) => {
           if (isValid) {
-            this._resetCountdown();
+            this._resetCountdown()
             Promise
               .resolve()
               .then(() => {
@@ -250,7 +252,7 @@ class Dealer {
                     ])
                   })
                   .then(() => {
-                    return this._getCountdownEmitter(socket, payload.role);
+                    return this._getCountdownEmitter(socket, payload.role)
                   })
               })
           } else {
@@ -296,36 +298,40 @@ class Dealer {
 
   /**
    * カウントダウン処理により、現在の残り時間を返す
+   *
+   * @param {*} socket
+   * @param {*} requestPlayer
    */
-  _getCountdownEmitter(socket, requestPlayer) {
-    return this._timer = setInterval(() => {
-      if (this._second < 0) return;
-      this._io.to(this._worldId).emit('get_countdown', { second: this._second });
-      if (this._second === 0) this._declareTimeoutEmitter(socket, requestPlayer);
-      this._second -= 1;
-    }, 1000);
+  _getCountdownEmitter (socket, requestPlayer) {
+    return (this._timer = setInterval(() => {
+      if (this._second < 0) return
+      this._io.to(this._worldId).emit('get_countdown', { second: this._second })
+      if (this._second === 0) this._declareTimeoutEmitter(socket, requestPlayer)
+      this._second -= 1
+    }, 1000))
   }
 
   /**
    * カウントダウンのリセット
    */
-  _resetCountdown() {
-    clearInterval(this._timer);
-    this._second = 30;
+  _resetCountdown () {
+    clearInterval(this._timer)
+    this._second = 30
   }
 
   /**
    * タイムアウトしたことを通知する
-   * 
+   *
    * @param {*} socket
+   * @param {*} requestPlayer
    */
-  _declareTimeoutEmitter(socket, requestPlayer) {
-    this._resetCountdown();
-    const randomIndex = Math.floor( Math.random() * this._words.length );
-    const word = this._words[randomIndex];
-    const currentPlayer = this._getCurrentPlayer();
-    if (currentPlayer === PLAYER_PEKORA && requestPlayer === PLAYER_PEKORA) return socket.emit('declare_timeout', { word });
-    else return socket.broadcast.to(this._worldId).emit('declare_timeout', { word });
+  _declareTimeoutEmitter (socket, requestPlayer) {
+    this._resetCountdown()
+    const randomIndex = Math.floor(Math.random() * this._words.length)
+    const word = this._words[randomIndex]
+    const currentPlayer = this._getCurrentPlayer()
+    if (currentPlayer === PLAYER_PEKORA && requestPlayer === PLAYER_PEKORA) return socket.emit('declare_timeout', { word })
+    else return socket.broadcast.to(this._worldId).emit('declare_timeout', { word })
   }
 }
 
