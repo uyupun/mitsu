@@ -1,5 +1,7 @@
 # Mitsu
 
+[![Actions Status: Deploy](https://github.com/uyupun/mitsu/workflows/Deploy/badge.svg)](https://github.com/uyupun/mitsu/actions?query=workflow%3A"Deploy")
+
 Mitsu is [SOCIAL RESISTANCE](https://github.com/uyupun/social-resistance)'s online game server.
 
 ### コマンド
