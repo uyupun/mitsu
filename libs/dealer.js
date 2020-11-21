@@ -343,7 +343,6 @@ class Dealer {
       this._disconnected = true
       this._resetCountdown()
       this._io.to(this._worldId).emit('notice_disconnect', {})
-      socket.leave(this._worldId)
     })
   }
 }
