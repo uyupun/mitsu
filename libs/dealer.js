@@ -31,6 +31,7 @@ class Dealer {
     }
     this._timer = ''
     this._second = 30
+    this._disconnected = false
   }
 
   /**
@@ -43,6 +44,7 @@ class Dealer {
     this._joinWorld(socket, payload)
     this._attackListener(socket)
     this._leaveWorldListener(socket)
+    this._disconnectListener(socket)
   }
 
   /**
@@ -52,6 +54,10 @@ class Dealer {
    * @param {*} payload
    */
   _joinWorld (socket, payload) {
+    if (this._disconnected) {
+      socket.emit('notice_disconnect', {})
+      return
+    }
     worldStates.isValidPlayer(payload.worldId, payload.token, payload.role)
       .then((isValid) => {
         if (isValid) {
@@ -198,7 +204,6 @@ class Dealer {
    */
   _invalidPlayerEmitter (socket) {
     socket.emit('invalid_player', {})
-    socket.disconnect()
   }
 
   /**
@@ -272,11 +277,7 @@ class Dealer {
     socket.on('leave_world', payload => {
       worldStates.delete(payload.worldId, payload.token, payload.role)
         .then((isDeleted) => {
-          if (isDeleted) {
-            socket.leave(payload.worldId)
-            this._resetCountdown()
-            socket.disconnect()
-          } else {
+          if (!isDeleted) {
             this._invalidPlayerEmitter(socket)
           }
         })
@@ -330,6 +331,20 @@ class Dealer {
     const currentPlayer = this._getCurrentPlayer()
     if (currentPlayer === PLAYER_PEKORA && requestPlayer === PLAYER_PEKORA) return socket.emit('declare_timeout', { word })
     else return socket.broadcast.to(this._worldId).emit('declare_timeout', { word })
+  }
+
+  /**
+   * 接続が切れたことを通知する
+   *
+   * @param {*} socket
+   */
+  _disconnectListener (socket) {
+    socket.on('disconnect', () => {
+      this._disconnected = true
+      this._resetCountdown()
+      this._io.to(this._worldId).emit('notice_disconnect', {})
+      socket.leave(this._worldId)
+    })
   }
 }
 
