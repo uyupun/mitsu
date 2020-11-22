@@ -255,7 +255,7 @@ class Dealer {
                     ])
                   })
                   .then(() => {
-                    return this._getCountdownEmitter(socket, payload.role)
+                    this._getCountdownEmitter(socket, payload.role)
                   })
               })
           } else {
@@ -302,12 +302,14 @@ class Dealer {
    * @param {*} requestPlayer
    */
   _getCountdownEmitter (socket, requestPlayer) {
-    return (this._timer = setInterval(() => {
+    const countdown = () => {
       if (this._second < 0) return
       this._io.to(this._worldId).emit('get_countdown', { second: this._second })
       if (this._second === 0) this._declareTimeoutEmitter(socket, requestPlayer)
       this._second--
-    }, 1000))
+      this._timer = setTimeout(countdown, 1000)
+    }
+    this._timer = setTimeout(countdown, 1000)
   }
 
   /**
