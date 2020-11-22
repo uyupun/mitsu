@@ -136,7 +136,7 @@ class Dealer {
   _getCountdownEmitter (socket, requestPlayer) {
     this._turn.countdown((second) => {
       this._io.to(this._worldId).emit('get_countdown', { second })
-      if (second === 0) this._declareTimeoutEmitter(socket, requestPlayer)
+      if (second === 0) this._noticeTurnTimeoutEmitter(socket, requestPlayer)
     })
   }
 
@@ -163,6 +163,19 @@ class Dealer {
   }
 
   /**
+   * ターンが時間切れしたことを通知する
+   *
+   * @param {*} socket
+   * @param {*} requestPlayer
+   */
+  _noticeTurnTimeoutEmitter (socket, requestPlayer) {
+    const randomIndex = Math.floor(Math.random() * this._words.length)
+    const word = this._words[randomIndex]
+    if (this._turn.currentPlayer === PLAYER_PEKORA && requestPlayer === PLAYER_PEKORA) return socket.emit('notice_turn_timeout', { word })
+    socket.broadcast.to(this._worldId).emit('notice_turn_timeout', { word })
+  }
+
+  /**
    * 勝利判定
    *
    * @param {*} player
@@ -178,19 +191,6 @@ class Dealer {
    */
   _invalidPlayerEmitter (socket) {
     socket.emit('invalid_player', {})
-  }
-
-  /**
-   * タイムアウトしたことを通知する
-   *
-   * @param {*} socket
-   * @param {*} requestPlayer
-   */
-  _declareTimeoutEmitter (socket, requestPlayer) {
-    const randomIndex = Math.floor(Math.random() * this._words.length)
-    const word = this._words[randomIndex]
-    if (this._turn.currentPlayer === PLAYER_PEKORA && requestPlayer === PLAYER_PEKORA) return socket.emit('declare_timeout', { word })
-    socket.broadcast.to(this._worldId).emit('declare_timeout', { word })
   }
 
   /**
