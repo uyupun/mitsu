@@ -22,26 +22,23 @@ class Word2vec {
    *
    * @param {*} baseWord
    */
-  fetchWords (baseWord) {
-    return models.Word2vec.findAll({
+  async fetchWords (baseWord) {
+    const words = await models.Word2vec.findAll({
       raw: true,
       where: {
         id: {
           [Op.in]: this._generateRandomIds(this._recordCnt)
         }
       }
-    }).then((words) => {
-      return this._calcDirections(baseWord, words)
     })
+    return this._calcDirections(baseWord, words)
   }
 
   /**
    * レコード数の計算
    */
-  _getRecordCnt () {
-    return models.Word2vec.count().then((cnt) => {
-      return cnt
-    })
+  async _getRecordCnt () {
+    return await models.Word2vec.count()
   }
 
   /**
