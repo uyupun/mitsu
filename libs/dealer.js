@@ -17,9 +17,10 @@ const {
 class Dealer {
   constructor (io) {
     this._io = io
-
     this._worldId = ''
     this._turn = 1
+    this._timer = null
+    this._second = 30
     this._words = []
     this._baseWords = {
       [PLAYER_PEKORA]: null,
@@ -29,8 +30,6 @@ class Dealer {
       [PLAYER_PEKORA]: { x: 0, y: 0 },
       [PLAYER_BAIKINKUN]: { x: 0, y: 0 }
     }
-    this._timer = ''
-    this._second = 30
     this._disconnected = false
   }
 
@@ -225,20 +224,17 @@ class Dealer {
       this._feedbackPositionEmitter(x, y, payload.role)
       if (judge.isHit(this._positions[PLAYER_PEKORA], this._positions[PLAYER_BAIKINKUN])) {
         this._updateBaseWordEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN)
-        this._judgeEmitter(PLAYER_BAIKINKUN)
-        return
+        return this._judgeEmitter(PLAYER_BAIKINKUN)
       } else if (judge.isGoal(this._positions[PLAYER_PEKORA].x)) {
         this._updateBaseWordEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN)
-        this._judgeEmitter(PLAYER_PEKORA)
-        return
+        return this._judgeEmitter(PLAYER_PEKORA)
       }
       ++this._turn
       this._getTurnEmitter()
       this._baseWords[payload.role] = payload.baseWord
       this._updateBaseWordEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN)
-      this._turn <= 2
-        ? this._getWordsAndBaseWordEmitter(PLAYER_BAIKINKUN)
-        : this._getWordsEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN)
+      if (this._turn <= 2) this._getWordsAndBaseWordEmitter(PLAYER_BAIKINKUN)
+      else this._getWordsEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN)
       this._declareAttackEmitter(socket, payload.role)
       this._declareWaitEmitter(socket, payload.role)
       this._getCountdownEmitter(socket, payload.role)
