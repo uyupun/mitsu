@@ -40,8 +40,8 @@ class Dealer {
    * @param {*} socket
    * @param {*} payload
    */
-  start (socket, payload) {
-    this._joinWorld(socket, payload)
+  entry (socket, payload) {
+    this._join(socket, payload)
     this._attackListener(socket)
     this._leaveWorldListener(socket)
     this._disconnectListener(socket)
@@ -53,50 +53,42 @@ class Dealer {
    * @param {*} socket
    * @param {*} payload
    */
-  async _joinWorld (socket, payload) {
+  async _join (socket, payload) {
     if (this._disconnected) return socket.emit('notice_disconnect', {})
     const isValid = await worldStates.isValidPlayer(payload.worldId, payload.token, payload.role)
     if (!isValid) return this._invalidPlayerEmitter(socket)
     this._worldId = payload.worldId
     socket.join(this._worldId)
-    this._initGame(socket, payload.role)
+    this._setup(socket, payload.role)
   }
 
   /**
-   * ゲームの初期化処理
+   * ゲームの開始処理
    */
-  _initGame (socket, requestPlayer) {
-    this._io.of('/').in(this._worldId).clients((_, clients) => {
+  async _setup (socket, requestPlayer) {
+    await this._io.of('/').in(this._worldId).clients(async (_, clients) => {
       if (clients.length !== 2) return
-      Promise
-        .resolve()
-        .then(() => {
-          return Promise.all([
-            word2vec.fetchFirstWord().then((firstWord) => {
-              this._baseWords[PLAYER_PEKORA] = firstWord
-            }),
-            word2vec.fetchFirstWord().then((firstWord) => {
-              this._baseWords[PLAYER_BAIKINKUN] = firstWord
-            }),
-            this._feedbackPositionEmitter(PLAYER_PEKORA_START_POSITION_X, PLAYER_PEKORA_START_POSITION_Y, PLAYER_PEKORA),
-            this._feedbackPositionEmitter(PLAYER_BAIKINKUN_START_POSITION_X, PLAYER_BAIKINKUN_START_POSITION_Y, PLAYER_BAIKINKUN)
-          ])
-        })
-        .then(() => {
-          return Promise.all([
-            this._getWordsAndBaseWordEmitter(PLAYER_PEKORA),
-            this._getTurnEmitter()
-          ])
-        })
-        .then(() => {
-          return Promise.all([
-            this._declareAttackEmitter(socket, requestPlayer),
-            this._declareWaitEmitter(socket, requestPlayer)
-          ])
-        })
-        .then(() => {
-          return this._getCountdownEmitter(socket, requestPlayer)
-        })
+      await Promise.all([
+        (async () => {
+          this._baseWords[PLAYER_PEKORA] = await word2vec.fetchFirstWord()
+          this._baseWords[PLAYER_BAIKINKUN] = await word2vec.fetchFirstWord()
+          await this._feedbackPositionEmitter(PLAYER_PEKORA_START_POSITION_X, PLAYER_PEKORA_START_POSITION_Y, PLAYER_PEKORA)
+          await this._feedbackPositionEmitter(PLAYER_BAIKINKUN_START_POSITION_X, PLAYER_BAIKINKUN_START_POSITION_Y, PLAYER_BAIKINKUN)
+        })()
+      ])
+      await Promise.all([
+        (async () => {
+          await this._getWordsAndBaseWordEmitter(PLAYER_PEKORA)
+          await this._getTurnEmitter()
+        })()
+      ])
+      await Promise.all([
+        (async () => {
+          await this._declareAttackEmitter(socket, requestPlayer)
+          await this._declareWaitEmitter(socket, requestPlayer)
+        })()
+      ])
+      this._getCountdownEmitter(socket, requestPlayer)
     })
   }
 
@@ -307,7 +299,7 @@ class Dealer {
    * カウントダウンのリセット
    */
   _resetCountdown () {
-    clearInterval(this._timer)
+    clearTimeout(this._timer)
     this._second = 30
   }
 

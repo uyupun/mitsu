@@ -34,7 +34,7 @@ class Lobby {
         this._dealers[payload.worldId] = new Dealer(this._io)
         setTimeout(this._deleteDealer.bind(this), WORLD_TTL * 1000, payload.worldId)
       }
-      this._dealers[payload.worldId].start(socket, payload)
+      this._dealers[payload.worldId].entry(socket, payload)
     })
   }
 
