@@ -65,24 +65,18 @@ class Dealer {
   /**
    * ゲームの開始処理
    */
-  _setup (socket, requestPlayer) {
-    this._io.of('/').in(this._worldId).clients((_, clients) => {
+  async _setup (socket, requestPlayer) {
+    await this._io.of('/').in(this._worldId).clients(async (_, clients) => {
       if (clients.length !== 2) return
-      Promise.all([
-        this._baseWords[PLAYER_PEKORA] = word2vec.fetchFirstWord(),
-        this._baseWords[PLAYER_BAIKINKUN] = word2vec.fetchFirstWord(),
-        this._feedbackPositionEmitter(PLAYER_PEKORA_START_POSITION_X, PLAYER_PEKORA_START_POSITION_Y, PLAYER_PEKORA),
-        this._feedbackPositionEmitter(PLAYER_BAIKINKUN_START_POSITION_X, PLAYER_BAIKINKUN_START_POSITION_Y, PLAYER_BAIKINKUN)
-      ])
-      Promise.all([
-        this._getWordsAndBaseWordEmitter(PLAYER_PEKORA),
-        this._getTurnEmitter(),
-        this._getCountdownEmitter(socket, requestPlayer)
-      ])
-      Promise.all([
-        this._declareAttackEmitter(socket, requestPlayer),
-        this._declareWaitEmitter(socket, requestPlayer)
-      ])
+      this._baseWords[PLAYER_PEKORA] = await word2vec.fetchFirstWord()
+      this._baseWords[PLAYER_BAIKINKUN] = await word2vec.fetchFirstWord()
+      this._feedbackPositionEmitter(PLAYER_PEKORA_START_POSITION_X, PLAYER_PEKORA_START_POSITION_Y, PLAYER_PEKORA)
+      this._feedbackPositionEmitter(PLAYER_BAIKINKUN_START_POSITION_X, PLAYER_BAIKINKUN_START_POSITION_Y, PLAYER_BAIKINKUN)
+      this._getWordsAndBaseWordEmitter(PLAYER_PEKORA)
+      this._getTurnEmitter()
+      this._getCountdownEmitter(socket, requestPlayer)
+      this._declareAttackEmitter(socket, requestPlayer)
+      this._declareWaitEmitter(socket, requestPlayer)
     })
   }
 
