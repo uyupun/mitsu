@@ -53,22 +53,13 @@ class Dealer {
    * @param {*} socket
    * @param {*} payload
    */
-  _joinWorld (socket, payload) {
-    if (this._disconnected) {
-      socket.emit('notice_disconnect', {})
-      return
-    }
-    worldStates.isValidPlayer(payload.worldId, payload.token, payload.role)
-      .then((isValid) => {
-        if (isValid) {
-          this._worldId = payload.worldId
-          socket.join(this._worldId)
-          this._initGame(socket, payload.role)
-        } else this._invalidPlayerEmitter(socket)
-      })
-      .catch(() => {
-        this._invalidPlayerEmitter(socket)
-      })
+  async _joinWorld (socket, payload) {
+    if (this._disconnected) return socket.emit('notice_disconnect', {})
+    const isValid = await worldStates.isValidPlayer(payload.worldId, payload.token, payload.role)
+    if (!isValid) return this._invalidPlayerEmitter(socket)
+    this._worldId = payload.worldId
+    socket.join(this._worldId)
+    this._initGame(socket, payload.role)
   }
 
   /**
