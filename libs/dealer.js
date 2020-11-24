@@ -41,7 +41,6 @@ class Dealer {
   entry (socket, payload) {
     this._join(socket, payload)
     this._attackListener(socket)
-    this._leaveWorldListener(socket)
     this._disconnectListener(socket)
   }
 
@@ -224,26 +223,17 @@ class Dealer {
   }
 
   /**
-   * 切断
-   *
-   * @param {*} socket
-   */
-  async _leaveWorldListener (socket) {
-    await socket.on('leave_world', async (payload) => {
-      const isDeleted = await worldStates.delete(payload.worldId, payload.token, payload.role)
-      if (!isDeleted) this._invalidPlayerEmitter(socket)
-    })
-  }
-
-  /**
    * 接続が切れたことを通知する
    *
    * @param {*} socket
    */
   _disconnectListener (socket) {
     socket.on('disconnect', () => {
-      this._disconnected = true
-      this._io.to(this._worldId).emit('notice_disconnect', {})
+      this._io.of('/').in(this._worldId).clients((_, clients) => {
+        if (clients.length === 2) return
+        this._disconnected = true
+        this._io.to(this._worldId).emit('notice_disconnect', {})
+      })
     })
   }
 }
