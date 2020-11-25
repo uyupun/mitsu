@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const { check } = require('express-validator')
-const worldIdController = require('../controllers/worldId-controller')
+const worldController = require('../controllers/world-controller')
 const rulesController = require('../controllers/rules-controller')
 
 /**
@@ -10,17 +10,17 @@ const rulesController = require('../controllers/rules-controller')
 router.get('/rules', rulesController.getRules.bind(rulesController))
 
 /**
- * ワールドIDの取得
+ * 募集
  */
-router.get('/worldId', [
+router.get('/recruit', [
   check('recruit').not().isEmpty().isIn(['1', '2'])
-], worldIdController.generateWorldId.bind(worldIdController))
+], worldController.generateWorldId.bind(worldController))
 
 /**
- * ワールドIDの正当性を確認
+ * 参加
  */
-router.get('/worldId/check', [
+router.get('/join', [
   check('worldId').not().isEmpty().isLength({ min: 6, max: 6 })
-], worldIdController.checkWorldId.bind(worldIdController))
+], worldController.checkWorldId.bind(worldController))
 
 module.exports = router

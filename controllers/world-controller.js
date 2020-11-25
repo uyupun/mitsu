@@ -2,7 +2,7 @@ const { validationResult } = require('express-validator')
 const { PLAYER_PEKORA, PLAYER_BAIKINKUN } = require('../libs/constants')
 const world = require('../libs/world')
 
-class WorldIdController {
+class WorldController {
   generateWorldId (req, res, next) {
     const errors = validationResult(req)
     if (!errors.isEmpty()) { return res.status(400).json({ msg: 'ぼしゅうにしっぱいしました' }) }
@@ -28,4 +28,4 @@ class WorldIdController {
   }
 };
 
-module.exports = new WorldIdController()
+module.exports = new WorldController()
