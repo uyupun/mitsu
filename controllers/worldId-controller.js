@@ -1,64 +1,30 @@
 const { validationResult } = require('express-validator')
-const { customAlphabet } = require('nanoid')
-const worldStates = require('../libs/world-states')
+const { PLAYER_PEKORA, PLAYER_BAIKINKUN } = require('../libs/constants')
+const world = require('../libs/world')
 
 class WorldIdController {
   generateWorldId (req, res, next) {
     const errors = validationResult(req)
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ msg: 'ぼしゅうにしっぱいしました' })
-    }
+    if (!errors.isEmpty()) { return res.status(400).json({ msg: 'ぼしゅうにしっぱいしました' }) }
 
-    const worldId = this._generateNanoid(6)
-    const token = this._generateNanoid(12)
-
+    const worldId = world.create()
     const recruit = Number(req.query.recruit)
-    worldStates.create(worldId, {
-      1: recruit === 2 ? token : null,
-      2: recruit === 1 ? token : null
-    })
+    const role = recruit === PLAYER_PEKORA ? PLAYER_BAIKINKUN : PLAYER_PEKORA
 
-    return res.status(200).json({
-      worldId: worldId,
-      token: token,
-      role: req.query.recruit === 2 ? 1 : 2
-    })
+    const token = world.recruit(worldId, role)
+    return res.status(200).json({ worldId, token, role })
   }
 
   checkWorldId (req, res, next) {
     const errors = validationResult(req)
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ msg: 'さんかにしっぱいしました' })
-    }
+    if (!errors.isEmpty()) { return res.status(400).json({ msg: 'さんかにしっぱいしました' }) }
 
-    const payload = {
-      validity: false,
-      token: null,
-      role: null
+    try {
+      const { role, token } = world.join(req.query.worldId)
+      return res.status(200).json({ validity: true, token, role })
+    } catch (e) {
+      return res.status(200).json({ validity: false, token: null, role: null })
     }
-    worldStates.get(req.query.worldId)
-      .then((obj) => {
-        const token = this._generateNanoid(12)
-        if (obj) {
-          worldStates.create(obj.worldId, {
-            1: obj.tokens['1'] == null ? token : obj.tokens['1'],
-            2: obj.tokens['2'] == null ? token : obj.tokens['2']
-          })
-          payload.validity = true
-          payload.token = token
-          payload.role = obj.tokens['1'] == null ? 1 : 2
-        }
-        return res.status(200).json(payload)
-      })
-      .catch(() => {
-        return res.status(200).json(payload)
-      })
-  }
-
-  _generateNanoid (len) {
-    const alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
-    const nanoid = customAlphabet(alphabet, len)
-    return nanoid()
   }
 };
 

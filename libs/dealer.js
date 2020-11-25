@@ -1,4 +1,4 @@
-const worldStates = require('./world-states')
+const world = require('./world')
 const word2vec = require('./word2vec')
 const judge = require('./judge')
 const position = require('./position')
@@ -50,9 +50,9 @@ class Dealer {
    * @param {*} socket
    * @param {*} payload
    */
-  async _join (socket, payload) {
+  _join (socket, payload) {
     if (this._disconnected) return socket.emit('notice_disconnect', {})
-    const isValid = await worldStates.isValidPlayer(payload.worldId, payload.token, payload.role)
+    const isValid = world.isValidPlayer(payload.worldId, payload.token, payload.role)
     if (!isValid) return this._invalidPlayerEmitter(socket)
     this._worldId = payload.worldId
     socket.join(this._worldId)
@@ -197,9 +197,9 @@ class Dealer {
    *
    * @param {*} socket
    */
-  async _attackListener (socket) {
-    await socket.on('attack', async (payload) => {
-      const isValid = await worldStates.isValidPlayer(payload.worldId, payload.token, payload.role)
+  _attackListener (socket) {
+    socket.on('attack', (payload) => {
+      const isValid = world.isValidPlayer(payload.worldId, payload.token, payload.role)
       if (!isValid) return this._invalidPlayerEmitter(socket)
       const { x, y } = position.depart(this._positions[payload.role].x, this._positions[payload.role].y, payload.baseWord)
       this._feedbackPositionEmitter(x, y, payload.role)
