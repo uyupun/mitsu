@@ -1,3 +1,4 @@
+const World = require('./world')
 const Dealer = require('./dealer')
 const { WORLD_TTL } = require('./constants')
 require('dotenv').config()
@@ -10,7 +11,6 @@ class Lobby {
   constructor (io) {
     this._io = io
     this._io.origins(process.env.FRONTEND_URL)
-    this._dealers = {}
   }
 
   /**
@@ -30,22 +30,23 @@ class Lobby {
    */
   _joinWorldListener (socket) {
     socket.on('join_world', (payload) => {
-      if (!this._dealers[payload.worldId]) {
-        this._dealers[payload.worldId] = new Dealer(this._io)
-        setTimeout(this._deleteDealer.bind(this), WORLD_TTL * 1000, payload.worldId)
+      const state = World.find(payload.worldId)
+      if (!state) return this._invalidPlayerEmitter(socket)
+      if (!state.dealer) {
+        state.dealer = new Dealer(this._io)
+        setTimeout(World.remove, WORLD_TTL * 1000, payload.worldId)
       }
-      this._dealers[payload.worldId].entry(socket, payload)
+      state.dealer.entry(socket, payload)
     })
   }
 
   /**
-   * ワールドの削除
-   * ワールド作成後30分後にこのメソッドが呼ばれ、ワールドを削除する
+   * 正当なプレイヤーでない場合
    *
-   * @param {String} worldId
+   * @param {*} socket
    */
-  _deleteDealer (worldId) {
-    delete this._dealers[worldId]
+  _invalidPlayerEmitter (socket) {
+    socket.emit('invalid_player', {})
   }
 }
 

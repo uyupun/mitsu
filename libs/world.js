@@ -3,7 +3,6 @@ const {
   PLAYER_PEKORA,
   PLAYER_BAIKINKUN
 } = require('./constants')
-require('dotenv').config()
 
 class World {
   constructor () {
@@ -27,6 +26,25 @@ class World {
   }
 
   /**
+   * IDからワールドを探す
+   *
+   * @param {*} id
+   */
+  find (id) {
+    return this._states.find(state => state.id === id)
+  }
+
+  /**
+   * 削除
+   *
+   * @param {*} id
+   */
+  remove (id) {
+    const idx = this._states.findIndex(state => state.id === id)
+    this._states.splice(idx, 1)
+  }
+
+  /**
    * 募集
    *
    * @param {*} id
@@ -34,7 +52,7 @@ class World {
    */
   recruit (id, role) {
     const token = this._generateNanoid(12)
-    const state = this._find(id)
+    const state = this.find(id)
     if (!state) throw new Error('world id not found exception')
     if (![PLAYER_PEKORA, PLAYER_BAIKINKUN].includes(role)) return null
     state.tokens[role] = token
@@ -48,7 +66,7 @@ class World {
    */
   join (id) {
     const token = this._generateNanoid(12)
-    const state = this._find(id)
+    const state = this.find(id)
     if (!state) throw new Error('world id not found exception')
     if (!state.tokens[PLAYER_PEKORA]) {
       state.tokens[PLAYER_PEKORA] = token
@@ -66,19 +84,10 @@ class World {
    * @param {*} role
    */
   isValidPlayer (id, token, role) {
-    const state = this._find(id)
+    const state = this.find(id)
     if (!state) return false
     if (state.tokens[role] === token) return true
     return false
-  }
-
-  /**
-   * IDからワールドを探す
-   *
-   * @param {*} id
-   */
-  _find (id) {
-    return this._states.find(state => state.id === id)
   }
 
   /**

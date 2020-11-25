@@ -14,13 +14,13 @@ router.get('/rules', rulesController.getRules.bind(rulesController))
  */
 router.get('/recruit', [
   check('recruit').not().isEmpty().isIn(['1', '2'])
-], worldController.generateWorldId.bind(worldController))
+], worldController.recruit.bind(worldController))
 
 /**
  * 参加
  */
 router.get('/join', [
   check('worldId').not().isEmpty().isLength({ min: 6, max: 6 })
-], worldController.checkWorldId.bind(worldController))
+], worldController.join.bind(worldController))
 
 module.exports = router
