@@ -10,7 +10,7 @@ class World {
   }
 
   /**
-   * ワールドの作成
+   * ワールドの作成（初期化処理）
    */
   create () {
     const id = this._generateNanoid(6)
@@ -35,12 +35,13 @@ class World {
   }
 
   /**
-   * 削除
+   * ワールドの削除
    *
    * @param {*} id
    */
   remove (id) {
     const idx = this._states.findIndex(state => state.id === id)
+    if (idx === -1) return
     this._states.splice(idx, 1)
   }
 
