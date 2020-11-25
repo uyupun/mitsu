@@ -1,3 +1,4 @@
+const Turn = require('./turn')
 const { customAlphabet } = require('nanoid')
 const {
   PLAYER_PEKORA,
@@ -19,6 +20,16 @@ class World {
       tokens: {
         [PLAYER_PEKORA]: null,
         [PLAYER_BAIKINKUN]: null
+      },
+      turn: new Turn(),
+      words: [],
+      baseWords: {
+        [PLAYER_PEKORA]: null,
+        [PLAYER_BAIKINKUN]: null
+      },
+      positions: {
+        [PLAYER_PEKORA]: { x: 0, y: 0 },
+        [PLAYER_BAIKINKUN]: { x: 0, y: 0 }
       },
       dealer: null
     })

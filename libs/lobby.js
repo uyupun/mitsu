@@ -1,4 +1,4 @@
-const World = require('./world')
+const world = require('./world')
 const Dealer = require('./dealer')
 const { WORLD_TTL } = require('./constants')
 require('dotenv').config()
@@ -30,11 +30,11 @@ class Lobby {
    */
   _joinWorldListener (socket) {
     socket.on('join_world', (payload) => {
-      const state = World.find(payload.worldId)
+      const state = world.find(payload.worldId)
       if (!state) return this._invalidPlayerEmitter(socket)
       if (!state.dealer) {
-        state.dealer = new Dealer(this._io)
-        setTimeout(World.remove, WORLD_TTL * 1000, payload.worldId)
+        state.dealer = new Dealer(this._io, state)
+        setTimeout(world.remove, WORLD_TTL * 1000, payload.worldId)
       }
       state.dealer.entry(socket, payload)
     })

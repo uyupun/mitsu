@@ -2,7 +2,6 @@ const world = require('./world')
 const word2vec = require('./word2vec')
 const judge = require('./judge')
 const position = require('./position')
-const Turn = require('./turn')
 const {
   PLAYER_PEKORA,
   PLAYER_BAIKINKUN,
@@ -16,19 +15,9 @@ const {
  * ゲームの進行を担当する
  */
 class Dealer {
-  constructor (io) {
+  constructor (io, state) {
     this._io = io
-    this._worldId = ''
-    this._turn = new Turn()
-    this._words = []
-    this._baseWords = {
-      [PLAYER_PEKORA]: null,
-      [PLAYER_BAIKINKUN]: null
-    }
-    this._positions = {
-      [PLAYER_PEKORA]: { x: 0, y: 0 },
-      [PLAYER_BAIKINKUN]: { x: 0, y: 0 }
-    }
+    this._state = state
     this._disconnected = false
   }
 
@@ -54,8 +43,7 @@ class Dealer {
     if (this._disconnected) return socket.emit('notice_disconnect', {})
     const isValid = world.isValidPlayer(payload.worldId, payload.token, payload.role)
     if (!isValid) return this._invalidPlayerEmitter(socket)
-    this._worldId = payload.worldId
-    socket.join(this._worldId)
+    socket.join(this._state.id)
     this._setup(socket, payload.role)
   }
 
@@ -63,10 +51,10 @@ class Dealer {
    * ゲームの開始処理
    */
   async _setup (socket, requestPlayer) {
-    await this._io.of('/').in(this._worldId).clients(async (_, clients) => {
+    await this._io.of('/').in(this._state.id).clients(async (_, clients) => {
       if (clients.length !== 2) return
-      this._baseWords[PLAYER_PEKORA] = await word2vec.fetchFirstWord()
-      this._baseWords[PLAYER_BAIKINKUN] = await word2vec.fetchFirstWord()
+      this._state.baseWords[PLAYER_PEKORA] = await word2vec.fetchFirstWord()
+      this._state.baseWords[PLAYER_BAIKINKUN] = await word2vec.fetchFirstWord()
       this._feedbackPositionEmitter(PLAYER_PEKORA_START_POSITION_X, PLAYER_PEKORA_START_POSITION_Y, PLAYER_PEKORA)
       this._feedbackPositionEmitter(PLAYER_BAIKINKUN_START_POSITION_X, PLAYER_BAIKINKUN_START_POSITION_Y, PLAYER_BAIKINKUN)
       this._getWordsAndBaseWordEmitter(PLAYER_PEKORA)
@@ -85,9 +73,9 @@ class Dealer {
    * @param {*} player
    */
   _feedbackPositionEmitter (x, y, player) {
-    this._positions[player].x = x
-    this._positions[player].y = y
-    this._io.to(this._worldId).emit('feedback_position', { x, y, player })
+    this._state.positions[player].x = x
+    this._state.positions[player].y = y
+    this._io.to(this._state.id).emit('feedback_position', { x, y, player })
   }
 
   /**
@@ -96,8 +84,8 @@ class Dealer {
    * @param {*} player
    */
   async _getWordsAndBaseWordEmitter (player) {
-    this._words = await word2vec.fetchWords(this._baseWords[player])
-    this._io.to(this._worldId).emit('get_words_and_baseword', { words: this._words, baseWord: this._baseWords[player], player })
+    this._state.words = await word2vec.fetchWords(this._state.baseWords[player])
+    this._io.to(this._state.id).emit('get_words_and_baseword', { words: this._state.words, baseWord: this._state.baseWords[player], player })
   }
 
   /**
@@ -106,8 +94,8 @@ class Dealer {
    * @param {*} player
    */
   async _getWordsEmitter (player) {
-    this._words = await word2vec.fetchWords(this._baseWords[player])
-    this._io.to(this._worldId).emit('get_words', { words: this._words })
+    this._state.words = await word2vec.fetchWords(this._state.baseWords[player])
+    this._io.to(this._state.id).emit('get_words', { words: this._state.words })
   }
 
   /**
@@ -116,14 +104,14 @@ class Dealer {
    * @param {*} player
    */
   _updateBaseWordEmitter (player) {
-    this._io.to(this._worldId).emit('update_baseword', { baseWord: this._baseWords[player], player })
+    this._io.to(this._state.id).emit('update_baseword', { baseWord: this._state.baseWords[player], player })
   }
 
   /**
    * ターン数を返す
    */
   _getTurnEmitter () {
-    this._io.to(this._worldId).emit('get_turn', { turn: this._turn.count })
+    this._io.to(this._state.id).emit('get_turn', { turn: this._state.turn.count })
   }
 
   /**
@@ -133,8 +121,8 @@ class Dealer {
    * @param {*} requestPlayer
    */
   _getCountdownEmitter (socket, requestPlayer) {
-    this._turn.countdown((second) => {
-      this._io.to(this._worldId).emit('get_countdown', { second })
+    this._state.turn.countdown((second) => {
+      this._io.to(this._state.id).emit('get_countdown', { second })
       if (second === 0) this._noticeTurnTimeoutEmitter(socket, requestPlayer)
     })
   }
@@ -146,8 +134,8 @@ class Dealer {
    * @param {*} requestPlayer
    */
   _declareAttackEmitter (socket, requestPlayer) {
-    if (this._turn.currentPlayer === PLAYER_PEKORA && requestPlayer === PLAYER_PEKORA) return socket.emit('declare_attack', {})
-    socket.broadcast.to(this._worldId).emit('declare_attack', {})
+    if (this._state.turn.currentPlayer === PLAYER_PEKORA && requestPlayer === PLAYER_PEKORA) return socket.emit('declare_attack', {})
+    socket.broadcast.to(this._state.id).emit('declare_attack', {})
   }
 
   /**
@@ -157,7 +145,7 @@ class Dealer {
    * @param {*} requestPlayer
    */
   _declareWaitEmitter (socket, requestPlayer) {
-    if (this._turn.currentPlayer === PLAYER_PEKORA && requestPlayer === PLAYER_PEKORA) return socket.broadcast.to(this._worldId).emit('declare_wait', {})
+    if (this._state.turn.currentPlayer === PLAYER_PEKORA && requestPlayer === PLAYER_PEKORA) return socket.broadcast.to(this._state.id).emit('declare_wait', {})
     socket.emit('declare_wait', {})
   }
 
@@ -168,10 +156,10 @@ class Dealer {
    * @param {*} requestPlayer
    */
   _noticeTurnTimeoutEmitter (socket, requestPlayer) {
-    const randomIndex = Math.floor(Math.random() * this._words.length)
-    const word = this._words[randomIndex]
-    if (this._turn.currentPlayer === PLAYER_PEKORA && requestPlayer === PLAYER_PEKORA) return socket.emit('notice_turn_timeout', { word })
-    socket.broadcast.to(this._worldId).emit('notice_turn_timeout', { word })
+    const randomIndex = Math.floor(Math.random() * this._state.words.length)
+    const word = this._state.words[randomIndex]
+    if (this._state.turn.currentPlayer === PLAYER_PEKORA && requestPlayer === PLAYER_PEKORA) return socket.emit('notice_turn_timeout', { word })
+    socket.broadcast.to(this._state.id).emit('notice_turn_timeout', { word })
   }
 
   /**
@@ -180,7 +168,7 @@ class Dealer {
    * @param {*} player
    */
   _judgeEmitter (player) {
-    this._io.to(this._worldId).emit('judge', { winner: player })
+    this._io.to(this._state.id).emit('judge', { winner: player })
   }
 
   /**
@@ -201,21 +189,21 @@ class Dealer {
     socket.on('attack', (payload) => {
       const isValid = world.isValidPlayer(payload.worldId, payload.token, payload.role)
       if (!isValid) return this._invalidPlayerEmitter(socket)
-      const { x, y } = position.depart(this._positions[payload.role].x, this._positions[payload.role].y, payload.baseWord)
+      const { x, y } = position.depart(this._state.positions[payload.role].x, this._state.positions[payload.role].y, payload.baseWord)
       this._feedbackPositionEmitter(x, y, payload.role)
-      if (judge.isHit(this._positions[PLAYER_PEKORA], this._positions[PLAYER_BAIKINKUN])) {
+      if (judge.isHit(this._state.positions[PLAYER_PEKORA], this._state.positions[PLAYER_BAIKINKUN])) {
         this._updateBaseWordEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN)
         return this._judgeEmitter(PLAYER_BAIKINKUN)
-      } else if (judge.isGoal(this._positions[PLAYER_PEKORA].x)) {
+      } else if (judge.isGoal(this._state.positions[PLAYER_PEKORA].x)) {
         this._updateBaseWordEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN)
         return this._judgeEmitter(PLAYER_PEKORA)
       }
-      this._turn.increment()
+      this._state.turn.increment()
       this._getTurnEmitter()
       this._getCountdownEmitter(socket, payload.role)
-      this._baseWords[payload.role] = payload.baseWord
+      this._state.baseWords[payload.role] = payload.baseWord
       this._updateBaseWordEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN)
-      if (this._turn.count <= 2) this._getWordsAndBaseWordEmitter(PLAYER_BAIKINKUN)
+      if (this._state.turn.count <= 2) this._getWordsAndBaseWordEmitter(PLAYER_BAIKINKUN)
       else this._getWordsEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN)
       this._declareAttackEmitter(socket, payload.role)
       this._declareWaitEmitter(socket, payload.role)
@@ -229,10 +217,10 @@ class Dealer {
    */
   _disconnectListener (socket) {
     socket.on('disconnect', () => {
-      this._io.of('/').in(this._worldId).clients((_, clients) => {
+      this._io.of('/').in(this._state.id).clients((_, clients) => {
         if (clients.length === 2) return
         this._disconnected = true
-        this._io.to(this._worldId).emit('notice_disconnect', {})
+        this._io.to(this._state.id).emit('notice_disconnect', {})
       })
     })
   }
