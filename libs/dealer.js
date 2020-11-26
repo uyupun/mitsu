@@ -25,7 +25,7 @@ class Dealer {
   entry (socket, payload) {
     this._join(socket, payload)
     this._attackListener(socket)
-    this._disconnectListener(socket)
+    this._noticeDisconnectListener(socket)
   }
 
   /**
@@ -45,7 +45,7 @@ class Dealer {
   /**
    * ゲームの開始処理
    */
-  async _setup (socket, requestPlayer) {
+  async _setup (socket, role) {
     await this._io.of('/').in(this._state.id).clients(async (_, clients) => {
       if (clients.length !== 2) return
       this._state.baseWords[PLAYER_PEKORA] = await word2vec.fetchFirstWord()
@@ -54,49 +54,49 @@ class Dealer {
       this._feedbackPositionEmitter(PLAYER_BAIKINKUN)
       this._getWordsAndBaseWordEmitter(PLAYER_PEKORA)
       this._getTurnEmitter()
-      this._getCountdownEmitter(socket, requestPlayer)
-      this._declareAttackEmitter(socket, requestPlayer)
-      this._declareWaitEmitter(socket, requestPlayer)
+      this._getCountdownEmitter(socket, role)
+      this._declareAttackEmitter(socket, role)
+      this._declareWaitEmitter(socket, role)
     })
   }
 
   /**
    * フィールド上の移動の情報を返す
    *
-   * @param {*} player
+   * @param {*} role
    */
-  _feedbackPositionEmitter (player) {
-    const { x, y } = this._state.field.getPositions(player)
-    this._io.to(this._state.id).emit('feedback_position', { x, y, player })
+  _feedbackPositionEmitter (role) {
+    const { x, y } = this._state.field.getPositions(role)
+    this._io.to(this._state.id).emit('feedback_position', { x, y, role })
   }
 
   /**
    * 単語の選択肢とベースとなる単語を返す
    *
-   * @param {*} player
+   * @param {*} role
    */
-  async _getWordsAndBaseWordEmitter (player) {
-    this._state.words = await word2vec.fetchWords(this._state.baseWords[player])
-    this._io.to(this._state.id).emit('get_words_and_baseword', { words: this._state.words, baseWord: this._state.baseWords[player], player })
+  async _getWordsAndBaseWordEmitter (role) {
+    this._state.words = await word2vec.fetchWords(this._state.baseWords[role])
+    this._io.to(this._state.id).emit('get_words_and_baseword', { words: this._state.words, baseWord: this._state.baseWords[role], role })
   }
 
   /**
    * 単語の選択肢を返す
    *
-   * @param {*} player
+   * @param {*} role
    */
-  async _getWordsEmitter (player) {
-    this._state.words = await word2vec.fetchWords(this._state.baseWords[player])
+  async _getWordsEmitter (role) {
+    this._state.words = await word2vec.fetchWords(this._state.baseWords[role])
     this._io.to(this._state.id).emit('get_words', { words: this._state.words })
   }
 
   /**
    * ベースとなる単語の更新
    *
-   * @param {*} player
+   * @param {*} role
    */
-  _updateBaseWordEmitter (player) {
-    this._io.to(this._state.id).emit('update_baseword', { baseWord: this._state.baseWords[player], player })
+  _updateBaseWordEmitter (role) {
+    this._io.to(this._state.id).emit('update_baseword', { baseWord: this._state.baseWords[role], role })
   }
 
   /**
@@ -110,12 +110,12 @@ class Dealer {
    * カウントダウン処理により、現在の残り時間を返す
    *
    * @param {*} socket
-   * @param {*} requestPlayer
+   * @param {*} role
    */
-  _getCountdownEmitter (socket, requestPlayer) {
+  _getCountdownEmitter (socket, role) {
     this._state.turn.countdown((second) => {
       this._io.to(this._state.id).emit('get_countdown', { second })
-      if (second === 0) this._noticeTurnTimeoutEmitter(socket, requestPlayer)
+      if (second === 0) this._noticeTurnTimeoutEmitter(socket, role)
     })
   }
 
@@ -123,10 +123,10 @@ class Dealer {
    * 攻撃のターンであることを通知する
    *
    * @param {*} socket
-   * @param {*} requestPlayer
+   * @param {*} role
    */
-  _declareAttackEmitter (socket, requestPlayer) {
-    if (this._state.turn.currentPlayer === PLAYER_PEKORA && requestPlayer === PLAYER_PEKORA) return socket.emit('declare_attack', {})
+  _declareAttackEmitter (socket, role) {
+    if (this._state.turn.currentPlayer === PLAYER_PEKORA && role === PLAYER_PEKORA) return socket.emit('declare_attack', {})
     socket.broadcast.to(this._state.id).emit('declare_attack', {})
   }
 
@@ -134,10 +134,10 @@ class Dealer {
    * 待機するターンであることを通知する
    *
    * @param {*} socket
-   * @param {*} requestPlayer
+   * @param {*} role
    */
-  _declareWaitEmitter (socket, requestPlayer) {
-    if (this._state.turn.currentPlayer === PLAYER_PEKORA && requestPlayer === PLAYER_PEKORA) return socket.broadcast.to(this._state.id).emit('declare_wait', {})
+  _declareWaitEmitter (socket, role) {
+    if (this._state.turn.currentPlayer === PLAYER_PEKORA && role === PLAYER_PEKORA) return socket.broadcast.to(this._state.id).emit('declare_wait', {})
     socket.emit('declare_wait', {})
   }
 
@@ -145,22 +145,22 @@ class Dealer {
    * ターンが時間切れしたことを通知する
    *
    * @param {*} socket
-   * @param {*} requestPlayer
+   * @param {*} role
    */
-  _noticeTurnTimeoutEmitter (socket, requestPlayer) {
+  _noticeTurnTimeoutEmitter (socket, role) {
     const randomIndex = Math.floor(Math.random() * this._state.words.length)
     const word = this._state.words[randomIndex]
-    if (this._state.turn.currentPlayer === PLAYER_PEKORA && requestPlayer === PLAYER_PEKORA) return socket.emit('notice_turn_timeout', { word })
+    if (this._state.turn.currentPlayer === PLAYER_PEKORA && role === PLAYER_PEKORA) return socket.emit('notice_turn_timeout', { word })
     socket.broadcast.to(this._state.id).emit('notice_turn_timeout', { word })
   }
 
   /**
    * 勝利判定
    *
-   * @param {*} player
+   * @param {*} role
    */
-  _judgeEmitter (player) {
-    this._io.to(this._state.id).emit('judge', { winner: player })
+  _judgeEmitter (role) {
+    this._io.to(this._state.id).emit('judge', { winner: role })
   }
 
   /**
@@ -209,7 +209,7 @@ class Dealer {
    *
    * @param {*} socket
    */
-  _disconnectListener (socket) {
+  _noticeDisconnectListener (socket) {
     socket.on('disconnect', () => {
       this._io.of('/').in(this._state.id).clients((_, clients) => {
         if (clients.length === 2) return

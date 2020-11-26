@@ -19,8 +19,8 @@ class World {
     this._states.push({
       id,
       tokens: {
-        [PLAYER_PEKORA]: null,
-        [PLAYER_BAIKINKUN]: null
+        [PLAYER_PEKORA]: '',
+        [PLAYER_BAIKINKUN]: ''
       },
       turn: new Turn(),
       field: new Field(),
@@ -29,10 +29,6 @@ class World {
         [PLAYER_PEKORA]: null,
         [PLAYER_BAIKINKUN]: null
       },
-      // positions: {
-      //   [PLAYER_PEKORA]: { x: 0, y: 0 },
-      //   [PLAYER_BAIKINKUN]: { x: 0, y: 0 }
-      // },
       dealer: null
     })
     return id

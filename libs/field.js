@@ -28,29 +28,29 @@ class Field {
   /**
    * ポジション情報のゲッター
    *
-   * @param {*} player
+   * @param {*} role
    */
-  getPositions (player) {
-    // TODO: 1, 2 以外の場合のエラー処理
-    return this._positions[player]
+  getPositions (role) {
+    if (!Field._isValidPlayerRole(role)) throw new Error('player role is not found exception')
+    return this._positions[role]
   }
 
   /**
    * プレイヤーの移動
    *
-   * @param {*} player
+   * @param {*} role
    * @param {*} x
    * @param {*} y
    */
-  move (player, x, y) {
-    // TODO: 1, 2以外の場合のエラー処理
+  move (role, x, y) {
+    if (!Field._isValidPlayerRole(role)) throw new Error('player role is not found exception')
     const newX = Field._correctPositionX(
-      this._positions[player].x + x * PLAYER_MOVE_SCALE
+      this._positions[role].x + x * PLAYER_MOVE_SCALE
     )
     const newY = Field._correctPositionY(
-      this._positions[player].y + y * PLAYER_MOVE_SCALE
+      this._positions[role].y + y * PLAYER_MOVE_SCALE
     )
-    this._positions[player] = {
+    this._positions[role] = {
       x: newX,
       y: newY
     }
@@ -80,6 +80,16 @@ class Field {
     // yのプラス方向の限界値を超えていないか
     else if (y > FIELD_HEIGHT - SOCIAL_DISTANCE_ZONE_RADIUS) y = FIELD_HEIGHT - SOCIAL_DISTANCE_ZONE_RADIUS
     return y
+  }
+
+  /**
+   * プレイヤーのロールが正当かどうか
+   *
+   * @param {*} role
+   */
+  static _isValidPlayerRole (role) {
+    if ([PLAYER_PEKORA, PLAYER_BAIKINKUN].includes(role)) return true
+    return false
   }
 }
 
