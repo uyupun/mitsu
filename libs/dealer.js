@@ -1,5 +1,4 @@
 const world = require('./world')
-const word2vec = require('./word2vec')
 const judge = require('./judge')
 const {
   PLAYER_PEKORA,
@@ -48,8 +47,6 @@ class Dealer {
   async _setup (socket, role) {
     await this._io.of('/').in(this._state.id).clients(async (_, clients) => {
       if (clients.length !== 2) return
-      this._state.baseWords[PLAYER_PEKORA] = await word2vec.fetchFirstWord()
-      this._state.baseWords[PLAYER_BAIKINKUN] = await word2vec.fetchFirstWord()
       this._feedbackPositionEmitter(PLAYER_PEKORA)
       this._feedbackPositionEmitter(PLAYER_BAIKINKUN)
       this._getWordsAndBaseWordEmitter(PLAYER_PEKORA)
@@ -76,8 +73,9 @@ class Dealer {
    * @param {*} role
    */
   async _getWordsAndBaseWordEmitter (role) {
-    this._state.words = await word2vec.fetchWords(this._state.baseWords[role])
-    this._io.to(this._state.id).emit('get_words_and_baseword', { words: this._state.words, baseWord: this._state.baseWords[role], role })
+    const words = await this._state.word.getWords(role)
+    const baseWord = this._state.word.getBaseWord(role)
+    this._io.to(this._state.id).emit('get_words_and_baseword', { words, baseWord, role })
   }
 
   /**
@@ -86,8 +84,8 @@ class Dealer {
    * @param {*} role
    */
   async _getWordsEmitter (role) {
-    this._state.words = await word2vec.fetchWords(this._state.baseWords[role])
-    this._io.to(this._state.id).emit('get_words', { words: this._state.words })
+    const words = await this._state.word.getWords(role)
+    this._io.to(this._state.id).emit('get_words', { words })
   }
 
   /**
@@ -96,7 +94,8 @@ class Dealer {
    * @param {*} role
    */
   _updateBaseWordEmitter (role) {
-    this._io.to(this._state.id).emit('update_baseword', { baseWord: this._state.baseWords[role], role })
+    const baseWord = this._state.word.getBaseWord(role)
+    this._io.to(this._state.id).emit('update_baseword', { baseWord, role })
   }
 
   /**
@@ -148,8 +147,7 @@ class Dealer {
    * @param {*} role
    */
   _noticeTurnTimeoutEmitter (socket, role) {
-    const randomIndex = Math.floor(Math.random() * this._state.words.length)
-    const word = this._state.words[randomIndex]
+    const word = this._state.word.getRandomWord()
     if (this._state.turn.currentPlayer === PLAYER_PEKORA && role === PLAYER_PEKORA) return socket.emit('notice_turn_timeout', { word })
     socket.broadcast.to(this._state.id).emit('notice_turn_timeout', { word })
   }
@@ -195,7 +193,7 @@ class Dealer {
       this._state.turn.increment()
       this._getTurnEmitter()
       this._getCountdownEmitter(socket, payload.role)
-      this._state.baseWords[payload.role] = payload.baseWord
+      this._state.word.setBaseWord(payload.role, payload.baseWord)
       this._updateBaseWordEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN)
       if (this._state.turn.count <= 2) this._getWordsAndBaseWordEmitter(PLAYER_BAIKINKUN)
       else this._getWordsEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN)

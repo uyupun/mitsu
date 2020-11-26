@@ -1,5 +1,6 @@
-const Turn = require('./turn')
 const Field = require('./field')
+const Turn = require('./turn')
+const Word = require('./word')
 const { customAlphabet } = require('nanoid')
 const {
   PLAYER_PEKORA,
@@ -22,13 +23,9 @@ class World {
         [PLAYER_PEKORA]: '',
         [PLAYER_BAIKINKUN]: ''
       },
-      turn: new Turn(),
       field: new Field(),
-      words: [],
-      baseWords: {
-        [PLAYER_PEKORA]: null,
-        [PLAYER_BAIKINKUN]: null
-      },
+      turn: new Turn(),
+      word: new Word(),
       dealer: null
     })
     return id
