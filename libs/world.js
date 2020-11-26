@@ -1,4 +1,5 @@
 const Turn = require('./turn')
+const Field = require('./field')
 const { customAlphabet } = require('nanoid')
 const {
   PLAYER_PEKORA,
@@ -14,7 +15,7 @@ class World {
    * ワールドの作成（初期化処理）
    */
   create () {
-    const id = this._generateNanoid(6)
+    const id = World._generateNanoid(6)
     this._states.push({
       id,
       tokens: {
@@ -22,15 +23,16 @@ class World {
         [PLAYER_BAIKINKUN]: null
       },
       turn: new Turn(),
+      field: new Field(),
       words: [],
       baseWords: {
         [PLAYER_PEKORA]: null,
         [PLAYER_BAIKINKUN]: null
       },
-      positions: {
-        [PLAYER_PEKORA]: { x: 0, y: 0 },
-        [PLAYER_BAIKINKUN]: { x: 0, y: 0 }
-      },
+      // positions: {
+      //   [PLAYER_PEKORA]: { x: 0, y: 0 },
+      //   [PLAYER_BAIKINKUN]: { x: 0, y: 0 }
+      // },
       dealer: null
     })
     return id
@@ -63,7 +65,7 @@ class World {
    * @param {*} role
    */
   recruit (id, role) {
-    const token = this._generateNanoid(12)
+    const token = World._generateNanoid(12)
     const state = this.find(id)
     if (!state) throw new Error('world id not found exception')
     if (![PLAYER_PEKORA, PLAYER_BAIKINKUN].includes(role)) return null
@@ -77,7 +79,7 @@ class World {
    * @param {*} id
    */
   join (id) {
-    const token = this._generateNanoid(12)
+    const token = World._generateNanoid(12)
     const state = this.find(id)
     if (!state) throw new Error('world id not found exception')
     if (!state.tokens[PLAYER_PEKORA]) {
@@ -107,7 +109,7 @@ class World {
    *
    * @param {*} len
    */
-  _generateNanoid (len) {
+  static _generateNanoid (len) {
     const alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
     const nanoid = customAlphabet(alphabet, len)
     return nanoid()

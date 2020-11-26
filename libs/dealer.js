@@ -1,14 +1,9 @@
 const world = require('./world')
 const word2vec = require('./word2vec')
 const judge = require('./judge')
-const position = require('./position')
 const {
   PLAYER_PEKORA,
-  PLAYER_BAIKINKUN,
-  PLAYER_PEKORA_START_POSITION_X,
-  PLAYER_PEKORA_START_POSITION_Y,
-  PLAYER_BAIKINKUN_START_POSITION_X,
-  PLAYER_BAIKINKUN_START_POSITION_Y
+  PLAYER_BAIKINKUN
 } = require('./constants')
 
 /**
@@ -55,8 +50,8 @@ class Dealer {
       if (clients.length !== 2) return
       this._state.baseWords[PLAYER_PEKORA] = await word2vec.fetchFirstWord()
       this._state.baseWords[PLAYER_BAIKINKUN] = await word2vec.fetchFirstWord()
-      this._feedbackPositionEmitter(PLAYER_PEKORA_START_POSITION_X, PLAYER_PEKORA_START_POSITION_Y, PLAYER_PEKORA)
-      this._feedbackPositionEmitter(PLAYER_BAIKINKUN_START_POSITION_X, PLAYER_BAIKINKUN_START_POSITION_Y, PLAYER_BAIKINKUN)
+      this._feedbackPositionEmitter(PLAYER_PEKORA)
+      this._feedbackPositionEmitter(PLAYER_BAIKINKUN)
       this._getWordsAndBaseWordEmitter(PLAYER_PEKORA)
       this._getTurnEmitter()
       this._getCountdownEmitter(socket, requestPlayer)
@@ -68,13 +63,10 @@ class Dealer {
   /**
    * フィールド上の移動の情報を返す
    *
-   * @param {*} x
-   * @param {*} y
    * @param {*} player
    */
-  _feedbackPositionEmitter (x, y, player) {
-    this._state.positions[player].x = x
-    this._state.positions[player].y = y
+  _feedbackPositionEmitter (player) {
+    const { x, y } = this._state.field.getPositions(player)
     this._io.to(this._state.id).emit('feedback_position', { x, y, player })
   }
 
@@ -189,12 +181,14 @@ class Dealer {
     socket.on('attack', (payload) => {
       const isValid = world.isValidPlayer(payload.worldId, payload.token, payload.role)
       if (!isValid) return this._invalidPlayerEmitter(socket)
-      const { x, y } = position.depart(this._state.positions[payload.role].x, this._state.positions[payload.role].y, payload.baseWord)
-      this._feedbackPositionEmitter(x, y, payload.role)
-      if (judge.isHit(this._state.positions[PLAYER_PEKORA], this._state.positions[PLAYER_BAIKINKUN])) {
+      this._state.field.move(payload.role, payload.baseWord.move_x, payload.baseWord.move_y)
+      this._feedbackPositionEmitter(payload.role)
+      const pekoraPositions = this._state.field.getPositions(PLAYER_PEKORA)
+      const baikinkunPositions = this._state.field.getPositions(PLAYER_BAIKINKUN)
+      if (judge.isHit(pekoraPositions, baikinkunPositions)) {
         this._updateBaseWordEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN)
         return this._judgeEmitter(PLAYER_BAIKINKUN)
-      } else if (judge.isGoal(this._state.positions[PLAYER_PEKORA].x)) {
+      } else if (judge.isGoal(pekoraPositions.x)) {
         this._updateBaseWordEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN)
         return this._judgeEmitter(PLAYER_PEKORA)
       }
