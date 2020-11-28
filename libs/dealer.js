@@ -1,5 +1,6 @@
 const world = require('./world')
-const judge = require('./judge')
+const Judge = require('./judge')
+const worldStatus = require('./world-status')
 const {
   PLAYER_PEKORA,
   PLAYER_BAIKINKUN
@@ -12,7 +13,6 @@ class Dealer {
   constructor (io, state) {
     this._io = io
     this._state = state
-    this._disconnected = false
   }
 
   /**
@@ -34,10 +34,11 @@ class Dealer {
    * @param {*} payload
    */
   _join (socket, payload) {
-    if (this._disconnected) return socket.emit('notice_disconnect', {})
+    if (world.getStatus(this._state.id) === worldStatus.disconnected) return socket.emit('notice_disconnect', {})
     const isValid = world.isValidPlayer(payload.worldId, payload.token, payload.role)
     if (!isValid) return this._invalidPlayerEmitter(socket)
     socket.join(this._state.id)
+    world.setStatus(this._state.id, worldStatus.waiting)
     this._setup(socket, payload.role)
   }
 
@@ -47,6 +48,7 @@ class Dealer {
   async _setup (socket, role) {
     await this._io.of('/').in(this._state.id).clients(async (_, clients) => {
       if (clients.length !== 2) return
+      world.setStatus(this._state.id, worldStatus.playing)
       this._feedbackPositionEmitter(PLAYER_PEKORA)
       this._feedbackPositionEmitter(PLAYER_BAIKINKUN)
       this._getWordsAndBaseWordEmitter(PLAYER_PEKORA)
@@ -183,10 +185,12 @@ class Dealer {
       this._feedbackPositionEmitter(payload.role)
       const pekoraPositions = this._state.field.getPositions(PLAYER_PEKORA)
       const baikinkunPositions = this._state.field.getPositions(PLAYER_BAIKINKUN)
-      if (judge.isHit(pekoraPositions, baikinkunPositions)) {
+      if (Judge.isHit(pekoraPositions, baikinkunPositions)) {
+        world.setStatus(this._state.id, worldStatus.judged)
         this._updateBaseWordEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN)
         return this._judgeEmitter(PLAYER_BAIKINKUN)
-      } else if (judge.isGoal(pekoraPositions.x)) {
+      } else if (Judge.isGoal(pekoraPositions.x)) {
+        world.setStatus(this._state.id, worldStatus.judged)
         this._updateBaseWordEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN)
         return this._judgeEmitter(PLAYER_PEKORA)
       }
@@ -211,7 +215,7 @@ class Dealer {
     socket.on('disconnect', () => {
       this._io.of('/').in(this._state.id).clients((_, clients) => {
         if (clients.length === 2) return
-        this._disconnected = true
+        world.setStatus(this._state.id, worldStatus.disconnected)
         this._io.to(this._state.id).emit('notice_disconnect', {})
       })
     })

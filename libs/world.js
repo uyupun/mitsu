@@ -2,6 +2,7 @@ const Field = require('./field')
 const Turn = require('./turn')
 const Word = require('./word')
 const Helpers = require('./helpers')
+const worldStatus = require('./world-status')
 const {
   PLAYER_PEKORA,
   PLAYER_BAIKINKUN
@@ -27,7 +28,8 @@ class World {
       turn: new Turn(),
       word: new Word(),
       dealer: null,
-      created_at: Helpers.getTimestamp()
+      created_at: Helpers.getTimestamp(),
+      status: worldStatus.initialized
     })
     return id
   }
@@ -96,6 +98,32 @@ class World {
     if (!state) return false
     if (state.tokens[role] === token) return true
     return false
+  }
+
+  /**
+   * ステータスのセッター
+   *
+   * @param {*} id
+   * @param {*} status
+   */
+  setStatus (id, status) {
+    const state = this.find(id)
+    if (!state) throw new Error('world is not found exception')
+    const isValidStatus = Object.values(worldStatus).includes(status)
+    console.log(worldStatus)
+    console.log(Object.values(worldStatus))
+    console.log(status)
+    if (!isValidStatus) throw new Error('status is invalid exception')
+    state.status = status
+  }
+
+  /**
+   * ステータスのゲッター
+   */
+  getStatus (id) {
+    const state = this.find(id)
+    if (!state) throw new Error('world is not found exception')
+    return state.status
   }
 }
 
