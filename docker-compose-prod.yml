@@ -15,7 +15,7 @@ services:
     environment:
       HOST: ${APP_HOST}
     depends_on:
-      - redis
+      - mysql
     networks:
       - social_resistance
     restart: always
