@@ -22,6 +22,8 @@ $ make sh
 $ make db
 # ESLintに怒られたとき
 $ make fix
+# ワールド情報の確認（開発環境でのみ使用可能）
+$ make world
 # モデルとマイグレーションの作成
 $ yarn make:model --name <model_name> --attributes <field1>:<type1>,<field2>:<type2>,...
 # シーダーの作成
