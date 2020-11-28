@@ -4,16 +4,21 @@ const { WORD_COUNT } = require('./constants')
 
 class Word2vec {
   constructor () {
-    this._getRecordCnt().then((cnt) => {
-      this._recordCnt = cnt
-    })
+    this._initRecordCnt()
+  }
+
+  /**
+   * レコード数の初期化
+   */
+  async _initRecordCnt () {
+    this._recordCnt = await models.Word2vec.count()
   }
 
   /**
    * 最初の一単語目の取得
    */
   fetchFirstWord () {
-    const id = this._generateRandomId(this._recordCnt)
+    const id = Word2vec._generateRandomId(this._recordCnt)
     return models.Word2vec.findByPk(id, { raw: true })
   }
 
@@ -27,11 +32,11 @@ class Word2vec {
       raw: true,
       where: {
         id: {
-          [Op.in]: this._generateRandomIds(this._recordCnt)
+          [Op.in]: Word2vec._generateRandomIds(this._recordCnt)
         }
       }
     })
-    return this._calcDirections(baseWord, words)
+    return Word2vec._calcDirections(baseWord, words)
   }
 
   /**
@@ -47,10 +52,10 @@ class Word2vec {
    *
    * @param {*} limit
    */
-  _generateRandomIds (limit) {
+  static _generateRandomIds (limit) {
     const ids = []
     for (let i = 0; i < WORD_COUNT; i++) {
-      ids.push(this._generateRandomId(limit))
+      ids.push(Word2vec._generateRandomId(limit))
     }
     return ids
   }
@@ -60,7 +65,7 @@ class Word2vec {
    *
    * @param {*} limit
    */
-  _generateRandomId (limit) {
+  static _generateRandomId (limit) {
     const id = Math.ceil(Math.random() * limit)
     return id
   }
@@ -71,7 +76,7 @@ class Word2vec {
    * @param {*} baseWord
    * @param {*} words
    */
-  _calcDirections (baseWord, words) {
+  static _calcDirections (baseWord, words) {
     for (let i = 0; i < WORD_COUNT; i++) {
       const direction = {
         top_right: false,

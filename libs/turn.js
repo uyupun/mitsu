@@ -25,13 +25,6 @@ class Turn {
   }
 
   /**
-   * ターンの残り秒数の取得
-   */
-  get second () {
-    return this._second
-  }
-
-  /**
    * ターンの残り秒数のカウントダウン
    */
   countdown (callback) {
@@ -57,7 +50,7 @@ class Turn {
    * 現在攻撃ターンにあるプレイヤーの取得
    */
   get currentPlayer () {
-    if (this.count % 2 === 1) return PLAYER_PEKORA
+    if (this._count % 2 === 1) return PLAYER_PEKORA
     return PLAYER_BAIKINKUN
   }
 }
