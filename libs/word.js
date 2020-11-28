@@ -11,14 +11,14 @@ class Word {
       [PLAYER_PEKORA]: null,
       [PLAYER_BAIKINKUN]: null
     }
-    this.initBaseWords()
+    this._initBaseWords()
   }
 
   /**
    * ベースとなる単語の初期化
    * async/awaitがconstructorで使えないのでこういった実装になっている
    */
-  async initBaseWords () {
+  async _initBaseWords () {
     this._baseWords = {
       [PLAYER_PEKORA]: await word2vec.fetchFirstWord(),
       [PLAYER_BAIKINKUN]: await word2vec.fetchFirstWord()

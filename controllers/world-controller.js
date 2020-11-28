@@ -26,6 +26,20 @@ class WorldController {
       return res.status(200).json({ validity: false, token: null, role: null })
     }
   }
+
+  /**
+   * ワールド情報の取得
+   * 現状、本番環境での使用はできないようにしている（認証とかめんどいので）
+   *
+   * @param {*} req
+   * @param {*} res
+   * @param {*} next
+   */
+  states (req, res, next) {
+    if (process.env.NODE_ENV !== 'development') return res.status(403).json({})
+    const states = world.states
+    return res.status(200).json(states)
+  }
 };
 
 module.exports = new WorldController()

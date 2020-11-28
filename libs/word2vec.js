@@ -4,9 +4,14 @@ const { WORD_COUNT } = require('./constants')
 
 class Word2vec {
   constructor () {
-    this._getRecordCnt().then((cnt) => {
-      this._recordCnt = cnt
-    })
+    this._initRecordCnt()
+  }
+
+  /**
+   * レコード数の初期化
+   */
+  async _initRecordCnt () {
+    this._recordCnt = await models.Word2vec.count()
   }
 
   /**

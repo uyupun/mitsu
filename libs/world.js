@@ -14,6 +14,33 @@ class World {
   }
 
   /**
+   * ワールド情報のゲッター
+   */
+  get states () {
+    const filteredStates = this._states.map((state) => {
+      return {
+        id: state.id,
+        created_at: state.created_at,
+        status: World._getStatusKey(state.status)
+      }
+    })
+    return filteredStates
+  }
+
+  /**
+   * WorldStatusのvalueからkeyの変換を行う
+   *
+   * @param {*} value
+   */
+  static _getStatusKey (value) {
+    const statusKey = Object.keys(worldStatus).filter((key) => {
+      if (worldStatus[key] === value) return key
+      return null
+    })[0]
+    return statusKey
+  }
+
+  /**
    * ワールドの作成（初期化処理）
    */
   create () {
@@ -110,9 +137,6 @@ class World {
     const state = this.find(id)
     if (!state) throw new Error('world is not found exception')
     const isValidStatus = Object.values(worldStatus).includes(status)
-    console.log(worldStatus)
-    console.log(Object.values(worldStatus))
-    console.log(status)
     if (!isValidStatus) throw new Error('status is invalid exception')
     state.status = status
   }

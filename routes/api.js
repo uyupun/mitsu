@@ -23,4 +23,10 @@ router.get('/join', [
   check('worldId').not().isEmpty().isLength({ min: 6, max: 6 })
 ], worldController.join.bind(worldController))
 
+/**
+ * ワールド情報の取得
+ * 現状、本番環境での使用はできないようにしている（認証とかめんどいので）
+ */
+if (process.env.NODE_ENV === 'development') { router.get('/states', worldController.states.bind(worldController)) }
+
 module.exports = router

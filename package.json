@@ -12,7 +12,8 @@
     "migrate:fresh": "sequelize db:migrate:undo:all --config ./configs/database.js && yarn migrate",
     "seed": "sequelize db:seed:all --config ./configs/database.js",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "world": "node ./libs/world-cli.js"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
@@ -27,6 +28,7 @@
     "morgan": "~1.9.1",
     "mysql2": "^2.2.5",
     "nanoid": "^3.1.12",
+    "node-fetch": "^2.6.1",
     "nodemon": "^2.0.6",
     "sequelize": "^6.3.5",
     "sequelize-cli": "^6.2.0",
