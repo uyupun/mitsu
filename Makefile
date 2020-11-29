@@ -31,5 +31,8 @@ db:
 fix:
 	yarn lint:fix
 
+test:
+	yarn test
+
 world:
 	yarn world

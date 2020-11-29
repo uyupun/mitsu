@@ -22,6 +22,8 @@ $ make sh
 $ make db
 # ESLintに怒られたとき
 $ make fix
+# テスト（Jest）の実行
+$ make test
 # ワールド情報の確認（開発環境でのみ使用可能）
 $ make world
 # モデルとマイグレーションの作成
