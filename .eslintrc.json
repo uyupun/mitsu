@@ -13,7 +13,6 @@
     "rules": {
     },
     "globals": {
-        "afterAll": true,
         "describe": true,
         "test": true,
         "expect": true

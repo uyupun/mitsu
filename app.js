@@ -6,10 +6,6 @@ const cookieParser = require('cookie-parser')
 const logger = require('morgan')
 const favicon = require('serve-favicon')
 
-const iconv = require('iconv-lite')
-const encodings = require('iconv-lite/encodings')
-iconv.encodings = encodings
-
 const indexRouter = require('./routes/index')
 const apiRouter = require('./routes/api')
 
