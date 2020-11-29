@@ -13,7 +13,7 @@ router.get('/rules', rulesController.getRules.bind(rulesController))
  * 募集
  */
 router.get('/recruit', [
-  check('recruit').not().isEmpty().isIn(['1', '2'])
+  check('recruit').not().isEmpty().isIn([1, 2])
 ], worldController.recruit.bind(worldController))
 
 /**
@@ -27,6 +27,6 @@ router.get('/join', [
  * ワールド情報の取得
  * 現状、本番環境での使用はできないようにしている（認証とかめんどいので）
  */
-if (process.env.NODE_ENV === 'development') { router.get('/states', worldController.states.bind(worldController)) }
+if (process.env.NODE_ENV !== 'production') { router.get('/states', worldController.states.bind(worldController)) }
 
 module.exports = router
