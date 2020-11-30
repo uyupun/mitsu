@@ -13,7 +13,7 @@
     "seed": "sequelize db:seed:all --config ./configs/database.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "test": "jest --coverage --verbose --force-exit ./tests",
+    "test": "jest",
     "world": "node ./libs/world-cli.js"
   },
   "dependencies": {
