@@ -1,7 +1,7 @@
 const request = require('supertest')
 const server = require('../app')
 
-describe('get rules api', () => {
+describe('world recruit api', () => {
   describe('normal', () => {
     test('status', async () => {
       const res = await request(server).get('/api/v1/recruit').query({ recruit: 1 })

@@ -3,23 +3,14 @@ const { Op } = require('sequelize')
 const { WORD_COUNT } = require('./constants')
 
 class Word2vec {
-  constructor () {
-    this._initRecordCnt()
-  }
-
-  /**
-   * レコード数の初期化
-   */
-  async _initRecordCnt () {
-    this._recordCnt = await models.Word2vec.count()
-  }
-
   /**
    * 最初の一単語目の取得
    */
-  fetchFirstWord () {
-    const id = Word2vec._generateRandomId(this._recordCnt)
-    return models.Word2vec.findByPk(id, { raw: true })
+  async fetchFirstWord () {
+    const records = await models.Word2vec.count()
+    const id = Word2vec._generateRandomId(records)
+    const word = await models.Word2vec.findByPk(id, { raw: true })
+    return word
   }
 
   /**
@@ -28,11 +19,12 @@ class Word2vec {
    * @param {*} baseWord
    */
   async fetchWords (baseWord) {
+    const records = await models.Word2vec.count()
     const words = await models.Word2vec.findAll({
       raw: true,
       where: {
         id: {
-          [Op.in]: Word2vec._generateRandomIds(this._recordCnt)
+          [Op.in]: Word2vec._generateRandomIds(records)
         }
       }
     })
