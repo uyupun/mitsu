@@ -1,4 +1,4 @@
-.PHONY: up down ps sh db fix world
+.PHONY: up down ps sh db fix c world
 
 setup:
 	cp .env.example .env
@@ -33,6 +33,9 @@ fix:
 
 test:
 	yarn test
+
+c:
+	yarn commit
 
 world:
 	yarn world
