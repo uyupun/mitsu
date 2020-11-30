@@ -20,7 +20,7 @@ class World {
     const filteredStates = this._states.map((state) => {
       return {
         id: state.id,
-        created_at: state.created_at,
+        createdAt: state.createdAt,
         status: World._getStatusKey(state.status)
       }
     })
@@ -55,7 +55,7 @@ class World {
       turn: new Turn(),
       word: new Word(),
       dealer: null,
-      created_at: Helpers.getTimestamp(),
+      createdAt: Helpers.getTimestamp(),
       status: worldStatus.initialized
     })
     return id

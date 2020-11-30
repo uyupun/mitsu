@@ -11,5 +11,10 @@
         "ecmaVersion": 12
     },
     "rules": {
+    },
+    "globals": {
+        "describe": true,
+        "test": true,
+        "expect": true
     }
 }

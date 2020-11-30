@@ -13,6 +13,7 @@
     "seed": "sequelize db:seed:all --config ./configs/database.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+    "test": "jest",
     "world": "node ./libs/world-cli.js"
   },
   "dependencies": {
@@ -24,7 +25,6 @@
     "express": "~4.16.1",
     "express-validator": "^6.6.1",
     "http-errors": "~1.6.3",
-    "ioredis": "^4.17.3",
     "jade": "~1.11.0",
     "morgan": "~1.9.1",
     "mysql2": "^2.2.5",
@@ -43,7 +43,9 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",
     "husky": ">=4",
-    "lint-staged": ">=10"
+    "jest": "^26.6.3",
+    "lint-staged": ">=10",
+    "supertest": "^6.0.1"
   },
   "husky": {
     "hooks": {
@@ -51,6 +53,9 @@
     }
   },
   "lint-staged": {
-    "*.js": "eslint --cache"
+    "*.js": [
+      "eslint --cache",
+      "jest --bail --coverage=false"
+    ]
   }
 }
