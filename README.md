@@ -24,7 +24,7 @@ $ make db
 $ make fix
 # テスト（Jest）の実行
 $ make test
-# git commit（Commitizen）の実行
+# git add .とgit commit（Commitizen）の実行
 $ make c
 # ワールド情報の確認（開発環境でのみ使用可能）
 $ make world
