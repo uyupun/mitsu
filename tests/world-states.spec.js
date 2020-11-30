@@ -9,15 +9,15 @@ describe('world states api', () => {
     })
     test('body (empty)', async () => {
       const res = await request(server).get('/api/v1/states')
-      expect(res.body).toMatchSnapshot([])
+      expect(res.body).toMatchObject([])
     })
     test('body', async () => {
       await request(server).get('/api/v1/recruit').query({ recruit: 1 })
       const res = await request(server).get('/api/v1/states')
-      expect(res.body[0]).toMatchSnapshot({
+      expect(res.body[0]).toMatchObject({
         id: expect.any(String),
         status: expect.any(String),
-        created_at: expect.any(String)
+        createdAt: expect.any(String)
       })
     })
   })

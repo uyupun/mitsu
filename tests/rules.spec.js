@@ -9,7 +9,7 @@ describe('get rules api', () => {
     })
     test('body', async () => {
       const res = await request(server).get('/api/v1/rules')
-      expect(res.body[0]).toMatchSnapshot({
+      expect(res.body[0]).toMatchObject({
         text: expect.any(String),
         image: expect.any(String)
       })

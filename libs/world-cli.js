@@ -26,7 +26,7 @@ const worldCli = async () => {
 
   for (const state of states) {
     table.push([
-      state.id, state.status, state.created_at
+      state.id, state.status, state.createdAt
     ])
   }
   console.log(table.toString())

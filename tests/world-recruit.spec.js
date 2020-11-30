@@ -9,7 +9,7 @@ describe('world recruit api', () => {
     })
     test('body', async () => {
       const res = await request(server).get('/api/v1/recruit').query({ recruit: 1 })
-      expect(res.body).toMatchSnapshot({
+      expect(res.body).toMatchObject({
         worldId: expect.any(String),
         token: expect.any(String),
         role: expect.any(Number)
@@ -23,7 +23,7 @@ describe('world recruit api', () => {
     })
     test('body', async () => {
       const res = await request(server).get('/api/v1/recruit').query({ recruit: 3 })
-      expect(res.body).toMatchSnapshot({
+      expect(res.body).toMatchObject({
         msg: 'ぼしゅうにしっぱいしました'
       })
     })

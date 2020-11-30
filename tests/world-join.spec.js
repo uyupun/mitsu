@@ -11,7 +11,7 @@ describe('world join api', () => {
       const recruit = await request(server).get('/api/v1/recruit').query({ recruit: 1 })
       const worldId = await recruit.body.worldId
       const res = await request(server).get('/api/v1/join').query({ worldId })
-      expect(res.body).toMatchSnapshot({
+      expect(res.body).toMatchObject({
         validity: true,
         token: expect.any(String),
         role: expect.any(Number)
@@ -19,7 +19,7 @@ describe('world join api', () => {
     })
     test('body (validity: false)', async () => {
       const res = await request(server).get('/api/v1/join').query({ worldId: 'xxxxxx' })
-      expect(res.body).toMatchSnapshot({
+      expect(res.body).toMatchObject({
         validity: false,
         token: expect.any(Object),
         role: expect.any(Object)
@@ -33,7 +33,7 @@ describe('world join api', () => {
     })
     test('body', async () => {
       const res = await request(server).get('/api/v1/join').query({ worldId: '' })
-      expect(res.body).toMatchSnapshot({
+      expect(res.body).toMatchObject({
         msg: 'さんかにしっぱいしました'
       })
     })
