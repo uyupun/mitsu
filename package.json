@@ -53,6 +53,9 @@
     }
   },
   "lint-staged": {
-    "*.js": "eslint --cache"
+    "*.js": [
+      "eslint --cache",
+      "jest --bail --coverage=false"
+    ]
   }
 }
