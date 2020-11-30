@@ -18,6 +18,8 @@
     "world": "node ./libs/world-cli.js"
   },
   "dependencies": {
+    "@commitlint/cli": "^11.0.0",
+    "@commitlint/config-conventional": "^11.0.0",
     "cli-table3": "^0.6.0",
     "commitizen": "^4.2.2",
     "cookie-parser": "~1.4.4",
@@ -52,13 +54,14 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "lint-staged",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
   },
   "lint-staged": {
     "*.js": [
       "eslint --cache",
-      "jest --bail --coverage=false"
+      "jest --bail --coverage=false ./tests"
     ]
   }
 }

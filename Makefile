@@ -31,6 +31,9 @@ db:
 fix:
 	yarn lint:fix
 
+c:
+	yarn commit
+
 test:
 	yarn test
 
