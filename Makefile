@@ -35,6 +35,7 @@ test:
 	yarn test
 
 c:
+	git add .
 	yarn commit
 
 world:
