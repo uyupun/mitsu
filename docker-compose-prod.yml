@@ -14,8 +14,17 @@ services:
       - ./:/var/www
     environment:
       HOST: ${APP_HOST}
+      VIRTUAL_PORT: ${PORT}
+      VIRTUAL_HOST: ${APP_DOMAIN}
+      LETSENCRYPT_HOST: ${APP_DOMAIN}
+      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
     depends_on:
       - mysql
     networks:
       - social_resistance
+      - junktion
     restart: always
+
+networks:
+  junktion:
+    external: true
