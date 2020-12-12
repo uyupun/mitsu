@@ -13,7 +13,8 @@ router.get('/rules', rulesController.getRules.bind(rulesController))
  * 募集
  */
 router.get('/recruit', [
-  check('recruit').not().isEmpty().isIn([1, 2])
+  check('role').not().isEmpty().isIn([1, 2]),
+  check('isPublic').not().isEmpty().isBoolean()
 ], worldController.recruit.bind(worldController))
 
 /**

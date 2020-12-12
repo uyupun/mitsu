@@ -12,7 +12,7 @@ describe('world states api', () => {
       expect(res.body).toMatchObject([])
     })
     test('body', async () => {
-      await request(server).get('/api/v1/recruit').query({ recruit: 1 })
+      await request(server).get('/api/v1/recruit').query({ role: 1, isPublic: true })
       const res = await request(server).get('/api/v1/states')
       expect(res.body[0]).toMatchObject({
         id: expect.any(String),
