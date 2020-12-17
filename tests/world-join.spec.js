@@ -8,7 +8,7 @@ describe('world join api', () => {
       expect(res.statusCode).toBe(200)
     })
     test('body (validity: true)', async () => {
-      const recruit = await request(server).get('/api/v1/recruit').query({ recruit: 1 })
+      const recruit = await request(server).get('/api/v1/recruit').query({ role: 1, isPublic: true })
       const worldId = await recruit.body.worldId
       const res = await request(server).get('/api/v1/join').query({ worldId })
       expect(res.body).toMatchObject({

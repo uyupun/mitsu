@@ -43,7 +43,7 @@ class World {
   /**
    * ワールドの作成（初期化処理）
    */
-  create () {
+  create (isPublic) {
     const id = Helpers.generateId(6)
     this._states.push({
       id,
@@ -56,7 +56,8 @@ class World {
       word: new Word(),
       dealer: null,
       createdAt: Helpers.getTimestamp(),
-      status: worldStatus.initialized
+      status: worldStatus.initialized,
+      isPublic
     })
     return id
   }
