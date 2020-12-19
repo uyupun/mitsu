@@ -15,7 +15,8 @@
     "lint:fix": "eslint . --fix",
     "test": "jest",
     "commit": "cz",
-    "world": "node ./libs/world-cli.js"
+    "world": "node ./libs/world-cli.js",
+    "jwt": "node ./libs/jwt-secret-key-generator.js"
   },
   "dependencies": {
     "@commitlint/cli": "^11.0.0",

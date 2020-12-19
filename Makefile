@@ -7,6 +7,7 @@ setup:
 	docker-compose up -d
 	make db
 	yarn
+	make jwt
 
 up:
 	docker-compose up
@@ -40,3 +41,6 @@ c:
 
 world:
 	yarn world
+
+jwt:
+	yarn jwt

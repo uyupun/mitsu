@@ -2,3 +2,4 @@ node_modules
 yarn-error.log
 .env
 .eslintcache
+jwt_secret_key
