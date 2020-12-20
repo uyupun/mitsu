@@ -14,6 +14,8 @@ $ make setup
 $ make up
 # コンテナの停止
 $ make down
+# yarn install
+$ make yarn
 # Dockerのプロセス確認
 $ make ps
 # Expressのコンテナのシェルに入る

@@ -5,8 +5,8 @@ setup:
 	-docker network create social_resistance
 	docker-compose build --no-cache
 	docker-compose up -d
+	make yarn
 	make db
-	yarn
 	make jwt
 
 up:
@@ -18,6 +18,9 @@ prod-up:
 
 down:
 	-docker-compose down
+
+yarn:
+	docker-compose exec express yarn install
 
 ps:
 	docker-compose ps
