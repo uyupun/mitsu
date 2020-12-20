@@ -8,7 +8,7 @@
     "dev": "nodemon --exec 'yarn lint && node ./bin/www'",
     "make:model": "sequelize model:create --underscored",
     "make:seeder": "sequelize seed:generate",
-    "migrate": "sequelize db:migrate --env development --config ./configs/database.js",
+    "migrate": "sequelize db:migrate --config ./configs/database.js",
     "migrate:fresh": "sequelize db:migrate:undo:all --config ./configs/database.js && yarn migrate",
     "seed": "sequelize db:seed:all --config ./configs/database.js",
     "lint": "eslint .",
