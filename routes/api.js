@@ -19,7 +19,13 @@ router.post('/register', [
 /**
  * ログイン
  */
-router.post('/login', authController.login.bind(authController))
+router.post('/login', [
+  check('userId').not().isEmpty().bail().isString().bail().custom((userId) => {
+    if (userId.match(/^[0-9a-zA-Z_]+$/)) return true
+    return false
+  }),
+  check('password').not().isEmpty().bail().isString()
+], authController.login.bind(authController))
 
 /**
  * ルールの取得

@@ -32,16 +32,29 @@ class AuthController {
     })
   }
 
-  login (req, res, next) {
-    console.log(req.body)
-    // TODO: 照合処理
-    return res.status(200).json({})
-  }
+  async login (req, res, next) {
+    const user = await models.User.findOne({
+      where: {
+        user_id: req.body.userId
+      }
+    })
+    if (!user) return res.status(400).json({})
 
-  logout (req, res, next) {
-    console.log(req.body)
-    // TODO: トークンの削除処理
-    return res.status(200).json({})
+    // TODO: パスワードの検証
+    console.log(user.dataValues.password)
+
+    const payload = {
+      userId: req.body.userId
+    }
+    const secretKey = fs.readFileSync(path.join(__dirname, '/../jwt_secret_key'), 'utf-8')
+    const option = {
+      algorithm: 'HS256',
+      expiresIn: '30days'
+    }
+    const token = jwt.sign(payload, secretKey, option)
+    return res.status(200).json({
+      token
+    })
   }
 }
 
