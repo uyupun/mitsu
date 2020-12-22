@@ -5,31 +5,30 @@ const path = require('path')
 const models = require('../models')
 
 class AuthController {
-  register (req, res, next) {
+  async register (req, res, next) {
     const round = 10
     const hash = bcrypt.hashSync(req.body.password, round)
-    models.User.findOrCreate({
+    const [user, created] = await models.User.findOrCreate({
       where: { user_id: req.body.userId },
       defaults: {
         user_id: req.body.userId,
         password: hash
       }
-    }).then(([user, created]) => {
-      const payload = {
-        userId: req.body.userId
-      }
-      const secretKey = fs.readFileSync(path.join(__dirname, '/../jwt_secret_key'), 'utf-8')
-      const option = {
-        algorithm: 'HS256',
-        expiresIn: '30days'
-      }
-      const token = jwt.sign(payload, secretKey, option)
-      if (created) {
-        return res.status(200).json({
-          token
-        })
-      } else return res.status(400).json({})
     })
+    const payload = {
+      userId: user.dataValues.user_id
+    }
+    const secretKey = fs.readFileSync(path.join(__dirname, '/../jwt_secret_key'), 'utf-8')
+    const option = {
+      algorithm: 'HS256',
+      expiresIn: '30days'
+    }
+    const token = jwt.sign(payload, secretKey, option)
+    if (created) {
+      return res.status(200).json({
+        token
+      })
+    } else return res.status(400).json({})
   }
 
   async login (req, res, next) {
