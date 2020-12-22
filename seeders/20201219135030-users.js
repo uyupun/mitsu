@@ -6,7 +6,8 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
     const password = 'password'
     const round = 10
-    const hash = bcrypt.hashSync(password, round)
+    const salt = bcrypt.genSaltSync(round)
+    const hash = bcrypt.hashSync(password, salt)
 
     await queryInterface.bulkInsert('users', [
       {

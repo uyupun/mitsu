@@ -7,7 +7,8 @@ const models = require('../models')
 class AuthController {
   async register (req, res, next) {
     const round = 10
-    const hash = bcrypt.hashSync(req.body.password, round)
+    const salt = bcrypt.genSaltSync(round)
+    const hash = bcrypt.hashSync(req.body.password, salt)
     const [user, created] = await models.User.findOrCreate({
       where: { user_id: req.body.userId },
       defaults: {
@@ -38,9 +39,7 @@ class AuthController {
       }
     })
     if (!user) return res.status(400).json({})
-
-    // TODO: パスワードの検証
-    console.log(user.dataValues.password)
+    if (!bcrypt.compareSync(req.body.password, user.dataValues.password)) return res.status(400).json({})
 
     const payload = {
       userId: req.body.userId
