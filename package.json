@@ -21,7 +21,7 @@
   "dependencies": {
     "@commitlint/cli": "^11.0.0",
     "@commitlint/config-conventional": "^11.0.0",
-    "bcrypt": "^5.0.0",
+    "bcryptjs": "^2.4.3",
     "cli-table3": "^0.6.0",
     "commitizen": "^4.2.2",
     "cookie-parser": "~1.4.4",
@@ -33,6 +33,7 @@
     "express-validator": "^6.6.1",
     "http-errors": "~1.6.3",
     "jade": "~1.11.0",
+    "jsonwebtoken": "^8.5.1",
     "morgan": "~1.9.1",
     "mysql2": "^2.2.5",
     "nanoid": "^3.1.12",

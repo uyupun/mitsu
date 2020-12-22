@@ -20,7 +20,7 @@ down:
 	-docker-compose down
 
 yarn:
-	docker-compose exec express yarn install
+	yarn install
 
 ps:
 	docker-compose ps

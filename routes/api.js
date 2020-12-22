@@ -8,17 +8,18 @@ const rulesController = require('../controllers/rules-controller')
 /**
  * 登録
  */
-router.post('/register', authController.register.bind(authController))
+router.post('/register', [
+  check('userId').not().isEmpty().bail().isString().bail().custom((userId) => {
+    if (userId.match(/^[0-9a-zA-Z_]+$/)) return true
+    return false
+  }),
+  check('password').not().isEmpty().bail().isString()
+], authController.register.bind(authController))
 
 /**
  * ログイン
  */
 router.post('/login', authController.login.bind(authController))
-
-/**
- * ログアウト
- */
-router.post('/logout', authController.logout.bind(authController))
 
 /**
  * ルールの取得
