@@ -7,7 +7,8 @@ class WorldController {
     const errors = validationResult(req)
     if (!errors.isEmpty()) { return res.status(400).json({ msg: 'ぼしゅうにしっぱいしました' }) }
 
-    const worldId = world.create(req.query.isPublic)
+    const isPublic = req.query.isPublic === 'true'
+    const worldId = world.create(isPublic)
     const role = Number(req.query.role) === PLAYER_PEKORA ? PLAYER_BAIKINKUN : PLAYER_PEKORA
 
     const token = world.recruit(worldId, role)
