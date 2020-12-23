@@ -6,7 +6,7 @@
   "scripts": {
     "start": "nodemon ./bin/www",
     "dev": "nodemon --exec 'yarn lint && node ./bin/www'",
-    "make:model": "sequelize model:create --underscored",
+    "make:model": "sequelize model:create",
     "make:seeder": "sequelize seed:generate",
     "migrate": "sequelize db:migrate --config ./configs/database.js",
     "migrate:fresh": "sequelize db:migrate:undo:all --config ./configs/database.js && yarn migrate",

@@ -5,9 +5,9 @@ class AuthController {
   async register (req, res, next) {
     const hashedPassword = auth.hashPassword(req.body.password)
     const [user, created] = await models.User.findOrCreate({
-      where: { user_id: req.body.userId },
+      where: { userId: req.body.userId },
       defaults: {
-        user_id: req.body.userId,
+        userId: req.body.userId,
         password: hashedPassword
       }
     })
@@ -22,7 +22,7 @@ class AuthController {
   async login (req, res, next) {
     const user = await models.User.findOne({
       where: {
-        user_id: req.body.userId
+        userId: req.body.userId
       }
     })
     if (!user) return res.status(400).json({})

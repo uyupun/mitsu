@@ -76,10 +76,10 @@ class Word2vec {
         bottom_left: false,
         bottom_right: false
       }
-      if (words[i].move_x > baseWord.move_x) {
-        if (words[i].move_y > baseWord.move_y) direction.bottom_right = true
+      if (words[i].moveX > baseWord.moveX) {
+        if (words[i].moveY > baseWord.moveY) direction.bottom_right = true
         else direction.top_right = true
-      } else if (words[i].move_y > baseWord.move_y) direction.bottom_left = true
+      } else if (words[i].moveY > baseWord.moveY) direction.bottom_left = true
       else direction.top_left = true
       words[i].direction = direction
     }

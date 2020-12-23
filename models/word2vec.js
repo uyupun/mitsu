@@ -15,8 +15,8 @@ module.exports = (sequelize, DataTypes) => {
   };
   Word2vec.init({
     word: DataTypes.STRING,
-    move_x: DataTypes.DOUBLE,
-    move_y: DataTypes.DOUBLE
+    moveX: DataTypes.DOUBLE,
+    moveY: DataTypes.DOUBLE
   }, {
     sequelize,
     modelName: 'Word2vec',
