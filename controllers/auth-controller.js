@@ -1,30 +1,17 @@
-const bcrypt = require('bcryptjs')
-const jwt = require('jsonwebtoken')
-const fs = require('fs')
-const path = require('path')
+const auth = require('../libs/auth')
 const models = require('../models')
 
 class AuthController {
   async register (req, res, next) {
-    const round = 10
-    const salt = bcrypt.genSaltSync(round)
-    const hash = bcrypt.hashSync(req.body.password, salt)
+    const hashedPassword = auth.hashPassword(req.body.password)
     const [user, created] = await models.User.findOrCreate({
       where: { user_id: req.body.userId },
       defaults: {
         user_id: req.body.userId,
-        password: hash
+        password: hashedPassword
       }
     })
-    const payload = {
-      userId: user.dataValues.user_id
-    }
-    const secretKey = fs.readFileSync(path.join(__dirname, '/../jwt_secret_key'), 'utf-8')
-    const option = {
-      algorithm: 'HS256',
-      expiresIn: '30days'
-    }
-    const token = jwt.sign(payload, secretKey, option)
+    const token = auth.generateToken(user.dataValues.user_id)
     if (created) {
       return res.status(200).json({
         token
@@ -39,17 +26,8 @@ class AuthController {
       }
     })
     if (!user) return res.status(400).json({})
-    if (!bcrypt.compareSync(req.body.password, user.dataValues.password)) return res.status(400).json({})
-
-    const payload = {
-      userId: req.body.userId
-    }
-    const secretKey = fs.readFileSync(path.join(__dirname, '/../jwt_secret_key'), 'utf-8')
-    const option = {
-      algorithm: 'HS256',
-      expiresIn: '30days'
-    }
-    const token = jwt.sign(payload, secretKey, option)
+    if (!auth.verifyPassword(req.body.password, user.dataValues.password)) return res.status(400).json({})
+    const token = auth.generateToken(user.dataValues.user_id)
     return res.status(200).json({
       token
     })

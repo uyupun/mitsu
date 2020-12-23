@@ -1,12 +1,10 @@
 const express = require('express')
 const router = express.Router()
 const { check } = require('express-validator')
-const jwt = require('jsonwebtoken')
-const fs = require('fs')
-const path = require('path')
 const authController = require('../controllers/auth-controller')
 const worldController = require('../controllers/world-controller')
 const rulesController = require('../controllers/rules-controller')
+const auth = require('../libs/auth')
 
 /**
  * 登録
@@ -44,11 +42,9 @@ if (process.env.NODE_ENV !== 'production') { router.get('/states', worldControll
  * @param {*} next
  */
 const verifyToken = (req, res, next) => {
-  if (!req.headers.authorization) return res.status(400).json({})
-  if (req.headers.authorization.split(' ')[0] !== 'Bearer') return res.status(400).json({})
-  const token = req.headers.authorization.split(' ')[1]
-  const secretKey = fs.readFileSync(path.join(__dirname, '/../jwt_secret_key'), 'utf-8')
-  jwt.verify(token, secretKey, (err, decoded) => {
+  if (!auth.existsBearerScheme(req.headers.authorization)) return res.status(400).json({})
+  const token = auth.extractTokenInBearerScheme(req.headers.authorization)
+  auth.verifyToken(token, (err, decoded) => {
     if (err) return res.status(401).json({})
     next()
   })

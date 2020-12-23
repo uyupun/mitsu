@@ -1,30 +1,26 @@
 'use strict'
 
-const bcrypt = require('bcryptjs')
+const auth = require('../libs/auth')
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    const password = 'password'
-    const round = 10
-    const salt = bcrypt.genSaltSync(round)
-    const hash = bcrypt.hashSync(password, salt)
-
+    const hashedPassword = auth.hashPassword('password')
     await queryInterface.bulkInsert('users', [
       {
         user_id: 'foo',
-        password: hash
+        password: hashedPassword
       },
       {
         user_id: 'bar',
-        password: hash
+        password: hashedPassword
       },
       {
         user_id: 'baz',
-        password: hash
+        password: hashedPassword
       },
       {
         user_id: 'qux',
-        password: hash
+        password: hashedPassword
       }
     ], {})
   },
