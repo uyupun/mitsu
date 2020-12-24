@@ -150,6 +150,15 @@ class World {
     if (!state) throw new Error('world is not found exception')
     return state.status
   }
+
+  /**
+   * 公開されたワールドの検索
+   */
+  search () {
+    return this._states.filter(
+      state => state.isPublic && (state.status === worldStatus.initialized || state.status === worldStatus.waiting)
+    )
+  }
 }
 
 module.exports = new World()
