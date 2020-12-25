@@ -159,6 +159,25 @@ class World {
       state => state.isPublic && (state.status === worldStatus.initialized || state.status === worldStatus.waiting)
     )
   }
+
+  /**
+   * ワールド検索結果を元にページネーションに必要な値を返す
+   */
+  paginator (page, limit) {
+    const worlds = this.search()
+    worlds.reverse()
+    const list = []
+    const index = (page - 1) * limit
+    if (worlds.length > index) {
+      const endIndex = worlds.length <= index + limit ? worlds.length : index + limit
+      const worldsSlice = worlds.slice(index, endIndex)
+      worldsSlice.map(state => list.push({
+        worldId: state.id,
+        role: state.tokens[PLAYER_PEKORA] ? PLAYER_BAIKINKUN : PLAYER_PEKORA
+      }))
+    }
+    return { page, limit, total: worlds.length, list }
+  }
 }
 
 module.exports = new World()
