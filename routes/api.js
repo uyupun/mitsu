@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const { check } = require('express-validator')
+const { query, body } = require('express-validator')
 const authController = require('../controllers/auth-controller')
 const worldController = require('../controllers/world-controller')
 const rulesController = require('../controllers/rules-controller')
@@ -10,22 +10,22 @@ const auth = require('../libs/auth')
  * 登録
  */
 router.post('/register', [
-  check('userId').not().isEmpty().bail().isString().bail().custom((userId) => {
+  body('userId').not().isEmpty().bail().isString().bail().custom((userId) => {
     if (userId.match(/^[0-9a-zA-Z_]+$/)) return true
     return false
   }),
-  check('password').not().isEmpty().bail().isString()
+  body('password').not().isEmpty().bail().isString()
 ], authController.register.bind(authController))
 
 /**
  * ログイン
  */
 router.post('/login', [
-  check('userId').not().isEmpty().bail().isString().bail().custom((userId) => {
+  body('userId').not().isEmpty().bail().isString().bail().custom((userId) => {
     if (userId.match(/^[0-9a-zA-Z_]+$/)) return true
     return false
   }),
-  check('password').not().isEmpty().bail().isString()
+  body('password').not().isEmpty().bail().isString()
 ], authController.login.bind(authController))
 
 /**
@@ -62,8 +62,8 @@ router.get('/rules', verifyToken, rulesController.getRules.bind(rulesController)
  */
 router.get('/recruit', [
   verifyToken,
-  check('role').not().isEmpty().bail().isIn([1, 2]),
-  check('isPublic').not().isEmpty().bail().isBoolean()
+  query('role').not().isEmpty().bail().isIn([1, 2]),
+  query('isPublic').not().isEmpty().bail().isBoolean()
 ], worldController.recruit.bind(worldController))
 
 /**
@@ -71,7 +71,7 @@ router.get('/recruit', [
  */
 router.get('/join', [
   verifyToken,
-  check('worldId').not().isEmpty().bail().isLength({ min: 6, max: 6 })
+  query('worldId').not().isEmpty().bail().isLength({ min: 6, max: 6 })
 ], worldController.join.bind(worldController))
 
 module.exports = router
