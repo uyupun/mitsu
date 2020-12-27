@@ -32,7 +32,7 @@ router.post('/login', [
  * ワールド情報の取得
  * 現状、本番環境での使用はできないようにしている（認証とかめんどいので）
  */
-if (process.env.NODE_ENV !== 'production') { router.get('/states', worldController.states.bind(worldController)) }
+if (process.env.NODE_ENV !== 'production') router.get('/states', worldController.states.bind(worldController))
 
 /**
  * トークンの検証ミドウェア
@@ -51,28 +51,27 @@ const verifyToken = (req, res, next) => {
     next()
   })
 }
-router.use('/rules', verifyToken)
-router.use('/recruit', verifyToken)
-router.use('/join', verifyToken)
 
 /**
  * ルールの取得
  */
-router.get('/rules', rulesController.getRules.bind(rulesController))
+router.get('/rules', verifyToken, rulesController.getRules.bind(rulesController))
 
 /**
  * 募集
  */
 router.get('/recruit', [
-  check('role').not().isEmpty().isIn([1, 2]),
-  check('isPublic').not().isEmpty().isBoolean()
+  verifyToken,
+  check('role').not().isEmpty().bail().isIn([1, 2]),
+  check('isPublic').not().isEmpty().bail().isBoolean()
 ], worldController.recruit.bind(worldController))
 
 /**
  * 参加
  */
 router.get('/join', [
-  check('worldId').not().isEmpty().isLength({ min: 6, max: 6 })
+  verifyToken,
+  check('worldId').not().isEmpty().bail().isLength({ min: 6, max: 6 })
 ], worldController.join.bind(worldController))
 
 module.exports = router
