@@ -62,6 +62,16 @@ class Auth {
   }
 
   /**
+   * トークンのペイロード部分をデコードして返す
+   *
+   * @param {*} token
+   */
+  getTokenPayload (token) {
+    const payload = jwt.decode(token, { complete: true }).payload
+    return payload
+  }
+
+  /**
    * Bearerスキームの存在チェック
    *
    * @param {*} authorization

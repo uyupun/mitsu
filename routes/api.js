@@ -46,15 +46,14 @@ const verifyToken = (req, res, next) => {
   const token = auth.extractTokenInBearerScheme(req.headers.authorization)
   auth.verifyToken(token, (err, decoded) => {
     if (err) return res.status(401).json({})
+    const userId = auth.getTokenPayload(token).userId
+    req.userId = userId
     next()
   })
 }
-// TODO: とりあえずテスト環境ではバイパスしている
-if (process.env.NODE_ENV !== 'test') {
-  router.use('/rules', verifyToken)
-  router.use('/recruit', verifyToken)
-  router.use('/join', verifyToken)
-}
+router.use('/rules', verifyToken)
+router.use('/recruit', verifyToken)
+router.use('/join', verifyToken)
 
 /**
  * ルールの取得

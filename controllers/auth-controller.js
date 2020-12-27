@@ -11,7 +11,7 @@ class AuthController {
         password: hashedPassword
       }
     })
-    const token = auth.generateToken(user.dataValues.user_id)
+    const token = auth.generateToken(user.dataValues.userId)
     if (created) {
       return res.status(200).json({
         token
@@ -27,7 +27,7 @@ class AuthController {
     })
     if (!user) return res.status(400).json({})
     if (!auth.verifyPassword(req.body.password, user.dataValues.password)) return res.status(400).json({})
-    const token = auth.generateToken(user.dataValues.user_id)
+    const token = auth.generateToken(user.dataValues.userId)
     return res.status(200).json({
       token
     })
