@@ -7,6 +7,7 @@ const {
   PLAYER_PEKORA,
   PLAYER_BAIKINKUN
 } = require('./constants')
+const auth = require('./auth')
 
 class World {
   constructor () {
@@ -121,10 +122,14 @@ class World {
    * @param {*} role
    */
   isValidPlayer (id, token, role) {
-    const state = this.find(id)
-    if (!state) return false
-    if (state.tokens[role] === token) return true
-    return false
+    auth.verifyToken(token, (err, decoded) => {
+      if (err) return false
+      const userId = auth.getTokenPayload(token).userId
+      const state = this.find(id)
+      if (!state) return false
+      if (state.players[role] !== userId) return false
+      return true
+    })
   }
 
   /**
