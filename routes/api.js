@@ -30,4 +30,12 @@ router.get('/join', [
  */
 if (process.env.NODE_ENV !== 'production') { router.get('/states', worldController.states.bind(worldController)) }
 
+/**
+ * 検索
+ */
+router.get('/search', [
+  check('page').not().isEmpty().isInt({ min: 1 }),
+  check('limit').not().isEmpty().isInt({ min: 1, max: 20 })
+], worldController.search.bind(worldController))
+
 module.exports = router

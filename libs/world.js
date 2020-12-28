@@ -68,7 +68,7 @@ class World {
    * @param {*} id
    */
   find (id) {
-    return this._states.find(state => state.id === id)
+    return this._states.find((state) => state.id === id)
   }
 
   /**
@@ -77,7 +77,7 @@ class World {
    * @param {*} id
    */
   remove (id) {
-    const idx = this._states.findIndex(state => state.id === id)
+    const idx = this._states.findIndex((state) => state.id === id)
     if (idx === -1) return
     this._states.splice(idx, 1)
   }
@@ -149,6 +149,36 @@ class World {
     const state = this.find(id)
     if (!state) throw new Error('world is not found exception')
     return state.status
+  }
+
+  /**
+   * 公開されたワールドの検索
+   */
+  fetch (inverse = false) {
+    const filteredStates = this._states.filter((state) => (
+      state.isPublic && (state.status === worldStatus.initialized || state.status === worldStatus.waiting)
+    ))
+    return inverse ? filteredStates.reverse() : filteredStates
+  }
+
+  /**
+   * ワールド検索結果を元にページネーションに必要な値を返す
+   */
+  paginate (page, limit) {
+    const states = this.fetch(true)
+    const worlds = []
+    const index = (page - 1) * limit
+    if (states.length > index) {
+      const endIndex = states.length <= index + limit ? states.length : index + limit
+      const slicedStates = states.slice(index, endIndex)
+      slicedStates.forEach((state) => {
+        worlds.push({
+          id: state.id,
+          role: state.tokens[PLAYER_PEKORA] ? PLAYER_BAIKINKUN : PLAYER_PEKORA
+        })
+      })
+    }
+    return { page, limit, total: states.length, worlds }
   }
 }
 

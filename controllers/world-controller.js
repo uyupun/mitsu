@@ -40,6 +40,16 @@ class WorldController {
     const states = world.states
     return res.status(200).json(states)
   }
+
+  search (req, res, next) {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) { return res.status(400).json({ msg: 'けんさくにしっぱいしました' }) }
+
+    const page = Number(req.query.page)
+    const limit = Number(req.query.limit)
+    const result = world.paginate(page, limit)
+    return res.status(200).json(result)
+  }
 };
 
 module.exports = new WorldController()
