@@ -155,10 +155,10 @@ class World {
    * 公開されたワールドの検索
    */
   fetch (inverse = false) {
-    const filterStates = this._states.filter(
+    const filteredStates = this._states.filter(
       state => state.isPublic && (state.status === worldStatus.initialized || state.status === worldStatus.waiting)
     )
-    return inverse ? filterStates.reverse() : filterStates
+    return inverse ? filteredStates.reverse() : filteredStates
   }
 
   /**
@@ -170,8 +170,8 @@ class World {
     const index = (page - 1) * limit
     if (states.length > index) {
       const endIndex = states.length <= index + limit ? states.length : index + limit
-      const sliceStates = states.slice(index, endIndex)
-      sliceStates.forEach(state => worlds.push({
+      const slicedStates = states.slice(index, endIndex)
+      slicedStates.forEach(state => worlds.push({
         id: state.id,
         role: state.tokens[PLAYER_PEKORA] ? PLAYER_BAIKINKUN : PLAYER_PEKORA
       }))
