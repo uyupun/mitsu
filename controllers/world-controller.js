@@ -47,7 +47,7 @@ class WorldController {
 
     const page = Number(req.query.page)
     const limit = Number(req.query.limit)
-    const result = world.paginator(page, limit)
+    const result = world.paginate(page, limit)
     return res.status(200).json(result)
   }
 };

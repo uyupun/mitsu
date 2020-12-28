@@ -154,29 +154,29 @@ class World {
   /**
    * 公開されたワールドの検索
    */
-  search () {
-    return this._states.filter(
+  fetch (inverse = false) {
+    const filterStates = this._states.filter(
       state => state.isPublic && (state.status === worldStatus.initialized || state.status === worldStatus.waiting)
     )
+    return inverse ? filterStates.reverse() : filterStates
   }
 
   /**
    * ワールド検索結果を元にページネーションに必要な値を返す
    */
-  paginator (page, limit) {
-    const worlds = this.search()
-    worlds.reverse()
-    const list = []
+  paginate (page, limit) {
+    const states = this.fetch(true)
+    const worlds = []
     const index = (page - 1) * limit
-    if (worlds.length > index) {
-      const endIndex = worlds.length <= index + limit ? worlds.length : index + limit
-      const worldsSlice = worlds.slice(index, endIndex)
-      worldsSlice.map(state => list.push({
-        worldId: state.id,
+    if (states.length > index) {
+      const endIndex = states.length <= index + limit ? states.length : index + limit
+      const sliceStates = states.slice(index, endIndex)
+      sliceStates.forEach(state => worlds.push({
+        id: state.id,
         role: state.tokens[PLAYER_PEKORA] ? PLAYER_BAIKINKUN : PLAYER_PEKORA
       }))
     }
-    return { page, limit, total: worlds.length, list }
+    return { page, limit, total: states.length, worlds }
   }
 }
 

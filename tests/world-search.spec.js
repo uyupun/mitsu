@@ -14,10 +14,10 @@ describe('world search api', () => {
         page: expect.any(Number),
         limit: expect.any(Number),
         total: expect.any(Number),
-        list: expect.any(Array)
+        worlds: expect.any(Array)
       })
-      expect(res.body.list[0]).toMatchObject({
-        worldId: expect.any(String),
+      expect(res.body.worlds[0]).toMatchObject({
+        id: expect.any(String),
         role: expect.any(Number)
       })
     })
