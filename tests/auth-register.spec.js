@@ -26,13 +26,13 @@ describe('auth register api', () => {
     test('body (empty user id)', async () => {
       const res = await request(server).post('/api/v1/register').send({ userId: '', password: 'password' })
       expect(res.body).toMatchObject({
-        msg: expect.any(String)
+        msg: 'とうろくにしっぱいしました'
       })
     })
     test('body (already registerd user id)', async () => {
       const res = await request(server).post('/api/v1/register').send({ userId: 'foo', password: 'password' })
       expect(res.body).toMatchObject({
-        msg: expect.any(String)
+        msg: 'とうろくにしっぱいしました'
       })
     })
   })

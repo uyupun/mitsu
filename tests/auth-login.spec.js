@@ -22,7 +22,7 @@ describe('auth login api', () => {
     test('body (empty user id)', async () => {
       const res = await request(server).post('/api/v1/login').send({ userId: '', password: 'password' })
       expect(res.body).toMatchObject({
-        msg: expect.any(String)
+        msg: 'ログインにしっぱいしました'
       })
     })
   })
