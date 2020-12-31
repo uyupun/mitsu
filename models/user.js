@@ -3,7 +3,7 @@ const {
   Model
 } = require('sequelize')
 module.exports = (sequelize, DataTypes) => {
-  class Word2vec extends Model {
+  class User extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -13,15 +13,13 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
   };
-  Word2vec.init({
-    word: DataTypes.STRING,
-    moveX: DataTypes.DOUBLE,
-    moveY: DataTypes.DOUBLE
+  User.init({
+    userId: DataTypes.STRING,
+    password: DataTypes.STRING
   }, {
     sequelize,
-    modelName: 'Word2vec',
-    underscored: true,
-    timestamps: false
+    modelName: 'User',
+    underscored: true
   })
-  return Word2vec
+  return User
 }

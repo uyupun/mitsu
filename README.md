@@ -14,6 +14,8 @@ $ make setup
 $ make up
 # コンテナの停止
 $ make down
+# yarn install
+$ make yarn
 # Dockerのプロセス確認
 $ make ps
 # Expressのコンテナのシェルに入る
@@ -28,6 +30,8 @@ $ make test
 $ make c
 # ワールド情報の確認（開発環境でのみ使用可能）
 $ make world
+# JWTで使用する秘密鍵の生成
+$ make jwt
 # モデルとマイグレーションの作成
 $ yarn make:model --name <model_name> --attributes <field1>:<type1>,<field2>:<type2>,...
 # シーダーの作成

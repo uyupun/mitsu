@@ -181,7 +181,7 @@ class Dealer {
     socket.on('attack', (payload) => {
       const isValid = world.isValidPlayer(payload.worldId, payload.token, payload.role)
       if (!isValid) return this._invalidPlayerEmitter(socket)
-      this._state.field.move(payload.role, payload.baseWord.move_x, payload.baseWord.move_y)
+      this._state.field.move(payload.role, payload.baseWord.moveX, payload.baseWord.moveY)
       this._feedbackPositionEmitter(payload.role)
       const pekoraPositions = this._state.field.getPositions(PLAYER_PEKORA)
       const baikinkunPositions = this._state.field.getPositions(PLAYER_BAIKINKUN)

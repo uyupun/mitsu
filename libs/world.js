@@ -7,6 +7,7 @@ const {
   PLAYER_PEKORA,
   PLAYER_BAIKINKUN
 } = require('./constants')
+const auth = require('./auth')
 
 class World {
   constructor () {
@@ -47,7 +48,7 @@ class World {
     const id = Helpers.generateId(6)
     this._states.push({
       id,
-      tokens: {
+      players: {
         [PLAYER_PEKORA]: '',
         [PLAYER_BAIKINKUN]: ''
       },
@@ -85,33 +86,32 @@ class World {
   /**
    * 募集
    *
-   * @param {*} id
+   * @param {*} worldId
    * @param {*} role
+   * @param {*} userId
    */
-  recruit (id, role) {
-    const token = Helpers.generateId(12)
-    const state = this.find(id)
+  recruit (worldId, role, userId) {
+    const state = this.find(worldId)
     if (!state) throw new Error('world id not found exception')
-    if (![PLAYER_PEKORA, PLAYER_BAIKINKUN].includes(role)) return null
-    state.tokens[role] = token
-    return token
+    if (![PLAYER_PEKORA, PLAYER_BAIKINKUN].includes(role)) throw new Error('player role not found exception')
+    state.players[role] = userId
   }
 
   /**
    * 参加
    *
-   * @param {*} id
+   * @param {*} worldId
+   * @param {*} userId
    */
-  join (id) {
-    const token = Helpers.generateId(12)
-    const state = this.find(id)
+  join (worldId, userId) {
+    const state = this.find(worldId)
     if (!state) throw new Error('world id not found exception')
-    if (!state.tokens[PLAYER_PEKORA]) {
-      state.tokens[PLAYER_PEKORA] = token
-      return { role: PLAYER_PEKORA, token }
+    if (!state.players[PLAYER_PEKORA]) {
+      state.players[PLAYER_PEKORA] = userId
+      return PLAYER_PEKORA
     }
-    state.tokens[PLAYER_BAIKINKUN] = token
-    return { role: PLAYER_BAIKINKUN, token }
+    state.players[PLAYER_BAIKINKUN] = userId
+    return PLAYER_BAIKINKUN
   }
 
   /**
@@ -122,10 +122,16 @@ class World {
    * @param {*} role
    */
   isValidPlayer (id, token, role) {
-    const state = this.find(id)
-    if (!state) return false
-    if (state.tokens[role] === token) return true
-    return false
+    let isValid = false
+    auth.verifyToken(token, (err, decoded) => {
+      if (err) return
+      const userId = auth.getTokenPayload(token).userId
+      const state = this.find(id)
+      if (!state) return
+      if (state.players[role] !== userId) return
+      isValid = true
+    })
+    return isValid
   }
 
   /**

@@ -12,7 +12,8 @@ describe('world states api', () => {
       expect(res.body).toMatchObject([])
     })
     test('body', async () => {
-      await request(server).get('/api/v1/recruit').query({ role: 1, isPublic: true })
+      const token = (await request(server).post('/api/v1/login').send({ userId: 'foo', password: 'password' })).body.token
+      await request(server).get('/api/v1/recruit').set('Authorization', `Bearer ${token}`).query({ role: 1, isPublic: true })
       const res = await request(server).get('/api/v1/states')
       expect(res.body[0]).toMatchObject({
         id: expect.any(String),
