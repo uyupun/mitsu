@@ -122,14 +122,16 @@ class World {
    * @param {*} role
    */
   isValidPlayer (id, token, role) {
+    let isValid = false
     auth.verifyToken(token, (err, decoded) => {
-      if (err) return false
+      if (err) return
       const userId = auth.getTokenPayload(token).userId
       const state = this.find(id)
-      if (!state) return false
-      if (state.players[role] !== userId) return false
-      return true
+      if (!state) return
+      if (state.players[role] !== userId) return
+      isValid = true
     })
+    return isValid
   }
 
   /**
