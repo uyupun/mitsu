@@ -74,4 +74,12 @@ router.get('/join', [
   query('worldId').not().isEmpty().bail().isLength({ min: 6, max: 6 })
 ], worldController.join.bind(worldController))
 
+/**
+ * 検索
+ */
+router.get('/search', [
+  check('page').not().isEmpty().isInt({ min: 1 }),
+  check('limit').not().isEmpty().isInt({ min: 1, max: 20 })
+], worldController.search.bind(worldController))
+
 module.exports = router
