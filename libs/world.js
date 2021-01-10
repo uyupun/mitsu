@@ -180,7 +180,7 @@ class World {
       slicedStates.forEach((state) => {
         worlds.push({
           id: state.id,
-          role: state.tokens[PLAYER_PEKORA] ? PLAYER_BAIKINKUN : PLAYER_PEKORA
+          role: state.players[PLAYER_PEKORA] ? PLAYER_BAIKINKUN : PLAYER_PEKORA
         })
       })
     }
