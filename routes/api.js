@@ -78,8 +78,9 @@ router.get('/join', [
  * 検索
  */
 router.get('/search', [
-  check('page').not().isEmpty().isInt({ min: 1 }),
-  check('limit').not().isEmpty().isInt({ min: 1, max: 20 })
+  verifyToken,
+  query('page').not().isEmpty().isInt({ min: 1 }),
+  query('limit').not().isEmpty().isInt({ min: 1, max: 20 })
 ], worldController.search.bind(worldController))
 
 module.exports = router
