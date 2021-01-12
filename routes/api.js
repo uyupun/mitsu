@@ -4,6 +4,7 @@ const { query, body } = require('express-validator')
 const authController = require('../controllers/auth-controller')
 const worldController = require('../controllers/world-controller')
 const rulesController = require('../controllers/rules-controller')
+const avatarsController = require('../controllers/avatars-controller')
 const auth = require('../libs/auth')
 
 /**
@@ -82,5 +83,10 @@ router.get('/search', [
   query('page').not().isEmpty().isInt({ min: 1 }),
   query('limit').not().isEmpty().isInt({ min: 1, max: 20 })
 ], worldController.search.bind(worldController))
+
+/**
+ * アバターの取得
+ */
+router.get('/avatars', verifyToken, avatarsController.getAvatars.bind(avatarsController))
 
 module.exports = router

@@ -1,0 +1,27 @@
+[
+  {
+    "id": 1,
+    "name": "アバター１",
+    "image": "/images/avatars/avatar_sample.png"
+  },
+  {
+    "id": 2,
+    "name": "アバター２",
+    "image": "/images/avatars/avatar_sample.png"
+  },
+  {
+    "id": 3,
+    "name": "アバター３",
+    "image": "/images/avatars/avatar_sample.png"
+  },
+  {
+    "id": 4,
+    "name": "アバター４",
+    "image": "/images/avatars/avatar_sample.png"
+  },
+  {
+    "id": 5,
+    "name": "アバター５",
+    "image": "/images/avatars/avatar_sample.png"
+  }
+]
