@@ -80,8 +80,8 @@ router.get('/join', [
  */
 router.get('/search', [
   verifyToken,
-  query('page').not().isEmpty().isInt({ min: 1 }),
-  query('limit').not().isEmpty().isInt({ min: 1, max: 20 })
+  query('page').not().isEmpty().bail().isInt({ min: 1 }),
+  query('limit').not().isEmpty().bail().isInt({ min: 1, max: 20 })
 ], worldController.search.bind(worldController))
 
 /**
