@@ -5,6 +5,7 @@ const authController = require('../controllers/auth-controller')
 const worldController = require('../controllers/world-controller')
 const rulesController = require('../controllers/rules-controller')
 const avatarsController = require('../controllers/avatars-controller')
+const profileController = require('../controllers/profile-controller')
 const auth = require('../libs/auth')
 
 /**
@@ -88,5 +89,16 @@ router.get('/search', [
  * アバターの取得
  */
 router.get('/avatars', verifyToken, avatarsController.getAvatars.bind(avatarsController))
+
+/**
+ * プロフィールの取得
+ */
+router.get('/profile', [
+  verifyToken,
+  query('userId').not().isEmpty().bail().custom((userId) => {
+    if (userId.match(/^[0-9a-zA-Z_]+$/)) return true
+    return false
+  })
+], profileController.getProfile.bind(profileController))
 
 module.exports = router
