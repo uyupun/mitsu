@@ -1,7 +1,7 @@
 const request = require('supertest')
 const server = require('../app')
 
-describe('get rules api', () => {
+describe('get avatars api', () => {
   describe('normal', () => {
     test('status', async () => {
       const token = (await request(server).post('/api/v1/login').send({ userId: 'foo', password: 'password' })).body.token
