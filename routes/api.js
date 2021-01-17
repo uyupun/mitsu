@@ -5,6 +5,7 @@ const authController = require('../controllers/auth-controller')
 const worldController = require('../controllers/world-controller')
 const rulesController = require('../controllers/rules-controller')
 const avatarsController = require('../controllers/avatars-controller')
+const ranksController = require('../controllers/ranks-controller')
 const profileController = require('../controllers/profile-controller')
 const auth = require('../libs/auth')
 
@@ -81,14 +82,19 @@ router.get('/join', [
  */
 router.get('/search', [
   verifyToken,
-  query('page').not().isEmpty().isInt({ min: 1 }),
-  query('limit').not().isEmpty().isInt({ min: 1, max: 20 })
+  query('page').not().isEmpty().bail().isInt({ min: 1 }),
+  query('limit').not().isEmpty().bail().isInt({ min: 1, max: 20 })
 ], worldController.search.bind(worldController))
 
 /**
  * アバターの取得
  */
 router.get('/avatars', verifyToken, avatarsController.getAvatars.bind(avatarsController))
+
+/**
+ * ランクの取得
+ */
+router.get('/ranks', verifyToken, ranksController.getRanks.bind(ranksController))
 
 /**
  * プロフィールの取得
