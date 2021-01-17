@@ -5,6 +5,7 @@ const authController = require('../controllers/auth-controller')
 const worldController = require('../controllers/world-controller')
 const rulesController = require('../controllers/rules-controller')
 const avatarsController = require('../controllers/avatars-controller')
+const ranksController = require('../controllers/ranks-controller')
 const auth = require('../libs/auth')
 
 /**
@@ -88,5 +89,10 @@ router.get('/search', [
  * アバターの取得
  */
 router.get('/avatars', verifyToken, avatarsController.getAvatars.bind(avatarsController))
+
+/**
+ * ランクの取得
+ */
+router.get('/ranks', verifyToken, ranksController.getRanks.bind(ranksController))
 
 module.exports = router
