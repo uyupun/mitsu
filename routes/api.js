@@ -6,6 +6,7 @@ const worldController = require('../controllers/world-controller')
 const rulesController = require('../controllers/rules-controller')
 const avatarsController = require('../controllers/avatars-controller')
 const ranksController = require('../controllers/ranks-controller')
+const profileController = require('../controllers/profile-controller')
 const auth = require('../libs/auth')
 
 /**
@@ -94,5 +95,16 @@ router.get('/avatars', verifyToken, avatarsController.getAvatars.bind(avatarsCon
  * ランクの取得
  */
 router.get('/ranks', verifyToken, ranksController.getRanks.bind(ranksController))
+
+/**
+ * プロフィールの取得
+ */
+router.get('/profile', [
+  verifyToken,
+  query('userId').not().isEmpty().bail().custom((userId) => {
+    if (userId.match(/^[0-9a-zA-Z_]+$/)) return true
+    return false
+  })
+], profileController.getProfile.bind(profileController))
 
 module.exports = router
