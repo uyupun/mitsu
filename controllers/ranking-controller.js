@@ -1,17 +1,13 @@
-const { validationResult } = require('express-validator')
 const models = require('../models')
 const fs = require('fs')
 const ranks = JSON.parse(fs.readFileSync('controllers/ranks.json', 'utf-8'))
 
 class Ranking {
   async getRanking (req, res, next) {
-    const errors = validationResult(req)
-    if (!errors.isEmpty()) return res.status(400).json({ msg: 'ランキングのしゅとくにしっぱいしました' })
-
     const users = await models.User.findAll({
       order: [['rate', 'DESC']]
     })
-    if (!users) return res.status(400).json({ msg: 'ランキングのしゅとくにしっぱいしました' })
+    if (!users.length) return res.status(400).json({ msg: 'ランキングのしゅとくにしっぱいしました' })
     const ranking = users.slice(0, 10).map((user) => {
       return {
         userId: user.userId,
