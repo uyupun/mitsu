@@ -2,7 +2,7 @@ const models = require('../models')
 const fs = require('fs')
 const ranks = JSON.parse(fs.readFileSync('controllers/ranks.json', 'utf-8'))
 
-class Ranking {
+class RankingController {
   async getRanking (req, res, next) {
     const users = await models.User.findAll({
       order: [['rate', 'DESC']]
@@ -20,4 +20,4 @@ class Ranking {
   }
 }
 
-module.exports = new Ranking()
+module.exports = new RankingController()
