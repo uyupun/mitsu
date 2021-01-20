@@ -17,7 +17,7 @@ module.exports = {
         allowNull: false,
         type: Sequelize.STRING
       },
-      avatar_type: {
+      avatar_id: {
         allowNull: false,
         type: Sequelize.INTEGER,
         defaultValue: 1
