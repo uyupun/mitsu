@@ -8,6 +8,7 @@ const avatarsController = require('../controllers/avatars-controller')
 const ranksController = require('../controllers/ranks-controller')
 const profileController = require('../controllers/profile-controller')
 const rankingController = require('../controllers/ranking-controller')
+const skinsController = require('../controllers/skins-controller')
 const auth = require('../libs/auth')
 
 /**
@@ -112,5 +113,13 @@ router.get('/profile', [
  * ランキングの取得
  */
 router.get('/ranking', verifyToken, rankingController.getRanking.bind(rankingController))
+
+/**
+ * スキンの取得
+ */
+router.get('/skins', [
+  verifyToken,
+  query('role').not().isEmpty().bail().isIn([1, 2])
+], skinsController.getSkins.bind(skinsController))
 
 module.exports = router
