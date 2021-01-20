@@ -1,8 +1,8 @@
 const { validationResult } = require('express-validator')
 const models = require('../models')
 const fs = require('fs')
-const avatars = JSON.parse(fs.readFileSync('controllers/avatars.json', 'utf-8'))
-const ranks = JSON.parse(fs.readFileSync('controllers/ranks.json', 'utf-8'))
+const avatars = JSON.parse(fs.readFileSync('public/jsons/avatars.json', 'utf-8'))
+const ranks = JSON.parse(fs.readFileSync('public/jsons/ranks.json', 'utf-8'))
 
 class ProfileController {
   async getProfile (req, res, next) {
