@@ -28,6 +28,24 @@ class ProfileController {
       }
     })
   }
+
+  async updateProfile (req, res, next) {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) return res.status(400).json({ msg: 'プロフィールのへんこうにしっぱいしました' })
+
+    const user = await models.User.findOne({
+      where: {
+        userId: req.userId
+      }
+    })
+    if (!user) return res.status(400).json({ msg: 'プロフィールのへんこうにしっぱいしました' })
+
+    const avatar = avatars.find((avatar) => avatar.id === req.body.avatarId)
+    if (!avatar) return res.status(400).json({ msg: 'プロフィールのへんこうにしっぱいしました' })
+    if (req.body.avatarId) user.avatarId = avatar.id
+    user.save()
+    return res.status(200).json({})
+  }
 }
 
 module.exports = new ProfileController()

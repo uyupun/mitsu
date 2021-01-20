@@ -23,3 +23,27 @@ describe('get profile api', () => {
     })
   })
 })
+
+describe('update profile api', () => {
+  describe('normal', () => {
+    test('status', async () => {
+      const token = (await request(server).post('/api/v1/login').send({ userId: 'foo', password: 'password' })).body.token
+      const res = await request(server).patch('/api/v1/profile').set('Authorization', `Bearer ${token}`).send({ avatarId: 2 })
+      expect(res.statusCode).toBe(200)
+    })
+  })
+  describe('exception', () => {
+    test('status', async () => {
+      const token = (await request(server).post('/api/v1/login').send({ userId: 'foo', password: 'password' })).body.token
+      const res = await request(server).patch('/api/v1/profile').set('Authorization', `Bearer ${token}`).send({ avatarId: 0 })
+      expect(res.statusCode).toBe(400)
+    })
+    test('body', async () => {
+      const token = (await request(server).post('/api/v1/login').send({ userId: 'foo', password: 'password' })).body.token
+      const res = await request(server).patch('/api/v1/profile').set('Authorization', `Bearer ${token}`).send({ avatarId: 0 })
+      expect(res.body).toMatchObject({
+        msg: 'プロフィールのへんこうにしっぱいしました'
+      })
+    })
+  })
+})
