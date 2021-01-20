@@ -1,6 +1,6 @@
 const models = require('../models')
 const fs = require('fs')
-const ranks = JSON.parse(fs.readFileSync('controllers/ranks.json', 'utf-8'))
+const ranks = JSON.parse(fs.readFileSync('public/jsons/ranks.json', 'utf-8'))
 
 class RankingController {
   async getRanking (req, res, next) {

@@ -1,5 +1,5 @@
 const fs = require('fs')
-const ranks = JSON.parse(fs.readFileSync('controllers/ranks.json', 'utf-8'))
+const ranks = JSON.parse(fs.readFileSync('public/jsons/ranks.json', 'utf-8'))
 
 class RanksController {
   getRanks (req, res, next) {
