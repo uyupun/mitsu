@@ -114,7 +114,7 @@ router.get('/profile', [
  */
 router.patch('/profile', [
   verifyToken,
-  body('avatarId').not().isEmpty().bail().isInt({ min: 1, max: 6 })
+  body('avatarId').not().isEmpty().bail().isInt({ min: 1, max: 5 })
 ], profileController.updateProfile.bind(profileController))
 
 /**
