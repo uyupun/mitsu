@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "name": "スキン１",
+    "role": 1,
+    "image": "/images/skins/skin_sample.png"
+  },
+  {
+    "id": 2,
+    "name": "スキン２",
+    "role": 1,
+    "image": "/images/skins/skin_sample.png"
+  },
+  {
+    "id": 3,
+    "name": "スキン３",
+    "role": 1,
+    "image": "/images/skins/skin_sample.png"
+  },
+  {
+    "id": 4,
+    "name": "スキン４",
+    "role": 2,
+    "image": "/images/skins/skin_sample.png"
+  },
+  {
+    "id": 5,
+    "name": "スキン５",
+    "role": 2,
+    "image": "/images/skins/skin_sample.png"
+  },
+  {
+    "id": 6,
+    "name": "スキン５",
+    "role": 2,
+    "image": "/images/skins/skin_sample.png"
+  }
+]
