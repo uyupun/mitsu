@@ -42,7 +42,7 @@ class ProfileController {
 
     const avatar = avatars.find((avatar) => avatar.id === req.body.avatarId)
     if (!avatar) return res.status(400).json({ msg: 'プロフィールのへんこうにしっぱいしました' })
-    if (req.body.avatarId) user.avatarId = avatar.id
+    user.avatarId = avatar.id
     user.save()
     return res.status(200).json({})
   }
