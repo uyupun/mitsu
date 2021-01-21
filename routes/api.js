@@ -109,6 +109,14 @@ router.get('/profile', [
 ], profileController.getProfile.bind(profileController))
 
 /**
+ * プロフィールの変更
+ */
+router.patch('/profile', [
+  verifyToken,
+  body('avatarId').not().isEmpty().bail().isInt({ min: 1, max: 6 })
+], profileController.updateProfile.bind(profileController))
+
+/**
  * ランキングの取得
  */
 router.get('/ranking', verifyToken, rankingController.getRanking.bind(rankingController))
