@@ -22,6 +22,16 @@ module.exports = {
         type: Sequelize.INTEGER,
         defaultValue: 1
       },
+      skin_pekora_id: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        defaultValue: 1
+      },
+      skin_baikinkun_id: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        defaultValue: 1
+      },
       rate: {
         allowNull: false,
         type: Sequelize.INTEGER,

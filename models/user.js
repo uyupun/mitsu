@@ -17,6 +17,8 @@ module.exports = (sequelize, DataTypes) => {
     userId: DataTypes.STRING,
     password: DataTypes.STRING,
     avatarId: DataTypes.INTEGER,
+    skinPekoraId: DataTypes.INTEGER,
+    skinBaikinkunId: DataTypes.INTEGER,
     rate: DataTypes.INTEGER,
     win: DataTypes.INTEGER,
     lose: DataTypes.INTEGER
