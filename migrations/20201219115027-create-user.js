@@ -30,7 +30,7 @@ module.exports = {
       skin_baikinkun_id: {
         allowNull: false,
         type: Sequelize.INTEGER,
-        defaultValue: 1
+        defaultValue: 4
       },
       rate: {
         allowNull: false,
