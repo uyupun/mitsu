@@ -10,6 +10,8 @@ module.exports = {
         user_id: 'foo',
         password: hashedPassword,
         avatar_id: 1,
+        skin_pekora_id: 1,
+        skin_baikinkun_id: 4,
         rate: Math.floor(Math.random() * 2000),
         win: 10,
         lose: 0
@@ -18,6 +20,8 @@ module.exports = {
         user_id: 'bar',
         password: hashedPassword,
         avatar_id: 1,
+        skin_pekora_id: 1,
+        skin_baikinkun_id: 4,
         rate: Math.floor(Math.random() * 2000),
         win: 9,
         lose: 1
@@ -26,6 +30,8 @@ module.exports = {
         user_id: 'baz',
         password: hashedPassword,
         avatar_id: 1,
+        skin_pekora_id: 1,
+        skin_baikinkun_id: 4,
         rate: Math.floor(Math.random() * 2000),
         win: 8,
         lose: 2
@@ -34,6 +40,8 @@ module.exports = {
         user_id: 'qux',
         password: hashedPassword,
         avatar_id: 1,
+        skin_pekora_id: 1,
+        skin_baikinkun_id: 4,
         rate: Math.floor(Math.random() * 2000),
         win: 7,
         lose: 3

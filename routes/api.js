@@ -130,4 +130,13 @@ router.get('/skins', [
   query('role').not().isEmpty().bail().isIn([1, 2])
 ], skinsController.getSkins.bind(skinsController))
 
+/**
+ * スキンの取得
+ */
+router.patch('/skins', [
+  verifyToken,
+  body('id').not().isEmpty().bail().isInt({ min: 1, max: 6 }),
+  body('role').not().isEmpty().bail().isIn([1, 2])
+], skinsController.updateSkins.bind(skinsController))
+
 module.exports = router
