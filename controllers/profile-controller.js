@@ -19,6 +19,7 @@ class ProfileController {
     const avatar = avatars.find((avatar) => avatar.id === user.avatarId)
     const rank = ranks.find((rank) => rank.rate.lower <= user.rate && rank.rate.upper >= user.rate)
     return res.status(200).json({
+      avatarId: user.avatarId,
       avatar: avatar.image,
       rate: user.rate,
       rank: rank.image,
