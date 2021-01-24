@@ -26,6 +26,10 @@ class ProfileController {
       history: {
         win: user.win,
         lose: user.lose
+      },
+      skin: {
+        pekoraId: user.skinPekoraId,
+        baikinkunId: user.skinBaikinkunId
       }
     })
   }
