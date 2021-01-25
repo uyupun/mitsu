@@ -5,6 +5,8 @@ const {
   PLAYER_PEKORA,
   PLAYER_BAIKINKUN
 } = require('./constants')
+const Helpers = require('./helpers')
+const models = require('../models')
 
 /**
  * ゲームの進行を担当する
@@ -188,10 +190,12 @@ class Dealer {
       if (Judge.isHit(pekoraPositions, baikinkunPositions)) {
         world.setStatus(this._state.id, worldStatus.judged)
         this._updateBaseWordEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN)
+        this._calculateRate(payload.worldId, PLAYER_BAIKINKUN)
         return this._judgeEmitter(PLAYER_BAIKINKUN)
       } else if (Judge.isGoal(pekoraPositions.x)) {
         world.setStatus(this._state.id, worldStatus.judged)
         this._updateBaseWordEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN)
+        this._calculateRate(payload.worldId, PLAYER_PEKORA)
         return this._judgeEmitter(PLAYER_PEKORA)
       }
       this._state.turn.increment()
@@ -219,6 +223,32 @@ class Dealer {
         this._io.to(this._state.id).emit('notice_disconnect', {})
       })
     })
+  }
+
+  /**
+   * レートの計算
+   *
+   * @param {*} worldId
+   * @param {*} winnerRole
+   */
+  async _calculateRate (worldId, winnerRole) {
+    const players = world.getPlayers(worldId)
+    const userPekora = await models.User.findOne({ where: { userId: players[PLAYER_PEKORA] } })
+    const userBaikinkun = await models.User.findOne({ where: { userId: players[PLAYER_BAIKINKUN] } })
+
+    if (winnerRole === PLAYER_PEKORA) {
+      userPekora.rate = Helpers.calculateEloRating(userPekora.rate, userBaikinkun.rate)
+      userBaikinkun.rate = Helpers.calculateEloRating(userPekora.rate, userBaikinkun.rate, false)
+      userPekora.win += 1
+      userBaikinkun.lose += 1
+    } else {
+      userPekora.rate = Helpers.calculateEloRating(userBaikinkun.rate, userPekora.rate)
+      userBaikinkun.rate = Helpers.calculateEloRating(userBaikinkun.rate, userPekora.rate, false)
+      userPekora.lose += 1
+      userBaikinkun.win += 1
+    }
+    userPekora.save()
+    userBaikinkun.save()
   }
 }
 
