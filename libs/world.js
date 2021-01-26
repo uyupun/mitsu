@@ -186,6 +186,15 @@ class World {
     }
     return { page, limit, total: states.length, worlds }
   }
+
+  /**
+   * プレイヤーの取得
+   */
+  getPlayers (worldId) {
+    const state = this.find(worldId)
+    if (!state) throw new Error('world is not found exception')
+    return state.players
+  }
 }
 
 module.exports = new World()
