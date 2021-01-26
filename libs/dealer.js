@@ -190,12 +190,12 @@ class Dealer {
       if (Judge.isHit(pekoraPositions, baikinkunPositions)) {
         world.setStatus(this._state.id, worldStatus.judged)
         this._updateBaseWordEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN)
-        this._calculateRate(payload.worldId, PLAYER_BAIKINKUN)
+        this._calcRate(payload.worldId, PLAYER_BAIKINKUN)
         return this._judgeEmitter(PLAYER_BAIKINKUN)
       } else if (Judge.isGoal(pekoraPositions.x)) {
         world.setStatus(this._state.id, worldStatus.judged)
         this._updateBaseWordEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN)
-        this._calculateRate(payload.worldId, PLAYER_PEKORA)
+        this._calcRate(payload.worldId, PLAYER_PEKORA)
         return this._judgeEmitter(PLAYER_PEKORA)
       }
       this._state.turn.increment()
@@ -231,24 +231,24 @@ class Dealer {
    * @param {*} worldId
    * @param {*} winnerRole
    */
-  async _calculateRate (worldId, winnerRole) {
+  async _calcRate (worldId, winnerRole) {
     const players = world.getPlayers(worldId)
-    const userPekora = await models.User.findOne({ where: { userId: players[PLAYER_PEKORA] } })
-    const userBaikinkun = await models.User.findOne({ where: { userId: players[PLAYER_BAIKINKUN] } })
+    const pekora = await models.User.findOne({ where: { userId: players[PLAYER_PEKORA] } })
+    const baikinkun = await models.User.findOne({ where: { userId: players[PLAYER_BAIKINKUN] } })
 
     if (winnerRole === PLAYER_PEKORA) {
-      userPekora.rate = Helpers.calculateEloRating(userPekora.rate, userBaikinkun.rate)
-      userBaikinkun.rate = Helpers.calculateEloRating(userPekora.rate, userBaikinkun.rate, false)
-      userPekora.win += 1
-      userBaikinkun.lose += 1
+      pekora.rate = Helpers.calcEloRating(pekora.rate, baikinkun.rate)
+      baikinkun.rate = Helpers.calcEloRating(pekora.rate, baikinkun.rate, false)
+      pekora.win += 1
+      baikinkun.lose += 1
     } else {
-      userPekora.rate = Helpers.calculateEloRating(userBaikinkun.rate, userPekora.rate)
-      userBaikinkun.rate = Helpers.calculateEloRating(userBaikinkun.rate, userPekora.rate, false)
-      userPekora.lose += 1
-      userBaikinkun.win += 1
+      pekora.rate = Helpers.calcEloRating(baikinkun.rate, pekora.rate)
+      baikinkun.rate = Helpers.calcEloRating(baikinkun.rate, pekora.rate, false)
+      pekora.lose += 1
+      baikinkun.win += 1
     }
-    userPekora.save()
-    userBaikinkun.save()
+    pekora.save()
+    baikinkun.save()
   }
 }
 

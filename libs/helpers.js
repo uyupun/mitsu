@@ -32,14 +32,13 @@ class Helpers {
    * @param {*} ra
    * @param {*} rb
    */
-  static calculateEloRating (ra, rb, isWin = true, k = 32) {
+  static calcEloRating (ra, rb, isWin = true, k = 32) {
     if (isWin) {
       const rate = 1 / (1 + Math.pow(10, ((rb - ra) / 400)))
       return Math.round(ra + k * (1 - rate))
-    } else {
-      const rate = 1 / (1 + Math.pow(10, ((ra - rb) / 400)))
-      return Math.round(rb + k * (0 - rate))
     }
+    const rate = 1 / (1 + Math.pow(10, ((ra - rb) / 400)))
+    return Math.round(rb + k * (0 - rate))
   }
 }
 

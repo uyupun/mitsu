@@ -192,6 +192,7 @@ class World {
    */
   getPlayers (worldId) {
     const state = this.find(worldId)
+    if (!state) throw new Error('world is not found exception')
     return state.players
   }
 }
