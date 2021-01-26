@@ -28,7 +28,7 @@ class ProfileController {
         lose: user.lose
       },
       skin: {
-        pekoraId: user.skinPekoraId,
+        usagisanId: user.skinPekoraId,
         baikinkunId: user.skinBaikinkunId
       }
     })

@@ -22,7 +22,7 @@ describe('get profile api', () => {
         lose: expect.any(Number)
       })
       expect(res.body.skin).toMatchObject({
-        pekoraId: expect.any(Number),
+        usagisanId: expect.any(Number),
         baikinkunId: expect.any(Number)
       })
     })
