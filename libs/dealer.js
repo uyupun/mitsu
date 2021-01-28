@@ -36,12 +36,16 @@ class Dealer {
    * @param {*} payload
    */
   _join (socket, payload) {
-    if (world.getStatus(this._state.id) === worldStatus.disconnected) return socket.emit('notice_disconnect', {})
-    const isValid = world.isValidPlayer(payload.worldId, payload.token, payload.role)
-    if (!isValid) return this._invalidPlayerEmitter(socket)
-    socket.join(this._state.id)
-    world.setStatus(this._state.id, worldStatus.waiting)
-    this._setup(socket, payload.role)
+    try {
+      if (world.getStatus(this._state.id) === worldStatus.disconnected) return socket.emit('notice_disconnect', {})
+      const isValid = world.isValidPlayer(payload.worldId, payload.token, payload.role)
+      if (!isValid) return this._invalidPlayerEmitter(socket)
+      socket.join(this._state.id)
+      world.setStatus(this._state.id, worldStatus.waiting)
+      this._setup(socket, payload.role)
+    } catch (e) {
+      this._io.to(this._state.id).emit('notice_disconnect', {})
+    }
   }
 
   /**
@@ -49,15 +53,19 @@ class Dealer {
    */
   async _setup (socket, role) {
     await this._io.of('/').in(this._state.id).clients(async (_, clients) => {
-      if (clients.length !== 2) return
-      world.setStatus(this._state.id, worldStatus.playing)
-      this._feedbackPositionEmitter(PLAYER_PEKORA)
-      this._feedbackPositionEmitter(PLAYER_BAIKINKUN)
-      this._getWordsAndBaseWordEmitter(PLAYER_PEKORA)
-      this._getTurnEmitter()
-      this._getCountdownEmitter(socket, role)
-      this._declareAttackEmitter(socket, role)
-      this._declareWaitEmitter(socket, role)
+      try {
+        if (clients.length !== 2) return
+        world.setStatus(this._state.id, worldStatus.playing)
+        this._feedbackPositionEmitter(PLAYER_PEKORA)
+        this._feedbackPositionEmitter(PLAYER_BAIKINKUN)
+        this._getWordsAndBaseWordEmitter(PLAYER_PEKORA)
+        this._getTurnEmitter()
+        this._getCountdownEmitter(socket, role)
+        this._declareAttackEmitter(socket, role)
+        this._declareWaitEmitter(socket, role)
+      } catch (e) {
+        this._io.to(this._state.id).emit('notice_disconnect', {})
+      }
     })
   }
 
@@ -181,32 +189,36 @@ class Dealer {
    */
   _attackListener (socket) {
     socket.on('attack', (payload) => {
-      const isValid = world.isValidPlayer(payload.worldId, payload.token, payload.role)
-      if (!isValid) return this._invalidPlayerEmitter(socket)
-      this._state.field.move(payload.role, payload.baseWord.moveX, payload.baseWord.moveY)
-      this._feedbackPositionEmitter(payload.role)
-      const pekoraPositions = this._state.field.getPositions(PLAYER_PEKORA)
-      const baikinkunPositions = this._state.field.getPositions(PLAYER_BAIKINKUN)
-      if (Judge.isHit(pekoraPositions, baikinkunPositions)) {
-        world.setStatus(this._state.id, worldStatus.judged)
+      try {
+        const isValid = world.isValidPlayer(payload.worldId, payload.token, payload.role)
+        if (!isValid) return this._invalidPlayerEmitter(socket)
+        this._state.field.move(payload.role, payload.baseWord.moveX, payload.baseWord.moveY)
+        this._feedbackPositionEmitter(payload.role)
+        const pekoraPositions = this._state.field.getPositions(PLAYER_PEKORA)
+        const baikinkunPositions = this._state.field.getPositions(PLAYER_BAIKINKUN)
+        if (Judge.isHit(pekoraPositions, baikinkunPositions)) {
+          world.setStatus(this._state.id, worldStatus.judged)
+          this._updateBaseWordEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN)
+          this._calcRate(payload.worldId, PLAYER_BAIKINKUN)
+          return this._judgeEmitter(PLAYER_BAIKINKUN)
+        } else if (Judge.isGoal(pekoraPositions.x)) {
+          world.setStatus(this._state.id, worldStatus.judged)
+          this._updateBaseWordEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN)
+          this._calcRate(payload.worldId, PLAYER_PEKORA)
+          return this._judgeEmitter(PLAYER_PEKORA)
+        }
+        this._state.turn.increment()
+        this._getTurnEmitter()
+        this._getCountdownEmitter(socket, payload.role)
+        this._state.word.setBaseWord(payload.role, payload.baseWord)
         this._updateBaseWordEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN)
-        this._calcRate(payload.worldId, PLAYER_BAIKINKUN)
-        return this._judgeEmitter(PLAYER_BAIKINKUN)
-      } else if (Judge.isGoal(pekoraPositions.x)) {
-        world.setStatus(this._state.id, worldStatus.judged)
-        this._updateBaseWordEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN)
-        this._calcRate(payload.worldId, PLAYER_PEKORA)
-        return this._judgeEmitter(PLAYER_PEKORA)
+        if (this._state.turn.count <= 2) this._getWordsAndBaseWordEmitter(PLAYER_BAIKINKUN)
+        else this._getWordsEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN)
+        this._declareAttackEmitter(socket, payload.role)
+        this._declareWaitEmitter(socket, payload.role)
+      } catch (e) {
+        this._io.to(this._state.id).emit('notice_disconnect', {})
       }
-      this._state.turn.increment()
-      this._getTurnEmitter()
-      this._getCountdownEmitter(socket, payload.role)
-      this._state.word.setBaseWord(payload.role, payload.baseWord)
-      this._updateBaseWordEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN)
-      if (this._state.turn.count <= 2) this._getWordsAndBaseWordEmitter(PLAYER_BAIKINKUN)
-      else this._getWordsEmitter(payload.role === PLAYER_PEKORA ? PLAYER_PEKORA : PLAYER_BAIKINKUN)
-      this._declareAttackEmitter(socket, payload.role)
-      this._declareWaitEmitter(socket, payload.role)
     })
   }
 
@@ -217,11 +229,15 @@ class Dealer {
    */
   _noticeDisconnectListener (socket) {
     socket.on('disconnect', () => {
-      this._io.of('/').in(this._state.id).clients((_, clients) => {
-        if (clients.length === 2) return
-        world.setStatus(this._state.id, worldStatus.disconnected)
+      try {
+        this._io.of('/').in(this._state.id).clients((_, clients) => {
+          if (clients.length === 2) return
+          world.setStatus(this._state.id, worldStatus.disconnected)
+          this._io.to(this._state.id).emit('notice_disconnect', {})
+        })
+      } catch (e) {
         this._io.to(this._state.id).emit('notice_disconnect', {})
-      })
+      }
     })
   }
 
@@ -232,23 +248,27 @@ class Dealer {
    * @param {*} winnerRole
    */
   async _calcRate (worldId, winnerRole) {
-    const players = world.getPlayers(worldId)
-    const pekora = await models.User.findOne({ where: { userId: players[PLAYER_PEKORA] } })
-    const baikinkun = await models.User.findOne({ where: { userId: players[PLAYER_BAIKINKUN] } })
+    try {
+      const players = world.getPlayers(worldId)
+      const pekora = await models.User.findOne({ where: { userId: players[PLAYER_PEKORA] } })
+      const baikinkun = await models.User.findOne({ where: { userId: players[PLAYER_BAIKINKUN] } })
 
-    if (winnerRole === PLAYER_PEKORA) {
-      pekora.rate = Helpers.calcEloRating(pekora.rate, baikinkun.rate)
-      baikinkun.rate = Helpers.calcEloRating(pekora.rate, baikinkun.rate, false)
-      pekora.win += 1
-      baikinkun.lose += 1
-    } else {
-      pekora.rate = Helpers.calcEloRating(baikinkun.rate, pekora.rate)
-      baikinkun.rate = Helpers.calcEloRating(baikinkun.rate, pekora.rate, false)
-      pekora.lose += 1
-      baikinkun.win += 1
+      if (winnerRole === PLAYER_PEKORA) {
+        pekora.rate = Helpers.calcEloRating(pekora.rate, baikinkun.rate)
+        baikinkun.rate = Helpers.calcEloRating(pekora.rate, baikinkun.rate, false)
+        pekora.win += 1
+        baikinkun.lose += 1
+      } else {
+        pekora.rate = Helpers.calcEloRating(baikinkun.rate, pekora.rate)
+        baikinkun.rate = Helpers.calcEloRating(baikinkun.rate, pekora.rate, false)
+        pekora.lose += 1
+        baikinkun.win += 1
+      }
+      pekora.save()
+      baikinkun.save()
+    } catch (e) {
+      this._io.to(this._state.id).emit('notice_disconnect', {})
     }
-    pekora.save()
-    baikinkun.save()
   }
 }
 
