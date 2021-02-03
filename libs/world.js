@@ -107,9 +107,11 @@ class World {
     const state = this.find(worldId)
     if (!state) throw new Error('world id not found exception')
     if (!state.players[PLAYER_PEKORA]) {
+      if (state.players[PLAYER_BAIKINKUN] === userId) throw new Error('the same user joined')
       state.players[PLAYER_PEKORA] = userId
       return PLAYER_PEKORA
     }
+    if (state.players[PLAYER_PEKORA] === userId) throw new Error('the same user joined')
     state.players[PLAYER_BAIKINKUN] = userId
     return PLAYER_BAIKINKUN
   }
