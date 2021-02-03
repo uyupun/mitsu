@@ -36,16 +36,12 @@ class Dealer {
    * @param {*} payload
    */
   _join (socket, payload) {
-    try {
-      if (world.getStatus(this._state.id) === worldStatus.disconnected) return socket.emit('notice_disconnect', {})
-      const isValid = world.isValidPlayer(payload.worldId, payload.token, payload.role)
-      if (!isValid) return this._invalidPlayerEmitter(socket)
-      socket.join(this._state.id)
-      world.setStatus(this._state.id, worldStatus.waiting)
-      this._setup(socket, payload.role)
-    } catch (e) {
-      this._io.to(this._state.id).emit('notice_disconnect', {})
-    }
+    if (world.getStatus(this._state.id) === worldStatus.disconnected) return socket.emit('notice_disconnect', {})
+    const isValid = world.isValidPlayer(payload.worldId, payload.token, payload.role)
+    if (!isValid) return this._invalidPlayerEmitter(socket)
+    socket.join(this._state.id)
+    world.setStatus(this._state.id, worldStatus.waiting)
+    this._setup(socket, payload.role)
   }
 
   /**
@@ -53,19 +49,15 @@ class Dealer {
    */
   async _setup (socket, role) {
     await this._io.of('/').in(this._state.id).clients(async (_, clients) => {
-      try {
-        if (clients.length !== 2) return
-        world.setStatus(this._state.id, worldStatus.playing)
-        this._feedbackPositionEmitter(PLAYER_PEKORA)
-        this._feedbackPositionEmitter(PLAYER_BAIKINKUN)
-        this._getWordsAndBaseWordEmitter(PLAYER_PEKORA)
-        this._getTurnEmitter()
-        this._getCountdownEmitter(socket, role)
-        this._declareAttackEmitter(socket, role)
-        this._declareWaitEmitter(socket, role)
-      } catch (e) {
-        this._io.to(this._state.id).emit('notice_disconnect', {})
-      }
+      if (clients.length !== 2) return
+      world.setStatus(this._state.id, worldStatus.playing)
+      this._feedbackPositionEmitter(PLAYER_PEKORA)
+      this._feedbackPositionEmitter(PLAYER_BAIKINKUN)
+      this._getWordsAndBaseWordEmitter(PLAYER_PEKORA)
+      this._getTurnEmitter()
+      this._getCountdownEmitter(socket, role)
+      this._declareAttackEmitter(socket, role)
+      this._declareWaitEmitter(socket, role)
     })
   }
 
@@ -229,15 +221,11 @@ class Dealer {
    */
   _noticeDisconnectListener (socket) {
     socket.on('disconnect', () => {
-      try {
-        this._io.of('/').in(this._state.id).clients((_, clients) => {
-          if (clients.length === 2) return
-          world.setStatus(this._state.id, worldStatus.disconnected)
-          this._io.to(this._state.id).emit('notice_disconnect', {})
-        })
-      } catch (e) {
+      this._io.of('/').in(this._state.id).clients((_, clients) => {
+        if (clients.length === 2) return
+        world.setStatus(this._state.id, worldStatus.disconnected)
         this._io.to(this._state.id).emit('notice_disconnect', {})
-      }
+      })
     })
   }
 
