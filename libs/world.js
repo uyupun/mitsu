@@ -78,7 +78,7 @@ class World {
    * @param {*} id
    */
   remove (id) {
-    const idx = this._states.findIndex((state) => state.id === id)
+    const idx = this._states?.findIndex((state) => state.id === id)
     if (idx === -1) return
     this._states.splice(idx, 1)
   }
