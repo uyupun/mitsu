@@ -1,4 +1,5 @@
 const { customAlphabet } = require('nanoid')
+const request = require('request')
 
 class Helpers {
   /**
@@ -39,6 +40,21 @@ class Helpers {
     }
     const rate = 1 / (1 + Math.pow(10, ((ra - rb) / 400)))
     return Math.round(rb + k * (0 - rate))
+  }
+
+  /**
+   * リクエストのラッパー
+   */
+  static request (options) {
+    return new Promise((resolve, reject) => {
+      request(options, (error, res, body) => {
+        if (!error && res.statusCode === 200) {
+          resolve(body)
+        } else {
+          reject(error)
+        }
+      })
+    })
   }
 }
 

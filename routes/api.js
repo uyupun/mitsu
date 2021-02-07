@@ -9,6 +9,7 @@ const ranksController = require('../controllers/ranks-controller')
 const profileController = require('../controllers/profile-controller')
 const rankingController = require('../controllers/ranking-controller')
 const skinsController = require('../controllers/skins-controller')
+const InquiryController = require('../controllers/inquiry-controller')
 const auth = require('../libs/auth')
 
 /**
@@ -138,5 +139,15 @@ router.patch('/skins', [
   body('id').not().isEmpty().bail().isInt({ min: 1, max: 6 }),
   body('role').not().isEmpty().bail().isIn([1, 2])
 ], skinsController.updateSkins.bind(skinsController))
+
+/**
+ * 問い合わせ
+ */
+router.post('/inquiry', [
+  verifyToken,
+  body('content').not().isEmpty().bail().isString().bail().isLength({ min: 1, max: 1000 }),
+  body('email').not().isEmpty().bail().isEmail(),
+  body('categoryId').not().isEmpty().bail().isInt()
+], InquiryController.inquire.bind(InquiryController))
 
 module.exports = router
